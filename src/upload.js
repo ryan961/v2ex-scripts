@@ -1,3 +1,4 @@
+import { t } from "./i18n.js";
 import { element, modal, owned, safeURL } from "./dom.js";
 import { DEFAULT_IMGUR_CLIENT_ID } from "./storage.js";
 
@@ -20,14 +21,13 @@ export function replacePlaceholder(textarea, marker, replacement) {
 
 export function uploadImage(file, clientId = DEFAULT_IMGUR_CLIENT_ID, request = GM_xmlhttpRequest) {
   clientId ||= DEFAULT_IMGUR_CLIENT_ID;
-  if (!/^[a-z0-9]{1,64}$/i.test(clientId))
-    return Promise.reject(new Error("Invalid Imgur Client ID."));
+  if (!/^[a-z0-9]{1,64}$/i.test(clientId)) return Promise.reject(new Error(t("invalidClient")));
   if (
     !/^image\/(png|jpeg|gif|webp)$/.test(file.type) ||
     file.size > 10 * 1024 * 1024 ||
     file.size === 0
   ) {
-    return Promise.reject(new Error("Use a PNG, JPEG, GIF or WebP image up to 10 MB."));
+    return Promise.reject(new Error(t("imageFormat")));
   }
   return new Promise((resolve, reject) => {
     const data = new FormData();
@@ -49,14 +49,17 @@ export function uploadImage(file, clientId = DEFAULT_IMGUR_CLIENT_ID, request = 
               .exec(response.responseHeaders ?? "")?.[1]
               ?.trim();
             const delay = Number(retry) > 0 ? Number(retry) * 1000 : Date.parse(retry) - Date.now();
-            const error = new Error(
-              "Imgur rate limit reached. Upload queue stopped; no automatic retry.",
-            );
+            const error = new Error(t("imgurRateLimit"));
             error.rateLimited = true;
             error.retryAt = Date.now() + (Number.isFinite(delay) && delay > 0 ? delay : 3_600_000);
             throw error;
           }
-          const body = JSON.parse(response.responseText);
+          let body;
+          try {
+            body = JSON.parse(response.responseText);
+          } catch {
+            throw new Error(t("imgurResponse"));
+          }
           const link = safeURL(body.data?.link, "https://i.imgur.com", true);
           if (
             response.status < 200 ||
@@ -65,7 +68,7 @@ export function uploadImage(file, clientId = DEFAULT_IMGUR_CLIENT_ID, request = 
             !link ||
             new URL(link).hostname !== "i.imgur.com"
           ) {
-            throw new Error(`Imgur upload failed (HTTP ${response.status}).`);
+            throw new Error(t("imgurHTTP", response.status));
           }
           resolve({
             link,
@@ -77,23 +80,18 @@ export function uploadImage(file, clientId = DEFAULT_IMGUR_CLIENT_ID, request = 
           reject(error);
         }
       },
-      onerror: () => reject(new Error("Imgur network error.")),
-      ontimeout: () =>
-        reject(
-          new Error(
-            "Imgur upload timed out. Check Imgur before retrying; it may have received the image.",
-          ),
-        ),
-      onabort: () => reject(new Error("Imgur upload aborted.")),
+      onerror: () => reject(new Error(t("imgurNetwork"))),
+      ontimeout: () => reject(new Error(t("imgurTimeout"))),
+      onabort: () => reject(new Error(t("imgurAborted"))),
     });
   });
 }
 
 export function openUploadHistory(store) {
-  const dialog = modal("\u4e0a\u4f20\u8bb0\u5f55");
+  const dialog = modal(t("uploadHistory"));
   const content = element("div", undefined, "v2p-topic-preview");
   const records = store.uploads();
-  if (!records.length) content.append(element("p", "\u6682\u65e0\u4e0a\u4f20\u8bb0\u5f55\u3002"));
+  if (!records.length) content.append(element("p", t("noUploads")));
   for (const record of records) {
     const row = element("div", undefined, "cell");
     row.append(element("p", `${record.createdAt} · ${record.fileName}`));
@@ -106,7 +104,7 @@ export function openUploadHistory(store) {
       row.append(link);
     }
     if (/^[a-z0-9]+$/i.test(record.deleteHash ?? "")) {
-      const link = element("a", "\u5220\u9664\u56fe\u7247");
+      const link = element("a", t("deleteImage"));
       link.href = `https://imgur.com/delete/${record.deleteHash}`;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
@@ -137,12 +135,12 @@ export function initUpload(options, store, request = GM_xmlhttpRequest) {
   });
   const messages = element("div");
   messages.setAttribute("aria-live", "polite");
-  const pick = owned(element("a", " + \u63D2\u5165\u56FE\u7247", "vr_upload_image"));
+  const pick = owned(element("a", ` + ${t("insertImage")}`, "vr_upload_image"));
   pick.tabIndex = 0;
   pick.setAttribute("role", "button");
-  pick.setAttribute("aria-label", "Upload images to Imgur");
+  pick.setAttribute("aria-label", t("uploadToImgur"));
   pick.style.paddingLeft = "10px";
-  pick.title = "Uploads images to public Imgur hosting.";
+  pick.title = t("uploadToImgur");
   pick.addEventListener("click", () => input.click());
   pick.addEventListener("keydown", (event) => {
     if (event.key === "Enter") input.click();
@@ -160,11 +158,11 @@ export function initUpload(options, store, request = GM_xmlhttpRequest) {
     const images = [...files].filter((file) => file.type.startsWith("image/"));
     if (!images.length) return false;
     if (paused()) {
-      messages.textContent = "Imgur uploads paused after rate limiting. Try again later.";
+      messages.textContent = t("uploadPaused");
       return false;
     }
     if (images.length + pending > 10) {
-      messages.textContent = "Queue limit: 10 images. Wait for current uploads to finish.";
+      messages.textContent = t("queueLimit");
       return false;
     }
     for (const file of images) {
@@ -172,39 +170,37 @@ export function initUpload(options, store, request = GM_xmlhttpRequest) {
       const marker = `[vx-upload:${crypto.randomUUID()}]`;
       textarea.setRangeText(`\n${marker}\n`, textarea.selectionEnd, textarea.selectionEnd, "end");
       textarea.dispatchEvent(new Event("input", { bubbles: true }));
-      const row = element("p", `${file.name || "Pasted image"}: queued`);
+      const row = element("p", t("queued", file.name || t("pastedImage")));
       messages.append(row);
       while (messages.children.length > 20) messages.firstElementChild.remove();
       queue = queue.then(async () => {
         if (paused()) {
           replacePlaceholder(textarea, marker, "");
-          row.textContent = "Queued upload cancelled after rate limiting.";
+          row.textContent = t("cancelQueued");
           pending--;
           return;
         }
-        row.textContent = `${file.name || "Pasted image"}: uploading...`;
+        row.textContent = t("uploading", file.name || t("pastedImage"));
         try {
           const result = await uploadImage(file, options.imgurClientId, request);
           const replaced = replacePlaceholder(textarea, marker, result.link);
-          row.textContent = replaced ? "Uploaded: " : "Draft marker removed; copy this URL: ";
+          row.textContent = replaced ? t("uploaded") : t("draftMarkerRemoved");
           const link = element("a", result.link);
           link.href = result.link;
           link.target = "_blank";
           link.rel = "noopener noreferrer";
           row.append(link);
           if (result.deleteHash) {
-            const deletion = element("a", " Save deletion link");
+            const deletion = element("a", ` ${t("saveDelete")}`);
             deletion.href = `https://imgur.com/delete/${result.deleteHash}`;
             deletion.target = "_blank";
             deletion.rel = "noopener noreferrer";
             row.append(deletion);
           }
           try {
-            store.recordUpload({ ...result, fileName: file.name || "Pasted image" });
+            store.recordUpload({ ...result, fileName: file.name || t("pastedImage") });
           } catch {
-            row.append(
-              " Upload history could not be saved. Save this deletion link before leaving.",
-            );
+            row.append(` ${t("uploadRecordFailed")}`);
           }
         } catch (error) {
           if (error.rateLimited) {
@@ -216,7 +212,7 @@ export function initUpload(options, store, request = GM_xmlhttpRequest) {
             }
           }
           replacePlaceholder(textarea, marker, "");
-          row.textContent = `${file.name || "Pasted image"}: ${error.message}${error.rateLimited ? "" : " Select the file again to retry."}`;
+          row.textContent = `${file.name || t("pastedImage")}: ${error.message}${error.rateLimited ? "" : ` ${t("selectAgain")}`}`;
         } finally {
           pending--;
         }
@@ -249,9 +245,7 @@ export function initUpload(options, store, request = GM_xmlhttpRequest) {
       if (pending || /\[vx-upload:[^\]]+\]/.test(textarea.value)) {
         event.preventDefault();
         event.stopImmediatePropagation();
-        messages.append(
-          element("p", "Wait for uploads or remove unfinished upload markers before submitting."),
-        );
+        messages.append(element("p", t("finishUploads")));
       }
     },
     true,

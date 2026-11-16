@@ -1,6 +1,8 @@
+import { t } from "./i18n.js";
 import { button, element, matching, modal, owned, syncOnce } from "./dom.js";
 import { applyTheme } from "./theme.js";
 import { enhanceEmojis } from "./emoji.js";
+import { createReplyFolding } from "./folding.js";
 
 export function createTopics(options, themeCSS = "") {
   const seen = new WeakSet();
@@ -20,7 +22,7 @@ export function createTopics(options, themeCSS = "") {
         }
         if (!options.preview) continue;
         const trigger = owned(
-          button("\u9884\u89c8", () => {
+          button(t("preview"), () => {
             const dialog = modal(link.textContent);
             const titleLink = element("a", link.textContent, "v2p-topic-preview-title-link");
             titleLink.title = link.textContent;
@@ -28,7 +30,7 @@ export function createTopics(options, themeCSS = "") {
             titleLink.target = options.newTab ? "_blank" : "_self";
             titleLink.rel = "noopener noreferrer";
             dialog.title.replaceChildren(titleLink);
-            const original = element("a", "\u8fdb\u5165\u4e3b\u9898", "normal button special");
+            const original = element("a", t("openTopic"), "normal button special");
             original.href = url.href;
             original.target = options.newTab ? "_blank" : "_self";
             original.rel = "noopener noreferrer";
@@ -50,6 +52,7 @@ export function createTopics(options, themeCSS = "") {
                 style.textContent = themeCSS;
                 doc.head.append(style);
                 enhanceEmojis(doc);
+                createReplyFolding(options.autoFold, doc).enhance(doc);
                 syncOnce(doc);
               } catch {
                 /* A sign-in redirect may leave the same-origin frame. */

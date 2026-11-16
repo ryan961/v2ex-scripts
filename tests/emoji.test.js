@@ -24,7 +24,7 @@ test("emoji picker preserves the current selection and draft", async () => {
   const textarea = document.querySelector("textarea");
   textarea.setSelectionRange(7, 7);
   initEmoji({ emoji: true });
-  document.querySelector('[aria-label="Insert emoji"]').click();
+  document.querySelector('[aria-label="\u63d2\u5165\u8868\u60c5"]').click();
   assert.equal(document.querySelectorAll(".v2p-emoji-group").length, 5);
   const face = groups[1].items[0].value;
   const choice = [...document.querySelectorAll(".v2p-emoji")].find((node) => node.title === face);

@@ -1,6 +1,15 @@
+import { t } from "./i18n.js";
 import { computePosition, flip, offset, shift } from "@floating-ui/dom";
 import groups from "./vendor/polish/emoticons.json" with { type: "json" };
 import { button, element, matching, owned } from "./dom.js";
+
+const groupLabels = {
+  "\u6d41\u884c": "emojiPopular",
+  "\u5c0f\u9ec4\u8138": "emojiFaces",
+  "\u624b\u52bf": "emojiGestures",
+  "\u5e86\u795d": "emojiCelebration",
+  "\u5176\u4ed6": "emojiOther",
+};
 
 const pictures = new Map(
   groups
@@ -42,8 +51,8 @@ export function initEmoji(options) {
   const submit = textarea.form?.querySelector('input[type="submit"],button[type="submit"]');
   if (!submit) return;
   const trigger = owned(button("", () => {}));
-  trigger.setAttribute("aria-label", "Insert emoji");
-  trigger.title = "Insert emoji";
+  trigger.setAttribute("aria-label", t("insertEmoji"));
+  trigger.title = t("insertEmoji");
   trigger.innerHTML =
     '<span style="width:18px;height:18px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg></span>';
   submit.after(trigger);
@@ -77,7 +86,8 @@ export function initEmoji(options) {
       for (const group of groups) {
         const section = element("div", undefined, "v2p-emoji-group"),
           list = element("div", undefined, "v2p-emoji-list");
-        section.append(element("div", group.title, "v2p-emoji-title"), list);
+        const title = groupLabels[group.title] ? t(groupLabels[group.title]) : group.title;
+        section.append(element("div", title, "v2p-emoji-title"), list);
         for (const item of group.items) {
           const choice = element("span", item.image ? undefined : item.value, "v2p-emoji");
           choice.title = item.value;

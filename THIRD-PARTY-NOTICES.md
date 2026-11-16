@@ -8,6 +8,8 @@
 
 版权归 LeoKu 与贡献者所有，适用 [原始 MIT 许可](licenses/v2ex-polish-MIT.txt)。本仓库不包含字体文件，也不请求上游在线字体。
 
+长回复优化沿用同一版本的正文高度判定和折叠样式，将交互接入原始回复、追加回复和主题预览。
+
 ## V2EX.REP
 
 基于 [a5820a221d7832b340a26624b6e2211149ec6397](https://github.com/v2hot/v2ex.rep/tree/a5820a221d7832b340a26624b6e2211149ec6397)。`src/vendor/rep/content.scss` 来自上游样式文件；热评模块移植 `show-top-replies.ts` 和 `cloneReplyElement` 的结构与展示逻辑，上传入口沿用上游类名及布局。

@@ -10,6 +10,7 @@ import {
   rankReplies,
 } from "../src/replies.js";
 import { dom } from "./helpers.js";
+import { t } from "../src/i18n.js";
 
 const fixture = readFileSync(new URL("./fixtures/topic.html", import.meta.url), "utf8");
 
@@ -125,7 +126,111 @@ test("failed page stops automatic preloading and leaves manual retry available",
   assert.equal(module.replies.size, 3);
   assert.match(
     document.querySelector("[data-vx-paging]").textContent,
-    /Could not load replies: offline/,
+    new RegExp(t("pageFailed", 2, "offline")),
   );
   assert.equal(document.querySelector("[data-vx-paging] button").disabled, false);
+});
+
+test("reply pagination follows reading position and shares in-flight page loads", async () => {
+  const { window } = dom(
+    fixture
+      .replace('href="/t/123?p=3">3</a>', 'href="/t/123?p=4">4</a>')
+      .replace(
+        '</div><div class="box"><form',
+        '<div class="cell ps_container"><a class="page_current" href="?p=1">1</a></div></div><div class="box"><form',
+      ),
+  );
+  const calls = [],
+    jumps = [];
+  let resume;
+  window.HTMLElement.prototype.scrollIntoView = function () {
+    jumps.push(Number(this.dataset.vxPageStart));
+  };
+  const module = initReplies({
+    options: { hotReplies: false, preloadPages: 2 },
+    enhance: () => {},
+    getDocument: async (url) => {
+      const page = Number(new URL(url).searchParams.get("p"));
+      calls.push(page);
+      if (page === 2) await new Promise((resolve) => (resume = resolve));
+      return new DOMParser().parseFromString(
+        `<div id="Main"><div class="cell" id="r_${page * 100}"><span class="no">${page * 100}</span></div></div>`,
+        "text/html",
+      );
+    },
+  });
+  const automatic = module.preload();
+  const jump = module.paging.navigate(2);
+  await Promise.resolve();
+  assert.deepEqual(calls, [2]);
+  resume();
+  await Promise.all([automatic, jump]);
+  assert.deepEqual(calls, [2, 3]);
+  assert.deepEqual(jumps, [2]);
+  const bottom = module.paging.bottom;
+  assert.ok(bottom.matches(".ps_container"));
+  assert.equal(bottom, document.querySelector("#replies").lastElementChild);
+  bottom.querySelector('[data-vx-direction="1"]').click();
+  assert.deepEqual(jumps, [2, 3]);
+  bottom.querySelector('[data-vx-page="1"]').click();
+  assert.deepEqual(jumps, [2, 3, 1]);
+  for (const [index, marker] of [...document.querySelectorAll("[data-vx-page-start]")].entries())
+    marker.getBoundingClientRect = () => ({ top: index === 2 ? 30 : -100 });
+  module.paging.trackReading();
+  assert.equal(bottom.querySelector('[aria-current="page"]').textContent, "3");
+  await module.paging.navigate(4);
+  assert.deepEqual(calls, [2, 3, 4]);
+  assert.deepEqual(jumps, [2, 3, 1, 4]);
+  assert.equal(bottom.querySelector('[aria-current="page"]').textContent, "4");
+  assert.equal(bottom.previousElementSibling.previousElementSibling.id, "r_400");
+  assert.equal(location.search, "");
+  window.close();
+});
+
+test("imported account actions call only the matching native callbacks after confirmation", async () => {
+  const { window } = dom('<div id="Main"></div>');
+  const [row] = new DOMParser().parseFromString(
+    `<div class="cell" id="r_201"><strong><a href="/member/Alice">Alice</a></strong>
+    <div class="thank_area" id="thank_area_201">
+      <a href="#;" onclick="ignoreReply(201, 42)">Hide</a>
+      <a href="#;" onclick="if (confirm('Spend 2 copper?')) thankReply(201)">Thank</a>
+    </div><a href="#;" onclick="replyOne('Alice', 201)">Reply</a>
+    <div class="reply_content"><a href="#r_201" onclick="thankReply(201)">Fake action</a></div></div>`,
+    "text/html",
+  ).body.children;
+  const imported = importReply(row, "https://www.v2ex.com/t/123?p=3");
+  document.querySelector("#Main").append(imported);
+  const calls = [],
+    notices = [];
+  let confirmed = false;
+  window.confirm = (notice) => (notices.push(notice), confirmed);
+  enhanceReplyActions(document, {
+    fetchOnce: async () => "456",
+    ignoreReply: (id, token) => calls.push(["hide", id, token]),
+    thankReply: async (id) => calls.push(["thank", id]),
+    replyOne: (name, id) => calls.push(["reply", name, id]),
+  });
+  const [hide, thank, reply] = imported.querySelectorAll('a[href$="#r_201"]');
+  assert.equal(imported.querySelectorAll("[onclick]").length, 0);
+  assert.equal(imported.querySelector(".v2p-control-thank").parentElement, thank);
+  assert.equal(imported.querySelector(".v2p-control-hide").parentElement, hide);
+  assert.equal(parseReply(imported).name, "Alice");
+  assert.equal(reply.getAttribute("href"), "https://www.v2ex.com/t/123?p=3#r_201");
+  thank.click();
+  assert.deepEqual(calls, []);
+  confirmed = true;
+  thank.click();
+  thank.click();
+  hide.click();
+  reply.click();
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.deepEqual(calls, [
+    ["thank", 201],
+    ["reply", "Alice", 201],
+    ["hide", 201, "456"],
+  ]);
+  assert.match(notices[0], /2.*Alice/);
+  assert.equal(imported.querySelector(".reply_content .v2p-control"), null);
+  window.close();
 });

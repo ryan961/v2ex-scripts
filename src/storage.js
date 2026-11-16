@@ -1,3 +1,4 @@
+import { t } from "./i18n.js";
 export const PREFIX = "v2ex-lite:";
 export const DEFAULT_IMGUR_CLIENT_ID = "3107b9ef8b316f3";
 export const DEFAULTS = Object.freeze({
@@ -11,6 +12,7 @@ export const DEFAULTS = Object.freeze({
   autoCheckIn: true,
   upload: true,
   emoji: true,
+  autoFold: true,
   imgurClientId: "",
 });
 
@@ -34,40 +36,29 @@ export function normalizeOptions(input = {}) {
 
 export function normalizeTags(value) {
   const raw = typeof value === "string" ? value.split(/[,\uFF0C\n]/) : value;
-  if (!Array.isArray(raw) || raw.length > 20)
-    throw new Error("\u6bcf\u4e2a\u7528\u6237\u6700\u591a\u8bbe\u7f6e 20 \u4e2a\u6807\u7b7e\u3002");
+  if (!Array.isArray(raw) || raw.length > 20) throw new Error(t("tagLimit"));
   const result = [];
   for (const item of raw) {
     const text = typeof item === "string" ? item.trim() : item?.name?.trim?.();
-    if (typeof text !== "string" || text.length > 80)
-      throw new Error(
-        "\u6807\u7b7e\u683c\u5f0f\u4e0d\u6b63\u786e\uff0c\u5355\u4e2a\u6807\u7b7e\u6700\u591a 80 \u4e2a\u5b57\u7b26\u3002",
-      );
+    if (typeof text !== "string" || text.length > 80) throw new Error(t("tagFormat"));
     if (text && !result.includes(text)) result.push(text);
   }
   return result;
 }
 
 export function parseImport(text) {
-  if (text.length > 2_000_000)
-    throw new Error("\u5907\u4efd\u6587\u4ef6\u4e0d\u80fd\u8d85\u8fc7 2 MB\u3002");
+  if (text.length > 2_000_000) throw new Error(t("backupSize"));
   const data = JSON.parse(text.replace(/^V2EX_Polish_settings\s*/, ""));
-  if (!data || typeof data !== "object" || Array.isArray(data))
-    throw new Error("\u5907\u4efd\u6587\u4ef6\u683c\u5f0f\u4e0d\u6b63\u786e\u3002");
-  if (data.schema !== undefined && data.schema !== 1)
-    throw new Error("\u4e0d\u652f\u6301\u6b64\u5907\u4efd\u7248\u672c\u3002");
+  if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error(t("backupFormat"));
+  if (data.schema !== undefined && data.schema !== 1) throw new Error(t("backupVersion"));
   const source = data.members ?? data["member-tag"];
   if (!source || typeof source !== "object" || Array.isArray(source))
-    throw new Error("\u5907\u4efd\u4e2d\u672a\u627e\u5230\u7528\u6237\u6807\u7b7e\u3002");
+    throw new Error(t("backupNoTags"));
   const entries = Object.entries(source);
-  if (entries.length > 20_000)
-    throw new Error(
-      "\u5907\u4efd\u4e2d\u7684\u7528\u6237\u6570\u4e0d\u80fd\u8d85\u8fc7 20,000\u3002",
-    );
+  if (entries.length > 20_000) throw new Error(t("backupTooMany"));
   const members = Object.create(null);
   for (const [name, entry] of entries) {
-    if (!validName.test(name))
-      throw new Error(`\u7528\u6237\u540d\u683c\u5f0f\u4e0d\u6b63\u786e\uff1a ${name}`);
+    if (!validName.test(name)) throw new Error(`${t("badUsername")} ${name}`);
     members[name.toLowerCase()] = normalizeTags(
       Array.isArray(entry) || typeof entry === "string" ? entry : entry?.tags,
     );
@@ -92,8 +83,7 @@ export function createStorage(api) {
       return cache.get(key);
     },
     setTags(name, value) {
-      if (!validName.test(name))
-        throw new Error("\u7528\u6237\u540d\u683c\u5f0f\u4e0d\u6b63\u786e\u3002");
+      if (!validName.test(name)) throw new Error(t("badUsername"));
       const tags = normalizeTags(value);
       const key = keyFor(name);
       write(key, tags);

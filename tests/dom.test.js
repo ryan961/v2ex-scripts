@@ -40,6 +40,7 @@ test("current site account cards work without a top navigation username", () => 
 
 test("reward redirects are allowed, but external redirects with identical paths are rejected", async () => {
   dom("");
+  document.cookie = "V2EX_LANG=enus";
   const get = createHTTP(async (url) => ({
     ok: true,
     url: url.includes("redeem") ? "https://www.v2ex.com/mission/daily" : "https://evil.test/t/123",
@@ -51,6 +52,7 @@ test("reward redirects are allowed, but external redirects with identical paths 
 
 test("page requests serialize, survive failures and reject sign-in redirects", async () => {
   dom("<div></div>");
+  document.cookie = "V2EX_LANG=enus";
   let active = 0;
   let peak = 0;
   const get = createHTTP(async (url) => {

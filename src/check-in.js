@@ -1,3 +1,4 @@
+import { t } from "./i18n.js";
 import { currentUser } from "./dom.js";
 
 export function dayKey(now = Date.now()) {
@@ -32,7 +33,7 @@ export function createCheckIn({
   return async function run(name) {
     if (!name || running) return;
     if (!locks) {
-      onStatus("Automatic check-in requires Web Locks. Use /mission/daily manually.");
+      onStatus(t("checkInManual"));
       return;
     }
     running = true;
@@ -61,7 +62,7 @@ export function createCheckIn({
         try {
           const doc = await getDocument("/mission/daily");
           if (currentUser(doc)?.toLowerCase() !== name.toLowerCase())
-            throw new Error("Account changed or signed out.");
+            throw new Error(t("accountChanged"));
           if (!redeemed(doc)) {
             const link = doc.querySelector('a[href^="/mission/daily/redeem?once="]');
             const inline = [...doc.querySelectorAll("input[onclick], button[onclick]")]
@@ -74,15 +75,15 @@ export function createCheckIn({
               .find(Boolean);
             const path = link?.getAttribute("href") ?? inline;
             if (!path || !/^\/mission\/daily\/redeem\?once=\d+$/.test(path))
-              throw new Error("Reward link not found.");
+              throw new Error(t("rewardLinkMissing"));
             const result = await getDocument(path);
-            if (!redeemed(result)) throw new Error("Reward was not confirmed; no immediate retry.");
+            if (!redeemed(result)) throw new Error(t("rewardUnconfirmed"));
           }
           store.set(key, { ...state, success: true, nextAt: 0 });
-          onStatus("Daily reward received.");
+          onStatus(t("rewardReceived"));
         } catch (error) {
           store.set(key, { ...state, nextAt: time + (state.attempts === 1 ? 60_000 : 300_000) });
-          onStatus(`Check-in: ${error.message}`);
+          onStatus(t("checkInError", error.message));
         } finally {
           if (store.get("daily-lease")?.owner === owner)
             store.set("daily-lease", { owner, until: 0 });

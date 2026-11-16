@@ -1,7 +1,7 @@
 import { JSDOM } from "jsdom";
 
 export function dom(html, url = "https://www.v2ex.com/t/123") {
-  const instance = new JSDOM(html, { url });
+  const instance = new JSDOM(html, { url, pretendToBeVisual: true });
   Object.defineProperty(globalThis, "window", { configurable: true, value: instance.window });
   for (const key of [
     "document",

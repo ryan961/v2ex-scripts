@@ -42,6 +42,7 @@ test("bundled script initializes, enhances only new nodes, and settles without s
   assert.equal(window.document.querySelectorAll(".vx-tags").length, 3);
   assert.equal(window.document.querySelectorAll("#vx-settings").length, 1);
   assert.equal(window.document.querySelectorAll(".vx-upload").length, 1);
+  assert.ok(window.document.querySelector('#reply-box button[aria-expanded="false"]'));
   assert.equal(window.document.documentElement.dataset.v2pTheme, "minimalist");
   assert.equal(window.document.body.classList.contains("v2p-theme-minimalist"), true);
   assert.doesNotMatch(
@@ -62,4 +63,59 @@ test("bundled script initializes, enhances only new nodes, and settles without s
   assert.equal(window.document.querySelectorAll(".vx-tags").length, tagCount);
   assert.deepEqual(writes, []);
   instance.window.close();
+});
+
+test("V2EX language cookie localizes script modules and guests skip account features", async () => {
+  for (const [locale, labels] of Object.entries({
+    enus: ["Settings", "Preview", "Top replies on this page"],
+    zhcn: ["\u8bbe\u7f6e", "\u9884\u89c8", "\u5f53\u524d\u9875\u70ed\u95e8\u56de\u590d"],
+    jajp: [
+      "\u8a2d\u5b9a",
+      "\u30d7\u30ec\u30d3\u30e5\u30fc",
+      "\u3053\u306e\u30da\u30fc\u30b8\u306e\u4eba\u6c17\u8fd4\u4fe1",
+    ],
+    kokr: [
+      "\uc124\uc815",
+      "\ubbf8\ub9ac\ubcf4\uae30",
+      "\ud604\uc7ac \ud398\uc774\uc9c0 \uc778\uae30 \ub313\uae00",
+    ],
+  })) {
+    const instance = new JSDOM(
+      fixture
+        .replace("<html>", '<html lang="zh-CN">')
+        .replaceAll('href="/member/reader"', 'href="/signin"'),
+      { url: "https://www.v2ex.com/t/123", runScripts: "outside-only", pretendToBeVisual: true },
+    );
+    const { window } = instance;
+    window.document.cookie = `V2EX_LANG=${locale}`;
+    let menu;
+    const requests = [];
+    Object.assign(window, {
+      GM_getValue: (key, fallback) =>
+        key === "v2ex-lite:options"
+          ? { preloadPages: 0, autoCheckIn: true, emoji: true, upload: true }
+          : fallback,
+      GM_setValue: () => assert.fail("guest settings should not write on startup"),
+      GM_listValues: () => [],
+      GM_addValueChangeListener: () => {},
+      GM_addStyle: () => {},
+      GM_registerMenuCommand: (label) => (menu = label),
+      GM_xmlhttpRequest: () => requests.push("imgur"),
+      fetch: (url) => requests.push(url),
+      matchMedia: () => ({ matches: false, addEventListener() {} }),
+    });
+    window.eval(built);
+    await new Promise((resolve) => window.setTimeout(resolve, 0));
+    const [settings, preview, popular] = labels;
+    assert.equal(menu, `V2EX Lite ${settings}`);
+    assert.equal(window.document.querySelector(".v2p-topic-preview-btn").textContent, preview);
+    assert.equal(window.document.querySelector("#top_replies > .cell").textContent, popular);
+    assert.equal(window.document.querySelector(".vx-upload"), null);
+    assert.equal(window.document.querySelector('#reply-box button[type="button"]'), null);
+    window.document.querySelector("#vx-settings").click();
+    assert.equal(window.document.querySelector('[name="autoCheckIn"]').disabled, true);
+    assert.equal(window.document.querySelector('[name="autoFold"]').checked, true);
+    assert.deepEqual(requests, []);
+    instance.window.close();
+  }
 });

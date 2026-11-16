@@ -1,3 +1,4 @@
+import { t } from "./i18n.js";
 export function element(tag, text, className) {
   const node = document.createElement(tag);
   if (text !== undefined) node.textContent = text;
@@ -130,10 +131,10 @@ export function modal(title, hasFooter = false) {
       }
     }
   };
-  const close = button("\u5173\u95ed", closeModal);
+  const close = button(t("close"), closeModal);
   close.classList.add("v2p-modal-close-btn");
   close.append(element("kbd", "Esc"));
-  close.setAttribute("aria-label", `Close ${title}`);
+  close.setAttribute("aria-label", `${t("close")} ${title}`);
   actions.append(close);
   header.append(heading, actions);
   main.append(header, content, footer);
@@ -168,20 +169,19 @@ export function createHTTP(fetcher = fetch) {
   return (path) => {
     const task = tail.then(async () => {
       const url = new URL(path, location.href);
-      if (url.origin !== location.origin) throw new Error("Cross-origin page request blocked.");
+      if (url.origin !== location.origin) throw new Error(t("requestOrigin"));
       const response = await fetcher(url.href, {
         credentials: "same-origin",
         signal: AbortSignal.timeout(15_000),
       });
-      if (!response.ok) throw new Error(`V2EX returned HTTP ${response.status}.`);
+      if (!response.ok) throw new Error(t("requestHTTP", response.status));
       const final = new URL(response.url || url.href);
       const rewardRedirect =
         url.pathname === "/mission/daily/redeem" && final.pathname === "/mission/daily";
       if (final.origin !== url.origin || (final.pathname !== url.pathname && !rewardRedirect))
-        throw new Error("V2EX redirected this request. Open the page directly first.");
+        throw new Error(t("requestRedirected"));
       const doc = new DOMParser().parseFromString(await response.text(), "text/html");
-      if (!doc.querySelector("#Main"))
-        throw new Error("Unexpected page. Complete sign-in or verification on V2EX first.");
+      if (!doc.querySelector("#Main")) throw new Error(t("requestUnexpected"));
       syncOnce(doc);
       return doc;
     });

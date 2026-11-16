@@ -1,12 +1,13 @@
+import { t } from "./i18n.js";
 import { button, element, matching, memberName, modal, owned, safeURL } from "./dom.js";
 import { computePosition, flip, offset, shift } from "@floating-ui/dom";
 import { blockMember, fetchMember } from "./member-data.js";
 
-export function createMembers(store, options, topics) {
+export function createMembers(store, options, topics, currentAccount) {
   const registered = new WeakSet(),
     byName = new Map();
   function edit(name) {
-    const dialog = modal(`\u8bbe\u7f6e\u7528\u6237\u6807\u7b7e\uff1a${name}`, true);
+    const dialog = modal(t("editTags", name), true);
     Object.assign(dialog.root.style, {
       display: "flex",
       justifyContent: "center",
@@ -20,10 +21,7 @@ export function createMembers(store, options, topics) {
       flexDirection: "column",
       gap: "15px",
     });
-    const label = element(
-      "label",
-      "\u591a\u4e2a\u6807\u7b7e\u4ee5\u9017\u53f7\u5206\u9694\uff0c\u6700\u591a 20 \u4e2a\u3002 ",
-    );
+    const label = element("label", t("tagInstructions"));
     const input = element("textarea");
     input.className = "sl";
     input.rows = 4;
@@ -34,7 +32,7 @@ export function createMembers(store, options, topics) {
     form.append(label, error);
     dialog.content.append(form);
     dialog.footer.append(
-      button("\u786e\u8ba4\u8bbe\u7f6e", () => {
+      button(t("saveTags"), () => {
         try {
           store.setTags(name, input.value);
           draw(name);
@@ -78,7 +76,7 @@ export function createMembers(store, options, topics) {
       );
       group.setAttribute("role", "button");
       group.tabIndex = 0;
-      group.setAttribute("aria-label", `Edit tags for ${name}`);
+      group.setAttribute("aria-label", t("editTags", name));
       group.addEventListener("click", () => edit(name));
       group.addEventListener("keydown", (event) => {
         if (event.key === "Enter") edit(name);
@@ -149,17 +147,13 @@ export function createMembers(store, options, topics) {
         target.rel = "noopener noreferrer";
       }
       username.append(link);
-      const number = element(
-        "div",
-        data ? `V2EX \u7b2c ${data.id} \u53f7\u4f1a\u5458` : "",
-        "v2p-no",
-      );
+      const number = element("div", data ? t("memberNumber", data.id) : "", "v2p-no");
       const created = new Date(Number(data?.created) * 1000);
       const date =
         data && Number.isFinite(created.getTime())
           ? `${created.getFullYear()}-${String(created.getMonth() + 1).padStart(2, "0")}-${String(created.getDate()).padStart(2, "0")}`
           : "";
-      const joined = element("div", date ? `\u52a0\u5165\u4e8e ${date}` : "", "v2p-created-date");
+      const joined = element("div", date ? t("joined", date) : "", "v2p-created-date");
       if (!data) {
         number.classList.add("v2p-loading");
         joined.classList.add("v2p-loading");
@@ -167,11 +161,7 @@ export function createMembers(store, options, topics) {
       right.append(username, number, joined);
       const days = Math.ceil((Date.now() / 1000 - Number(data?.created)) / 86400);
       if (data && days >= 0 && days <= 30) {
-        const recent = element(
-          "div",
-          `${days <= 15 ? "15" : "30"} \u5929\u5185\u6ce8\u518c`,
-          "v2p-register-days",
-        );
+        const recent = element("div", t("recentMember", days <= 15 ? 15 : 30), "v2p-register-days");
         recent.style.margin = "5px 0";
         right.append(recent);
       }
@@ -181,10 +171,7 @@ export function createMembers(store, options, topics) {
       if (data?.topics?.length) {
         const section = element("div", undefined, "v2p-member-topics");
         const list = element("div", undefined, "v2p-member-topics-list");
-        section.append(
-          element("div", "\u6700\u8fd1\u53d1\u5e16", "v2p-member-topics-header"),
-          list,
-        );
+        section.append(element("div", t("recentTopics"), "v2p-member-topics-header"), list);
         for (const topic of data.topics) {
           const row = element("div", undefined, "v2p-member-topic-item-row");
           const topicLink = element("a", topic.title, "v2p-member-topic-item");
@@ -200,22 +187,18 @@ export function createMembers(store, options, topics) {
       }
       const actions = element("div", undefined, "v2p-member-card-actions");
       if (options.tags) {
-        const control = button("\u6dfb\u52a0\u7528\u6237\u6807\u7b7e", () => {
+        const control = button(t("addTags"), () => {
           hide();
           edit(name);
         });
         control.classList.add("v2p-btn-small");
         actions.append(control);
       }
-      const block = button("\u5c4f\u853d\u8be5\u7528\u6237", async () => {
-        if (
-          block.disabled ||
-          !window.confirm(`\u786e\u5b9a\u8981\u5c4f\u853d\u7528\u6237 ${name} \u5417\uff1f`)
-        )
-          return;
+      const block = button(t("blockMember"), async () => {
+        if (block.disabled || !window.confirm(t("confirmBlock", name))) return;
         block.disabled = true;
         block.classList.add("v2p-btn-loading");
-        block.textContent = "\u5c4f\u853d\u4e2d...";
+        block.textContent = t("blocking");
         try {
           await blockMember(name);
           for (const row of document.querySelectorAll('.cell[id^="r_"]')) {
@@ -227,15 +210,13 @@ export function createMembers(store, options, topics) {
               continue;
             if (row.querySelector(":scope > .v2p-blocked-notice")) continue;
             row.classList.add("v2p-blocked-reply");
-            const notice = owned(
-              element("div", "\u5df2\u5c4f\u853d\u8be5\u7528\u6237 \u00b7 ", "v2p-blocked-notice"),
-            );
-            const toggle = element("a", "\u663e\u793a", "v2p-blocked-toggle");
+            const notice = owned(element("div", `${t("blocked")} \u00b7 `, "v2p-blocked-notice"));
+            const toggle = element("a", t("show"), "v2p-blocked-toggle");
             toggle.tabIndex = 0;
             toggle.setAttribute("role", "button");
             const reveal = () => {
               const visible = row.classList.toggle("v2p-blocked-revealed");
-              toggle.textContent = visible ? "\u9690\u85cf" : "\u663e\u793a";
+              toggle.textContent = visible ? t("hide") : t("show");
             };
             toggle.addEventListener("click", reveal);
             toggle.addEventListener("keydown", (event) => {
@@ -251,13 +232,14 @@ export function createMembers(store, options, topics) {
         } catch (error) {
           block.disabled = false;
           block.classList.remove("v2p-btn-loading");
-          block.textContent = "\u5c4f\u853d\u8be5\u7528\u6237";
+          block.textContent = t("blockMember");
           content.append(element("p", error.message));
         }
       });
       block.classList.add("v2p-btn-small");
-      actions.append(block);
-      card.append(actions);
+      if (currentAccount && currentAccount.toLowerCase() !== name.toLowerCase())
+        actions.append(block);
+      if (actions.childElementCount) card.append(actions);
       content.replaceChildren(card);
     }
 
@@ -304,13 +286,7 @@ export function createMembers(store, options, topics) {
         const key = name.toLowerCase(),
           cached = cache.get(key);
         if (cached?.expires > Date.now()) {
-          if (cached.banned)
-            content.replaceChildren(
-              element(
-                "span",
-                "\u67e5\u65e0\u6b64\u7528\u6237\uff0c\u7591\u4f3c\u5df2\u88ab\u5c01\u7981",
-              ),
-            );
+          if (cached.banned) content.replaceChildren(element("span", t("memberMissing")));
           else render(name, cached.data, initialAvatar);
           position(anchor);
           return;
@@ -333,12 +309,7 @@ export function createMembers(store, options, topics) {
             cache.set(key, { banned: true, expires: Date.now() + 600_000 });
           }
           content.replaceChildren(
-            element(
-              "span",
-              error.name === "AbortError"
-                ? "\u52a0\u8f7d\u8d85\u65f6\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5\u3002"
-                : error.message,
-            ),
+            element("span", error.name === "AbortError" ? t("memberTimeout") : error.message),
           );
         } finally {
           clearTimeout(timeout);

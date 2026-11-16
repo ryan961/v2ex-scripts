@@ -83,6 +83,7 @@ test("Polish member card uses skeletons, complete content, cached requests and t
       createStorage(memoryAPI()),
       { userCards: true, tags: true, preview: true, newTab: true },
       createTopics({ preview: true, newTab: true }),
+      "reader",
     ).enhance(document);
     const anchor = document.querySelector('a[href="/member/Alice"]');
     anchor.dispatchEvent(new window.MouseEvent("pointerover", { bubbles: true }));

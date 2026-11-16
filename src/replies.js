@@ -1,65 +1,9 @@
+import { t } from "./i18n.js";
 import { button, element, matching, memberName, owned, safeURL } from "./dom.js";
-import { icon } from "./icons.js";
+import { captureImportedActions, enhanceReplyActions, REPLY } from "./reply-actions.js";
+import { createPagination } from "./pagination.js";
 
-export const REPLY = '.cell[id^="r_"]';
-
-export function enhanceReplyActions(root) {
-  for (const area of matching(root, ".thank_area")) {
-    const reply = area.closest(REPLY);
-    if (!reply?.closest("#Main")) continue;
-    area.classList.add("v2p-controls");
-    for (const node of [...area.childNodes]) if (node.nodeType === 3) node.remove();
-    for (const anchor of area.querySelectorAll("a")) {
-      const source = `${anchor.getAttribute("href") ?? ""} ${anchor.getAttribute("onclick") ?? ""}`;
-      const action = /ignoreReply\s*\(|\/ignore\/reply\//.test(source)
-        ? "hide"
-        : /thankReply\s*\(|\/thank\/reply\//.test(source)
-          ? "thank"
-          : null;
-      if (!action || anchor.querySelector(".v2p-control")) continue;
-      const control = owned(
-        element("span", undefined, `v2p-control v2p-hover-btn v2p-control-${action}`),
-      );
-      control.append(icon(action === "hide" ? "eye-off" : "heart"));
-      anchor.classList.remove("thank");
-      anchor.style.removeProperty("color");
-      anchor.setAttribute(
-        "aria-label",
-        action === "hide" ? "\u9690\u85cf\u56de\u590d" : "\u611f\u8c22\u56de\u590d",
-      );
-      anchor.replaceChildren(control);
-    }
-    if (area.classList.contains("thanked") && !area.querySelector(".v2p-control-thank")) {
-      for (const node of [...area.childNodes]) if (node.nodeType === 3) node.remove();
-      const thanked = owned(
-        element("span", undefined, "v2p-control v2p-control-thank v2p-thanked"),
-      );
-      thanked.setAttribute("aria-label", "\u5df2\u611f\u8c22");
-      thanked.setAttribute("aria-disabled", "true");
-      thanked.append(icon("heart"));
-      area.append(thanked);
-    }
-    if (area.classList.contains("thanked"))
-      for (const likes of reply.querySelectorAll(".v2p-likes-box"))
-        if (likes.closest(REPLY) === reply) likes.classList.add("v2p-thanked");
-  }
-  for (const image of matching(root, 'img[alt="\u2764\uFE0F"], img[src*="/heart.png"]')) {
-    const reply = image.closest(REPLY);
-    if (!reply?.closest("#Main") || image.closest(".reply_content")) continue;
-    const likes = image.closest(".small.fade");
-    if (!likes) continue;
-    likes.classList.add("v2p-likes-box");
-    if (
-      [...reply.querySelectorAll(".thank_area.thanked")].some(
-        (area) => area.closest(REPLY) === reply,
-      )
-    )
-      likes.classList.add("v2p-thanked");
-    const heart = owned(element("span", undefined, "v2p-icon-heart"));
-    heart.append(icon("heart"));
-    image.replaceWith(heart);
-  }
-}
+export { enhanceReplyActions, REPLY } from "./reply-actions.js";
 
 export function thanksCount(node) {
   const header = node.querySelector(".flex-one-row") ?? node;
@@ -92,8 +36,8 @@ export function rankReplies(replies, limit = Infinity) {
 }
 
 export function pageCount(doc, path) {
-  const pages = [Number(new URL(location.href).searchParams.get("p")) || 1];
-  for (const link of doc.querySelectorAll('a[href*="p="]')) {
+  const pages = [1];
+  for (const link of doc.querySelectorAll("a.page_normal[href], a.page_current[href]")) {
     const url = new URL(link.getAttribute("href"), location.href);
     const page = Number(url.searchParams.get("p"));
     if (
@@ -106,30 +50,50 @@ export function pageCount(doc, path) {
       pages.push(page);
   }
   for (const input of doc.querySelectorAll("input.page_input[max]"))
-    if (Number(input.max) > 0 && Number(input.max) <= 100_000) pages.push(Number(input.max));
+    if (
+      Number.isInteger(Number(input.max)) &&
+      Number(input.max) > 0 &&
+      Number(input.max) <= 100_000
+    )
+      pages.push(Number(input.max));
   return Math.max(...pages);
 }
 
 export function importReply(row, base) {
   const copy = row.cloneNode(true);
+  captureImportedActions(copy, base);
   for (const node of copy.querySelectorAll(
     "script,style,iframe,object,embed,link,meta,base,form,input,button",
   ))
     node.remove();
   for (const node of [copy, ...copy.querySelectorAll("*")]) {
     for (const attr of [...node.attributes]) {
-      if (/^on/i.test(attr.name) || ["srcdoc", "style", "srcset", "name"].includes(attr.name))
+      if (
+        /^on/i.test(attr.name) ||
+        attr.name.startsWith("data-vx-") ||
+        ["srcdoc", "style", "srcset", "name"].includes(attr.name)
+      )
         node.removeAttribute(attr.name);
     }
     for (const attr of ["href", "src"]) {
       if (!node.hasAttribute(attr)) continue;
       const value = safeURL(node.getAttribute(attr), base, attr === "src");
-      if (value) node.setAttribute(attr, value);
-      else node.removeAttribute(attr);
+      if (value) {
+        const url = new URL(value);
+        node.setAttribute(
+          attr,
+          attr === "href" &&
+            url.origin === location.origin &&
+            /^\/member\/[^/]+\/?$/.test(url.pathname) &&
+            !url.search &&
+            !url.hash
+            ? url.pathname
+            : value,
+        );
+      } else node.removeAttribute(attr);
     }
     if (node.tagName === "IMG") node.loading = "lazy";
   }
-  for (const actions of copy.querySelectorAll(".thank_area,.v2p-controls")) actions.remove();
   return copy;
 }
 
@@ -137,7 +101,12 @@ export function importReply(row, base) {
 export function cloneTopReply(reply) {
   const cloned = reply.node.cloneNode(true);
   cloned.id = `top_${reply.id}`;
-  for (const child of cloned.querySelectorAll(".cell,.v2p-topic-reply-ref,.nested")) child.remove();
+  for (const child of cloned.querySelectorAll(".cell,.v2p-topic-reply-ref,.nested,.thank_area"))
+    child.remove();
+  for (const wrapper of cloned.querySelectorAll(".v2p-reply-content")) {
+    const content = wrapper.querySelector(".reply_content");
+    if (content) wrapper.replaceWith(content);
+  }
   const floor = cloned.querySelector(".no");
   const toolbox = cloned.querySelector(".fr") ?? floor?.parentElement;
   if (floor && toolbox) {
@@ -165,38 +134,51 @@ export function cloneTopReply(reply) {
   }
   return cloned;
 }
-
 export function initReplies({ options, getDocument, enhance }) {
   if (!/^\/t\/\d+\/?$/.test(location.pathname)) return null;
   const first = document.querySelector(`#Main ${REPLY}`);
   if (!first) return null;
-  const container = first.parentElement;
-  const replies = new Map();
-  const current = Number(new URL(location.href).searchParams.get("p")) || 1;
-  const loaded = new Set([current]);
-  let total = pageCount(document, location.pathname),
-    next = current + 1,
-    busy = false,
-    signature = "";
-  let panel;
+  const container = first.parentElement,
+    replies = new Map(),
+    pages = new Map(),
+    inFlight = new Map();
+  const requested = Number(new URL(location.href).searchParams.get("p"));
+  const current =
+    Number.isInteger(requested) && requested >= 1 && requested <= 100_000 ? requested : 1;
+  let total = Math.max(current, pageCount(document, location.pathname)),
+    signature = "",
+    panel,
+    error;
   const toolbar = owned(element("div", undefined, "cell"));
   toolbar.dataset.vxPaging = "";
   const status = element("span");
   status.setAttribute("role", "status");
-  const loadButton = button("Load next page", () => void loadNext());
-  toolbar.append(status, loadButton);
-  container.append(toolbar);
+  const retry = button(t("retry"), () => {
+    if (error) void paging.navigate(error.page);
+  });
+  toolbar.append(status, retry);
+  const firstMarker = owned(element("span", undefined, "vx-page-start"));
+  firstMarker.dataset.vxPageStart = String(current);
+  first.before(firstMarker);
+  pages.set(current, firstMarker);
+  const paging = createPagination({ container, first, toolbar, pages, current, total, loadPage });
 
   function render() {
-    toolbar.hidden = !busy && next > total;
-    loadButton.hidden = next > total;
-    loadButton.disabled = busy;
+    toolbar.hidden = !inFlight.size && !error;
+    status.textContent = inFlight.size
+      ? `${t("loadingPage", inFlight.keys().next().value)} `
+      : error
+        ? `${t("pageFailed", error.page, error.message)} `
+        : "";
+    retry.hidden = !error;
+    retry.disabled = !!error && inFlight.has(error.page);
+    paging.refresh(total, [...inFlight.keys()]);
     if (!options.hotReplies) return;
     const ranked = rankReplies(replies.values());
     const key = ranked.map((reply) => `${reply.id}:${reply.thanks}`).join("|");
     if (key === signature && panel) return;
     signature = key;
-    panel?.previousElementSibling?.matches("[data-vx-hot-gap]") &&
+    if (panel?.previousElementSibling?.matches("[data-vx-hot-gap]"))
       panel.previousElementSibling.remove();
     panel?.remove();
     panel = null;
@@ -204,11 +186,8 @@ export function initReplies({ options, getDocument, enhance }) {
     panel = owned(element("div", undefined, "box"));
     panel.id = "top_replies";
     const header = element("div", undefined, "cell");
-    header.title = "Ranked by thanks on loaded pages.";
-    header.append(
-      element("div", undefined, "fr"),
-      element("span", "\u5f53\u524d\u9875\u70ed\u95e8\u56de\u590d", "fade"),
-    );
+    header.title = t("hotRepliesHelp");
+    header.append(element("div", undefined, "fr"), element("span", t("hotReplies"), "fade"));
     panel.append(header, ...ranked.map(cloneTopReply));
     const anchor = document.querySelector("#Rightbar .box");
     if (anchor) {
@@ -218,7 +197,6 @@ export function initReplies({ options, getDocument, enhance }) {
       document.querySelector("#Wrapper")?.classList.add("sticky_rightbar");
     }
   }
-
   function add(root) {
     let changed = false;
     for (const node of matching(root, REPLY)) {
@@ -230,61 +208,72 @@ export function initReplies({ options, getDocument, enhance }) {
     }
     if (changed) render();
   }
-
-  async function loadNext() {
-    if (busy || next > total) return false;
-    busy = true;
-    status.textContent = "Loading replies... ";
-    render();
-    const page = next;
-    try {
-      const url = new URL(location.href);
-      url.search = "";
-      url.searchParams.set("p", String(page));
-      const doc = await getDocument(url.href);
-      const rows = [...doc.querySelectorAll(`#Main ${REPLY}`)];
-      if (!rows.length) throw new Error("No replies found. Open this page directly to verify it.");
-      total = Math.max(total, pageCount(doc, location.pathname));
-      const fragment = document.createDocumentFragment();
-      const added = [];
-      for (const row of rows) {
-        if (replies.has(row.id)) continue;
-        const clean = importReply(row, url.href);
-        for (const child of [...clean.querySelectorAll(REPLY)])
-          if (replies.has(child.id)) child.remove();
-        for (const node of matching(clean, REPLY)) {
-          const reply = parseReply(node);
-          if (reply) replies.set(reply.id, reply);
+  function loadPage(page) {
+    if (!Number.isInteger(page) || page < 1 || page > total) return Promise.resolve(false);
+    if (pages.has(page)) return Promise.resolve(true);
+    if (inFlight.has(page)) return inFlight.get(page);
+    if (error?.page === page) error = null;
+    const task = Promise.resolve()
+      .then(async () => {
+        try {
+          const url = new URL(location.href);
+          url.search = "";
+          url.searchParams.set("p", String(page));
+          url.hash = "";
+          const doc = await getDocument(url.href);
+          const rows = [...doc.querySelectorAll(`#Main ${REPLY}`)];
+          if (!rows.length) throw new Error(t("noReplies"));
+          total = Math.max(total, pageCount(doc, location.pathname));
+          const fragment = document.createDocumentFragment(),
+            added = [];
+          const marker = owned(element("span", undefined, "vx-page-start"));
+          marker.dataset.vxPageStart = String(page);
+          fragment.append(marker);
+          for (const row of rows) {
+            if (replies.has(row.id)) continue;
+            const clean = importReply(row, url.href);
+            for (const child of [...clean.querySelectorAll(REPLY)])
+              if (replies.has(child.id)) child.remove();
+            for (const node of matching(clean, REPLY)) {
+              const reply = parseReply(node);
+              if (reply) replies.set(reply.id, reply);
+            }
+            clean.dataset.vxLoaded = "";
+            fragment.append(clean);
+            added.push(clean);
+          }
+          const next =
+            [...pages].sort(([a], [b]) => a - b).find(([number]) => number > page)?.[1] ?? toolbar;
+          next.before(fragment);
+          pages.set(page, marker);
+          for (const row of added) enhance(row);
+          return true;
+        } catch (failure) {
+          error = { page, message: failure.message };
+          return false;
         }
-        clean.dataset.vxLoaded = "";
-        fragment.append(clean);
-        added.push(clean);
-      }
-      toolbar.before(fragment);
-      for (const row of added) enhance(row);
-      loaded.add(page);
-      next++;
-      status.textContent = "";
-      return true;
-    } catch (error) {
-      status.textContent = `Could not load replies: ${error.message} `;
-      return false;
-    } finally {
-      busy = false;
-      render();
-    }
+      })
+      .finally(() => {
+        inFlight.delete(page);
+        render();
+      });
+    inFlight.set(page, task);
+    render();
+    return task;
   }
-
   add(document);
   render();
   return {
     add,
     replies,
-    loaded,
+    paging,
+    get loaded() {
+      return new Set(pages.keys());
+    },
     update(node) {
       enhanceReplyActions(node);
       const reply = replies.get(node.id);
-      if (reply && !node.hasAttribute("data-vx-loaded")) {
+      if (reply) {
         const count = thanksCount(node);
         if (count !== reply.thanks) {
           reply.thanks = count;
@@ -293,7 +282,8 @@ export function initReplies({ options, getDocument, enhance }) {
       }
     },
     async preload() {
-      for (let index = 0; index < options.preloadPages; index++) if (!(await loadNext())) break;
+      for (let page = current + 1; page <= Math.min(total, current + options.preloadPages); page++)
+        if (!(await loadPage(page))) break;
     },
   };
 }

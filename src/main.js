@@ -9,6 +9,7 @@ import { createTopics } from "./preview.js";
 import { enhanceReplyActions, initReplies, REPLY } from "./replies.js";
 import { createCheckIn } from "./check-in.js";
 import { initUpload } from "./upload.js";
+import { createReplyFolding } from "./folding.js";
 import { installSettings } from "./settings.js";
 
 const store = createStorage({
@@ -47,18 +48,22 @@ function start() {
   }
   const getDocument = createHTTP();
   const topics = createTopics(options, themeCSS);
-  const members = createMembers(store, options, topics);
+  const members = createMembers(store, options, topics, name);
+  const folding = createReplyFolding(options.autoFold);
   const enhance = (root) => {
     members.enhance(root);
     topics.enhance(root);
     enhanceEmojis(root);
     enhanceReplyActions(root);
+    folding.enhance(root);
   };
   enhance(document);
   const replies = initReplies({ options, getDocument, enhance });
-  installSettings(store);
-  initUpload(options, store);
-  initEmoji(options);
+  installSettings(store, Boolean(name));
+  if (name) {
+    initUpload(options, store);
+    initEmoji(options);
+  }
   const main = document.querySelector("#Main");
   if (main) {
     const roots = new Set();
@@ -85,24 +90,29 @@ function start() {
             replies?.add(root);
           }
         }
-        for (const node of changed) replies?.update(node);
+        for (const node of changed) {
+          folding.enhance(node);
+          replies?.update(node);
+        }
         roots.clear();
         changed.clear();
       });
     });
     observer.observe(main, { childList: true, subtree: true, characterData: true });
   }
-  const report = (message) => {
-    document.querySelector("#vx-settings").title = message;
-    console.info(`[V2EX Lite] ${message}`);
-  };
-  const checkIn = createCheckIn({ store, getDocument, onStatus: report });
-  const runDaily = () => {
-    if (options.autoCheckIn && document.visibilityState === "visible")
-      void checkIn(name).catch((error) => report(error.message));
-  };
-  document.addEventListener("visibilitychange", runDaily);
-  runDaily();
+  if (name && options.autoCheckIn) {
+    const report = (message) => {
+      document.querySelector("#vx-settings").title = message;
+      console.info(`[V2EX Lite] ${message}`);
+    };
+    const checkIn = createCheckIn({ store, getDocument, onStatus: report });
+    const runDaily = () => {
+      if (document.visibilityState === "visible")
+        void checkIn(name).catch((error) => report(error.message));
+    };
+    document.addEventListener("visibilitychange", runDaily);
+    runDaily();
+  }
   void replies?.preload();
 }
 

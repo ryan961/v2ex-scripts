@@ -1,3 +1,4 @@
+import { t } from "./i18n.js";
 import { syncOnce } from "./dom.js";
 
 export function parseMemberTopics(doc) {
@@ -17,7 +18,7 @@ export function parseMemberTopics(doc) {
 }
 
 export async function fetchMemberPage(name, signal, fetcher = fetch) {
-  if (!/^[a-z0-9_-]{1,64}$/i.test(name)) throw new Error("Invalid username.");
+  if (!/^[a-z0-9_-]{1,64}$/i.test(name)) throw new Error(t("badUsername"));
   const path = `/member/${encodeURIComponent(name)}`;
   const response = await fetcher(path, { credentials: "same-origin", signal, cache: "no-store" });
   const final = new URL(response.url || path, location.href);
@@ -26,12 +27,9 @@ export async function fetchMemberPage(name, signal, fetcher = fetch) {
     final.origin !== location.origin ||
     final.pathname.toLowerCase() !== path.toLowerCase()
   )
-    throw new Error(
-      "\u7528\u6237\u9875\u9762\u52a0\u8f7d\u5931\u8d25\uff0c\u8bf7\u68c0\u67e5\u767b\u5f55\u6216\u9a8c\u8bc1\u72b6\u6001\u3002",
-    );
+    throw new Error(t("memberPageFailed"));
   const doc = new DOMParser().parseFromString(await response.text(), "text/html");
-  if (!doc.querySelector("#Main"))
-    throw new Error("\u7528\u6237\u9875\u9762\u5185\u5bb9\u5f02\u5e38\u3002");
+  if (!doc.querySelector("#Main")) throw new Error(t("memberPageUnexpected"));
   syncOnce(doc);
   return doc;
 }
@@ -44,9 +42,7 @@ export async function fetchMember(name, signal, fetcher = fetch) {
     }).then(async (response) => {
       if (!response.ok) {
         const error = new Error(
-          response.status === 404
-            ? "\u67e5\u65e0\u6b64\u7528\u6237\uff0c\u7591\u4f3c\u5df2\u88ab\u5c01\u7981"
-            : "\u83b7\u53d6\u7528\u6237\u4fe1\u606f\u5931\u8d25",
+          response.status === 404 ? t("memberMissing") : t("memberFetchFailed"),
         );
         error.status = response.status;
         throw error;
@@ -56,7 +52,7 @@ export async function fetchMember(name, signal, fetcher = fetch) {
         typeof result.username !== "string" ||
         result.username.toLowerCase() !== name.toLowerCase()
       )
-        throw new Error("\u7528\u6237\u4fe1\u606f\u4e0e\u8bf7\u6c42\u4e0d\u4e00\u81f4\u3002");
+        throw new Error(t("memberMismatch"));
       return result;
     }),
     fetchMemberPage(name, signal, fetcher).catch((error) => {
@@ -67,16 +63,23 @@ export async function fetchMember(name, signal, fetcher = fetch) {
   return { ...data, topics: page ? parseMemberTopics(page) : [] };
 }
 
+function blockPath(doc) {
+  for (const control of doc.querySelectorAll(
+    '#Main input[type="button"][onclick], #Main button[onclick]',
+  )) {
+    const path = /location\.href\s*=\s*['"](\/block\/\d+\?once=\d+)['"]/.exec(
+      control.getAttribute("onclick"),
+    )?.[1];
+    if (path) return path;
+  }
+  return null;
+}
+
 export async function blockMember(name, fetcher = fetch) {
   const signal = AbortSignal.timeout(10_000);
   const page = await fetchMemberPage(name, signal, fetcher);
-  const onclick =
-    page.querySelector('input[type="button"][value="Block"]')?.getAttribute("onclick") ?? "";
-  const path = /location\.href\s*=\s*['"](\/block\/\d+\?once=\d+)['"]/.exec(onclick)?.[1];
-  if (!path)
-    throw new Error(
-      "\u672a\u627e\u5230\u5c4f\u853d\u6309\u94ae\uff0c\u8be5\u7528\u6237\u53ef\u80fd\u5df2\u88ab\u5c4f\u853d\uff0c\u6216\u767b\u5f55\u72b6\u6001\u5df2\u5931\u6548\u3002",
-    );
+  const path = blockPath(page);
+  if (!path) throw new Error(t("blockUnavailable"));
   const response = await fetcher(path, { credentials: "same-origin", signal });
   const final = new URL(response.url || path, location.href);
   if (
@@ -84,14 +87,9 @@ export async function blockMember(name, fetcher = fetch) {
     final.origin !== location.origin ||
     ![path.split("?")[0], `/member/${name}`].includes(final.pathname)
   )
-    throw new Error(
-      "\u5c4f\u853d\u64cd\u4f5c\u5931\u8d25\uff0c\u8bf7\u5237\u65b0\u9875\u9762\u68c0\u67e5\u3002",
-    );
+    throw new Error(t("blockFailed"));
   const result = new DOMParser().parseFromString(await response.text(), "text/html");
   syncOnce(result);
   const verified = await fetchMemberPage(name, signal, fetcher);
-  if (verified.querySelector('input[type="button"][value="Block"]'))
-    throw new Error(
-      "\u672a\u80fd\u786e\u8ba4\u5c4f\u853d\u7ed3\u679c\uff0c\u8bf7\u5237\u65b0\u7528\u6237\u9875\u9762\u68c0\u67e5\u3002",
-    );
+  if (blockPath(verified)) throw new Error(t("blockUnconfirmed"));
 }

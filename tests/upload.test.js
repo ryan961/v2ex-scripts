@@ -19,6 +19,7 @@ test("upload completion preserves concurrent typing and removed markers", () => 
 
 test("upload validates files and response URLs before changing the draft", async () => {
   dom("");
+  document.cookie = "V2EX_LANG=enus";
   const image = new File(["image"], "test.png", { type: "image/png" });
   const result = await uploadImage(image, "client123", (request) => {
     assert.equal(request.url, "https://api.imgur.com/3/image");
