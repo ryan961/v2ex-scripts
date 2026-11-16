@@ -186,3 +186,49 @@ test("uploads record the source topic with the image in one write", async () => 
     window.close();
   }
 });
+
+test("history removes confirmed Imgur deletions and lets users remove local records", async () => {
+  const { window } = dom("");
+  setLanguage("en");
+  const store = createStorage(memoryAPI());
+  store.recordUpload({ link: "https://i.imgur.com/deleted.png", fileName: "deleted.png" });
+  store.recordUpload({ link: "https://i.imgur.com/unknown.png", fileName: "unknown.png" });
+  const previousFetch = globalThis.fetch;
+  const requests = [];
+  globalThis.fetch = async (url, options) => {
+    requests.push({ url, method: options.method });
+    return url.endsWith("/deleted.png")
+      ? { redirected: true, url: "https://i.imgur.com/removed.png" }
+      : { status: 404, redirected: false, url };
+  };
+  try {
+    openUploadHistory(store);
+    for (const preview of document.querySelectorAll(".vx-upload-record-preview img"))
+      preview.dispatchEvent(new Event("load"));
+    await new Promise(setImmediate);
+    assert.deepEqual(
+      store.uploads().map((record) => record.fileName),
+      ["unknown.png"],
+    );
+    assert.equal(requests.length, 2);
+    assert.ok(requests.every(({ method }) => method === "HEAD"));
+    assert.match(
+      document.querySelector(".vx-upload-history-status").textContent,
+      /deleted on Imgur/,
+    );
+    const remove = document.querySelector(".vx-upload-remove");
+    window.confirm = () => false;
+    remove.click();
+    assert.equal(store.uploads().length, 1);
+    window.confirm = () => true;
+    remove.click();
+    assert.deepEqual(store.uploads(), []);
+    assert.equal(requests.length, 2);
+    assert.equal(document.querySelector(".vx-upload-record"), null);
+    assert.match(document.querySelector(".v2p-modal-content").textContent, /No uploads yet/);
+    document.querySelector(".v2p-modal-close-btn").click();
+  } finally {
+    globalThis.fetch = previousFetch;
+    window.close();
+  }
+});

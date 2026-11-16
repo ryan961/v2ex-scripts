@@ -39,6 +39,7 @@ export function memoryAPI() {
       data.set(key, structuredClone(value));
       writes.push(key);
     },
+    delete: (key) => data.delete(key),
     keys: () => [...data.keys()],
     listen: (key, callback) => listeners.set(key, callback),
   };

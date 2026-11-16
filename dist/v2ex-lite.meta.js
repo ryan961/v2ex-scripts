@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         V2EX Lite
 // @namespace    https://github.com/ryan961/v2ex-scripts
-// @version      0.1.8
+// @version      0.1.9
 // @description  Focused V2EX themes, tags, previews, replies, check-in and image uploads.
 // @author       ryan961
 // @license      MIT
@@ -15,6 +15,7 @@
 // @run-at       document-start
 // @grant        GM_getValue
 // @grant        GM_setValue
+// @grant        GM_deleteValue
 // @grant        GM_listValues
 // @grant        GM_addValueChangeListener
 // @grant        GM_addStyle

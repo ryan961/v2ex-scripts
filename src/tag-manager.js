@@ -16,14 +16,13 @@ export function createTagManager(store, { createTagEditor, updateTags }) {
     ),
     "vx-tag-capacity",
   );
-  const toolbar = element("div", undefined, "vx-tag-toolbar");
+  const toolbar = element("div", undefined, "vx-tag-filters");
   const label = element("label", t("searchTags"));
   const search = element("input");
   search.type = "search";
-  search.className = "sl";
   label.append(search);
   const groupLabel = element("label", t("tagGroup"));
-  const group = element("select", undefined, "sl vx-tag-group");
+  const group = element("select", undefined, "vx-tag-group");
   groupLabel.append(group);
   const count = element("span", undefined, "vx-tag-count");
   count.setAttribute("aria-live", "polite");

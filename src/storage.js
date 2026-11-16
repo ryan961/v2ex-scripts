@@ -145,11 +145,17 @@ export function createStorage(api) {
       const id = crypto.randomUUID();
       write(`${PREFIX}upload:${id}`, { ...record, id, createdAt: new Date().toISOString() });
     },
+    removeUpload(id) {
+      if (typeof id !== "string" || !/^[\da-f]{8}-(?:[\da-f]{4}-){3}[\da-f]{12}$/i.test(id))
+        throw new Error(t("removeUploadFailed"));
+      api.delete(`${PREFIX}upload:${id}`);
+    },
     uploads() {
       return api
         .keys()
         .filter((key) => key.startsWith(`${PREFIX}upload:`))
         .map((key) => api.get(key))
+        .filter(Boolean)
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     },
   };

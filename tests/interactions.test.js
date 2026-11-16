@@ -165,6 +165,7 @@ test("settings edit and delete saved tags without submitting the settings form",
   list.querySelector(".vx-tag-actions button").click();
   const input = details.querySelector(".vx-tag-fields textarea");
   const entry = details.querySelector(".vx-tag-entry textarea");
+  assert.equal(details.querySelector(".vx-tag-input .sl"), null);
   assert.equal(input.value, "Database");
   const save = [...details.querySelectorAll("button")].find(
     (button) => button.textContent === "Save tags",

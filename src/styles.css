@@ -154,13 +154,13 @@
 }
 
 .vx-tag-editor-dialog .v2p-modal-main {
-  width: min(100%, 800px);
+  width: min(100%, 520px);
   height: auto;
   max-height: 100%;
 }
 
 .vx-tag-editor-dialog .v2p-tag-input-wrapper {
-  padding: 20px;
+  padding: 16px 20px;
 }
 
 :is(#vx-settings-dialog, .vx-tag-editor-dialog) {
@@ -176,7 +176,7 @@
   padding: 5px 10px;
   border: 1px solid transparent;
   border-radius: var(--vx-control-radius);
-  color: var(--v2p-color-font-primary);
+  color: var(--v2p-color-foreground);
   font: inherit;
   background: var(--v2p-color-bg-input);
 }
@@ -187,12 +187,15 @@
 }
 
 :is(#vx-settings-dialog, .vx-tag-editor-dialog)
-  :is(input[type="text"], input[type="search"], input[type="number"], select):focus,
-:is(#vx-settings-dialog, .vx-tag-editor-dialog) .vx-tag-input:focus-within {
+  :is(input[type="text"], input[type="search"], input[type="number"], select):focus {
   border-color: var(--vx-control-accent);
   outline: 2px solid color-mix(in srgb, var(--vx-control-accent) 22%, transparent);
   outline-offset: 0;
   background: var(--v2p-color-bg-content);
+}
+
+:is(#vx-settings-dialog, .vx-tag-editor-dialog) .vx-tag-input:focus-within {
+  border-color: var(--vx-control-accent);
 }
 
 #vx-settings-dialog :is(select, input[type="search"]) {
@@ -230,7 +233,6 @@
   font-weight: 600;
 }
 
-.vx-tag-toolbar,
 .vx-tag-entry,
 .vx-tag-actions {
   display: flex;
@@ -239,16 +241,76 @@
   align-items: center;
 }
 
-.vx-tag-toolbar {
-  justify-content: space-between;
-  margin-block: 10px;
+.vx-tag-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
+  margin-block: 12px;
 }
 
-.vx-tag-toolbar label {
+.vx-tag-filters label {
   display: grid;
-  flex: 1 1 15em;
-  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
   gap: 4px;
+}
+
+.vx-tag-filters :is(input, select) {
+  width: 100%;
+  margin: 0;
+}
+
+.vx-tag-filters .vx-tag-count {
+  grid-column: 1 / -1;
+  justify-self: end;
+}
+
+@media (max-width: 620px) {
+  .vx-tag-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@supports (appearance: base-select) and selector(::picker(select)) {
+  .vx-tag-group,
+  .vx-tag-group::picker(select) {
+    appearance: base-select;
+  }
+
+  .vx-tag-group {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .vx-tag-group::picker(select) {
+    width: anchor-size(width);
+    max-width: calc(100vw - 24px);
+    max-height: min(55vh, 280px);
+    margin-block: 4px;
+    padding: 4px;
+    overflow: auto;
+    border: 1px solid var(--box-border-color);
+    border-radius: var(--vx-control-radius);
+    background: var(--v2p-color-bg-content);
+    color: var(--v2p-color-foreground);
+    box-shadow: var(--v2p-widget-shadow);
+  }
+
+  .vx-tag-group option {
+    padding: 6px 8px;
+    border-radius: var(--vx-control-radius);
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .vx-tag-group option:is(:hover, :focus-visible) {
+    background: var(--v2p-color-bg-input);
+  }
+
+  .vx-tag-group option:checked {
+    color: var(--v2p-color-button-special-foreground);
+    background: var(--v2p-color-button-special-background);
+  }
 }
 
 #vx-settings-dialog .vx-tag-capacity,
@@ -264,16 +326,36 @@
 }
 
 .vx-tag-editor:not(:empty) {
-  margin-top: 10px;
-  padding: 12px;
-  border: 1px solid var(--box-border-color);
-  border-radius: var(--box-border-radius);
-  background: var(--box-background-alt-color);
+  margin-top: 12px;
+  padding-block: 12px;
+  border-block: 1px solid var(--box-border-color);
 }
 
 .vx-tag-editor h3 {
-  margin: 0;
+  margin: 0 0 10px;
   overflow-wrap: anywhere;
+}
+
+.vx-tag-editor-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+  margin-top: 8px;
+  color: var(--v2p-color-font-secondary);
+  font-size: 12px;
+}
+
+.vx-tag-editor-meta p,
+#vx-settings-dialog .vx-tag-editor-meta p {
+  flex: 1 1 15em;
+  margin: 0;
+}
+
+.vx-tag-editor-count {
+  margin-inline-start: auto;
+  white-space: nowrap;
 }
 
 .vx-tag-editor > .vx-tag-actions {
@@ -301,21 +383,23 @@
   align-items: center;
   gap: 2px;
   padding-inline: 6px 3px;
-  border: 1px solid var(--box-border-color);
   border-radius: var(--vx-control-radius);
-  background: var(--v2p-color-bg-content);
+  background: var(--button-background-hover-color);
 }
 
 .vx-tag-field-editing {
   flex: 1 1 13em;
 }
 
-.vx-tag-input textarea {
+.vx-tag-input textarea,
+.vx-tag-input textarea:focus {
   box-sizing: border-box;
   min-width: 0;
   min-height: 24px;
   padding: 3px 2px;
   border: 0;
+  outline: 0;
+  box-shadow: none;
   color: inherit;
   font: inherit;
   line-height: 18px;
@@ -328,12 +412,8 @@
   width: 100%;
 }
 
-.vx-tag-input textarea:focus {
-  outline: none;
-}
-
 .vx-tag-entry {
-  flex: 1 1 13em;
+  flex: 1 1 10em;
   flex-wrap: nowrap;
   min-width: 0;
 }
@@ -342,14 +422,9 @@
   flex: 1 1 0;
 }
 
-:is(#vx-settings-dialog, .vx-tag-editor-dialog) .vx-tag-entry button {
-  min-height: 24px;
-  padding-block: 0;
-  font-size: 12px;
-}
-
 .vx-tag-edit-value,
 .vx-tag-remove-value,
+.vx-tag-add,
 .vx-tag-filter {
   min-width: 0;
   border: 1px solid transparent;
@@ -369,13 +444,14 @@
   white-space: nowrap;
 }
 
-.vx-tag-remove-value {
+.vx-tag-remove-value,
+.vx-tag-add {
   flex: 0 0 20px;
   padding: 0;
   font-size: 16px;
 }
 
-:is(.vx-tag-edit-value, .vx-tag-remove-value):hover {
+:is(.vx-tag-edit-value, .vx-tag-remove-value, .vx-tag-add):hover {
   background: var(--v2p-color-button-background-hover);
 }
 
@@ -447,7 +523,7 @@
 }
 
 .vx-tag-actions .vx-tag-delete.normal.button {
-  color: color-mix(in srgb, var(--v2p-color-error) 70%, var(--v2p-color-font-primary));
+  color: color-mix(in srgb, var(--v2p-color-error) 70%, var(--v2p-color-foreground));
 }
 
 .vx-tag-actions .vx-tag-delete.normal.button:hover {
@@ -458,6 +534,14 @@
   min-width: 0;
   max-width: min(300px, 100%);
   gap: 3px;
+  line-height: 1.5;
+  color: var(--v2p-color-foreground);
+}
+
+.topic_info .vx-tags {
+  pointer-events: auto;
+  position: relative;
+  z-index: 2;
 }
 
 .vx-tags-text {
@@ -492,4 +576,48 @@
 .vx-upload-record-details {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.vx-upload-remove {
+  margin-top: 8px;
+}
+
+.vx-upload-history-status:empty {
+  display: none;
+}
+
+.vx-page-actions {
+  position: fixed;
+  z-index: 60;
+  inset-inline-end: max(14px, env(safe-area-inset-right));
+  bottom: max(14px, env(safe-area-inset-bottom));
+  display: grid;
+  gap: 6px;
+}
+
+.vx-page-actions button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 8px;
+  border: 1px solid var(--box-border-color);
+  border-radius: var(--v2p-button-radius);
+  color: var(--v2p-color-foreground);
+  font: inherit;
+  background: var(--v2p-color-bg-widget);
+  box-shadow: var(--v2p-widget-shadow);
+  cursor: pointer;
+}
+
+.vx-page-actions button:hover {
+  border-color: var(--v2p-color-border-darker);
+  background: var(--v2p-color-bg-input);
+}
+
+.vx-page-actions button:focus-visible {
+  outline: 2px solid var(--v2p-color-accent-600);
+  outline-offset: 2px;
+}
+
+.vx-page-actions .vx-back-to-top {
+  font-size: 20px;
 }

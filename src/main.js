@@ -12,12 +12,14 @@ import { createCheckIn } from "./check-in.js";
 import { initUpload } from "./upload.js";
 import { createReplyFolding } from "./folding.js";
 import { installSettings } from "./settings.js";
+import { installPageActions } from "./page-actions.js";
 
 function start() {
   if (!isV2EXPage(document)) return;
   const store = createStorage({
     get: GM_getValue,
     set: GM_setValue,
+    delete: GM_deleteValue,
     keys: GM_listValues,
     listen: GM_addValueChangeListener,
   });
@@ -61,6 +63,7 @@ function start() {
   enhance(document);
   const replies = initReplies({ options, getDocument, enhance });
   installSettings(store, Boolean(name), members);
+  installPageActions(Boolean(name));
   if (name) {
     initUpload(options, store);
     initEmoji(options);

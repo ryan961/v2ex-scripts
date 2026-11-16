@@ -23,6 +23,7 @@ test("bundled script initializes, enhances only new nodes, and settles without s
       writes.push(key);
       data.set(key, value);
     },
+    GM_deleteValue: (key) => data.delete(key),
     GM_listValues: () => [...data.keys()],
     GM_addValueChangeListener: () => {},
     GM_addStyle: (css) => {
@@ -44,6 +45,23 @@ test("bundled script initializes, enhances only new nodes, and settles without s
   assert.equal(window.document.querySelector("#Bottom .v2p-footer-text").textContent, "V2EX Lite");
   assert.equal(window.document.querySelectorAll(".vx-upload").length, 1);
   assert.ok(window.document.querySelector('#reply-box button[aria-expanded="false"]'));
+  const draft = window.document.querySelector("#reply_content");
+  draft.value = "Existing draft";
+  let jumpedToReply = false;
+  draft.scrollIntoView = () => (jumpedToReply = true);
+  window.document.querySelector(".vx-quick-reply").click();
+  assert.equal(jumpedToReply, true);
+  assert.equal(window.document.activeElement, draft);
+  assert.equal(draft.value, "Existing draft");
+  const top = window.document.querySelector(".vx-back-to-top");
+  assert.equal(top.hidden, true);
+  Object.defineProperty(window, "scrollY", { configurable: true, value: 320 });
+  window.dispatchEvent(new window.Event("scroll"));
+  assert.equal(top.hidden, false);
+  let jumpedToTop;
+  window.scrollTo = (options) => (jumpedToTop = options.top);
+  top.click();
+  assert.equal(jumpedToTop, 0);
   assert.equal(window.document.documentElement.dataset.v2pTheme, "minimalist");
   assert.equal(window.document.body.classList.contains("v2p-theme-minimalist"), true);
   assert.doesNotMatch(
@@ -121,6 +139,7 @@ test("script language preferences localize modules and guests skip account featu
           ? { language, preloadPages: 0, autoCheckIn: true, emoji: true, upload: true }
           : fallback,
       GM_setValue: () => assert.fail("guest settings should not write on startup"),
+      GM_deleteValue: () => assert.fail("guest settings should not delete on startup"),
       GM_listValues: () => [],
       GM_addValueChangeListener: () => {},
       GM_addStyle: () => {},
@@ -136,6 +155,7 @@ test("script language preferences localize modules and guests skip account featu
     assert.equal(window.document.querySelector(".v2p-topic-preview-btn").textContent, preview);
     assert.equal(window.document.querySelector("#top_replies > .cell").textContent, popular);
     assert.equal(window.document.querySelector(".vx-upload"), null);
+    assert.equal(window.document.querySelector(".vx-quick-reply"), null);
     assert.equal(window.document.querySelector('#reply-box button[type="button"]'), null);
     window.document.querySelector("#vx-settings").click();
     assert.equal(window.document.querySelector('[name="language"]').value, language ?? "zh");

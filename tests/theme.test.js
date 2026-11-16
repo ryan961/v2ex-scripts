@@ -114,3 +114,39 @@ test("native reply groups remain visible through transparent reply items", () =>
     "rgba(0, 0, 0, 0)",
   );
 });
+
+test("tag filters use their grid columns instead of V2EX's fixed input width", () => {
+  dom(`<style>.sl { width: 320px; }</style>
+    <input class="sl" id="native">
+    <div id="vx-settings-dialog"><div class="vx-tag-filters">
+      <label>Search<input type="search"></label>
+      <label>Tag group<select class="vx-tag-group"><option>All tags</option></select></label>
+      <span class="vx-tag-count">1 tagged member</span>
+    </div></div>`);
+  const style = document.createElement("style");
+  style.textContent = readFileSync("src/styles.css", "utf8");
+  document.head.append(style);
+  const computed = (selector) => window.getComputedStyle(document.querySelector(selector));
+  assert.match(
+    computed(".vx-tag-filters").gridTemplateColumns,
+    /^repeat\(2, minmax\(0(?:px)?, 1fr\)\)$/,
+  );
+  assert.equal(computed(".vx-tag-filters input").width, "100%");
+  assert.equal(computed(".vx-tag-group").width, "100%");
+  assert.equal(computed(".vx-tag-count").gridColumn, "1 / -1");
+  assert.equal(computed("#native").width, "320px");
+});
+
+test("post-list member tags paint above the topic metadata overlay", () => {
+  dom(`<span class="topic_info" style="pointer-events: none">
+    <div class="vx-tags v2p-reply-tags">Tag</div>
+  </span><div class="reply"><div class="vx-tags v2p-reply-tags">Tag</div></div>`);
+  const style = document.createElement("style");
+  style.textContent = readFileSync("src/styles.css", "utf8");
+  document.head.append(style);
+  const list = window.getComputedStyle(document.querySelector(".topic_info .vx-tags"));
+  const reply = window.getComputedStyle(document.querySelector(".reply .vx-tags"));
+  assert.equal(list.pointerEvents, "auto");
+  assert.equal(list.zIndex, "2");
+  assert.equal(list.lineHeight, reply.lineHeight);
+});

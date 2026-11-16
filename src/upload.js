@@ -1,5 +1,5 @@
 import { t } from "./i18n.js";
-import { element, modal, owned, safeURL } from "./dom.js";
+import { button, element, modal, owned, safeURL } from "./dom.js";
 import { DEFAULT_IMGUR_CLIENT_ID } from "./storage.js";
 
 export function replacePlaceholder(textarea, marker, replacement) {
@@ -99,7 +99,24 @@ export function openUploadHistory(store) {
   const dialog = modal(t("uploadHistory"));
   const content = element("div", undefined, "v2p-topic-preview");
   const records = store.uploads();
-  if (!records.length) content.append(element("p", t("noUploads")));
+  const status = element("p", undefined, "vx-upload-history-status");
+  status.setAttribute("role", "status");
+  const empty = element("p", t("noUploads"));
+  empty.hidden = records.length > 0;
+  content.append(status, empty);
+  function removeRecord(record, row, message) {
+    if (!row.isConnected) return;
+    try {
+      store.removeUpload(record.id);
+    } catch {
+      status.textContent = t("removeUploadFailed");
+      return;
+    }
+    if (row.contains(document.activeElement)) dialog.main.focus();
+    row.remove();
+    empty.hidden = !!content.querySelector(".vx-upload-record");
+    status.textContent = t(message);
+  }
   for (const record of records) {
     const row = element("div", undefined, "cell vx-upload-record");
     const details = element("div", undefined, "vx-upload-record-details");
@@ -126,6 +143,27 @@ export function openUploadHistory(store) {
         if (image.src === url) preview.remove();
         else image.src = url;
       });
+      if (record.id) {
+        image.addEventListener(
+          "load",
+          async () => {
+            try {
+              const result = await fetch(url, {
+                method: "HEAD",
+                credentials: "omit",
+                cache: "no-store",
+                referrerPolicy: "no-referrer",
+                signal: AbortSignal.timeout(5000),
+              });
+              if (result.redirected && result.url === "https://i.imgur.com/removed.png")
+                removeRecord(record, row, "imgurUploadRemoved");
+            } catch {
+              // A failed request does not confirm deletion.
+            }
+          },
+          { once: true },
+        );
+      }
       image.src = thumbnail.href;
       preview.append(image);
       row.append(preview);
@@ -148,6 +186,13 @@ export function openUploadHistory(store) {
       link.rel = "noopener noreferrer";
       context.append(element("strong", t("sourceTopic")), " ", link);
       details.append(context);
+    }
+    if (record.id) {
+      const remove = button(t("removeUploadRecord"), () => {
+        if (window.confirm(t("confirmRemoveUpload"))) removeRecord(record, row, "uploadRemoved");
+      });
+      remove.classList.add("vx-upload-remove");
+      details.append(remove);
     }
     row.append(details);
     content.append(row);

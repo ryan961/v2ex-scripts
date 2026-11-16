@@ -13,14 +13,13 @@ export function createMembers(store, options, topics, currentAccount) {
   }
   function createTagEditor(name, onSave, tags = store.getTags(name)) {
     const form = element("div", undefined, "v2p-tag-input-wrapper");
-    const toolbar = element("div", undefined, "vx-tag-toolbar");
-    const count = element("span", undefined, "vx-tag-count");
-    toolbar.append(element("strong", t("tags")), count);
+    const meta = element("div", undefined, "vx-tag-editor-meta");
+    const count = element("span", undefined, "vx-tag-editor-count");
     const box = element("div", undefined, "vx-tag-input");
     const fields = element("div", undefined, "vx-tag-fields");
-    const hint = element("p", t("tagInstructions", TAG_LIMITS.perMember));
+    const hint = element("p", t("tagInstructions"));
     hint.id = `vx-tag-hint-${crypto.randomUUID()}`;
-    const input = element("textarea", undefined, "sl");
+    const input = element("textarea");
     input.rows = 1;
     input.placeholder = t("tagEntry");
     input.setAttribute("aria-label", t("addTag"));
@@ -38,7 +37,7 @@ export function createMembers(store, options, topics, currentAccount) {
       fields.replaceChildren();
       for (const tag of values) {
         const row = element("div", undefined, "vx-tag-field");
-        const field = element("textarea", undefined, "sl");
+        const field = element("textarea");
         field.rows = 1;
         field.defaultValue = tag;
         field.maxLength = TAG_LIMITS.length;
@@ -95,7 +94,11 @@ export function createMembers(store, options, topics, currentAccount) {
       values.push(...input.value.split(/[,\uFF0C\n]/).map((tag) => tag.trim()));
       return normalizeTags([...new Set(values.filter(Boolean))]);
     }
-    const add = button(t("addTag"), () => {
+    const add = button("+", () => {
+      if (!input.value.trim()) {
+        input.focus();
+        return;
+      }
       try {
         showTags(readTags());
         input.value = "";
@@ -105,6 +108,9 @@ export function createMembers(store, options, topics, currentAccount) {
       }
       input.focus();
     });
+    add.className = "vx-tag-add";
+    add.title = t("addTag");
+    add.setAttribute("aria-label", add.title);
     const save = button(t("saveTags"), () => {
       try {
         updateTags(name, readTags());
@@ -136,7 +142,8 @@ export function createMembers(store, options, topics, currentAccount) {
     showTags(tags);
     entry.append(input, add);
     box.append(fields, entry);
-    form.append(toolbar, box, hint, error);
+    meta.append(hint, count);
+    form.append(box, meta, error);
     return { form, input, save };
   }
   function edit(name) {
