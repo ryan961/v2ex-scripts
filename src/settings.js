@@ -152,14 +152,16 @@ export function openSettings(store, signedIn = Boolean(currentUser()), tagAction
 export function installSettings(store, signedIn, tagActions) {
   const open = () => openSettings(store, signedIn, tagActions);
   GM_registerMenuCommand(`V2EX Lite ${t("settings")}`, open);
-  const shortcut = owned(element("div", undefined, "vx-page-actions vx-settings-shortcut"));
+  const shortcut = owned(element("div", undefined, "vx-settings-shortcut"));
+  const controls = element("div", undefined, "vx-page-actions");
   const trigger = button("", open);
   trigger.className = "vx-open-settings";
   trigger.setAttribute("aria-label", t("settings"));
   const hint = element("span", t("settings"), "vx-page-action-hint");
   hint.setAttribute("aria-hidden", "true");
   trigger.append(icon("settings"), hint);
-  shortcut.append(trigger);
+  controls.append(trigger);
+  shortcut.append(controls);
   document.body.append(shortcut);
   const host = document.querySelector("#Bottom .content");
   if (!host) return;
