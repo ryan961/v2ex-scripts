@@ -1105,10 +1105,10 @@ SOFTWARE.
     }
     return coords;
   }
-  async function detectOverflow(state, options2) {
+  async function detectOverflow(state, options) {
     var _await$platform$isEle;
-    if (options2 === void 0) {
-      options2 = {};
+    if (options === void 0) {
+      options = {};
     }
     const {
       x,
@@ -1124,7 +1124,7 @@ SOFTWARE.
       elementContext = "floating",
       altBoundary = false,
       padding = 0
-    } = evaluate(options2, state);
+    } = evaluate(options, state);
     const paddingObject = getPaddingObject(padding);
     const altContext = elementContext === "floating" ? "reference" : "floating";
     const element2 = elements[altBoundary ? altContext : elementContext];
@@ -1246,13 +1246,13 @@ SOFTWARE.
       middlewareData
     };
   };
-  var flip = function(options2) {
-    if (options2 === void 0) {
-      options2 = {};
+  var flip = function(options) {
+    if (options === void 0) {
+      options = {};
     }
     return {
       name: "flip",
-      options: options2,
+      options,
       async fn(state) {
         var _middlewareData$arrow, _middlewareData$flip;
         const {
@@ -1271,7 +1271,7 @@ SOFTWARE.
           fallbackAxisSideDirection = "none",
           flipAlignment = true,
           ...detectOverflowOptions
-        } = evaluate(options2, state);
+        } = evaluate(options, state);
         if ((_middlewareData$arrow = middlewareData.arrow) != null && _middlewareData$arrow.alignmentOffset) {
           return {};
         }
@@ -1356,7 +1356,7 @@ SOFTWARE.
     };
   };
   var originSides = /* @__PURE__ */ new Set(["left", "top"]);
-  async function convertValueToCoords(state, options2) {
+  async function convertValueToCoords(state, options) {
     const {
       placement,
       platform: platform2,
@@ -1368,7 +1368,7 @@ SOFTWARE.
     const isVertical = getSideAxis(placement) === "y";
     const mainAxisMulti = originSides.has(side) ? -1 : 1;
     const crossAxisMulti = rtl && isVertical ? -1 : 1;
-    const rawValue = evaluate(options2, state);
+    const rawValue = evaluate(options, state);
     let {
       mainAxis,
       crossAxis,
@@ -1393,13 +1393,13 @@ SOFTWARE.
       y: crossAxis * crossAxisMulti
     };
   }
-  var offset = function(options2) {
-    if (options2 === void 0) {
-      options2 = 0;
+  var offset = function(options) {
+    if (options === void 0) {
+      options = 0;
     }
     return {
       name: "offset",
-      options: options2,
+      options,
       async fn(state) {
         var _middlewareData$offse, _middlewareData$arrow;
         const {
@@ -1408,7 +1408,7 @@ SOFTWARE.
           placement,
           middlewareData
         } = state;
-        const diffCoords = await convertValueToCoords(state, options2);
+        const diffCoords = await convertValueToCoords(state, options);
         if (placement === ((_middlewareData$offse = middlewareData.offset) == null ? void 0 : _middlewareData$offse.placement) && (_middlewareData$arrow = middlewareData.arrow) != null && _middlewareData$arrow.alignmentOffset) {
           return {};
         }
@@ -1423,13 +1423,13 @@ SOFTWARE.
       }
     };
   };
-  var shift = function(options2) {
-    if (options2 === void 0) {
-      options2 = {};
+  var shift = function(options) {
+    if (options === void 0) {
+      options = {};
     }
     return {
       name: "shift",
-      options: options2,
+      options,
       async fn(state) {
         const {
           x,
@@ -1453,7 +1453,7 @@ SOFTWARE.
             }
           },
           ...detectOverflowOptions
-        } = evaluate(options2, state);
+        } = evaluate(options, state);
         const coords = {
           x,
           y
@@ -2086,9 +2086,9 @@ SOFTWARE.
   var offset2 = offset;
   var shift2 = shift;
   var flip2 = flip;
-  var computePosition2 = (reference, floating, options2) => {
+  var computePosition2 = (reference, floating, options) => {
     const cache = /* @__PURE__ */ new Map();
-    const mergedOptions = options2 != null ? options2 : {};
+    const mergedOptions = options != null ? options : {};
     const platformWithCache = {
       ...platform,
       ...mergedOptions.platform,
@@ -2700,6 +2700,9 @@ SOFTWARE.
   ];
 
   // src/dom.js
+  function isV2EXPage(doc) {
+    return Boolean(doc?.querySelector("#Top") && doc.querySelector("#Main"));
+  }
   function element(tag, text, className) {
     const node = document.createElement(tag);
     if (text !== void 0) node.textContent = text;
@@ -2878,11 +2881,11 @@ SOFTWARE.
       }
     }
   }
-  function initEmoji(options2) {
+  function initEmoji(options) {
     const textarea = document.querySelector(
       'textarea#reply_content, #reply-box textarea, textarea[name="content"]'
     );
-    if (!textarea || !options2.emoji) return;
+    if (!textarea || !options.emoji) return;
     const submit = textarea.form?.querySelector('input[type="submit"],button[type="submit"]');
     if (!submit) return;
     const trigger = owned(button("", () => {
@@ -3081,9 +3084,9 @@ SOFTWARE.
           if (key.startsWith(`${PREFIX}member:`))
             members[key.slice(`${PREFIX}member:`.length)] = api.get(key);
         }
-        const { imgurClientId: _clientId, ...options2 } = this.options();
+        const { imgurClientId: _clientId, ...options } = this.options();
         return JSON.stringify(
-          { schema: 1, exportedAt: (/* @__PURE__ */ new Date()).toISOString(), options: options2, members },
+          { schema: 1, exportedAt: (/* @__PURE__ */ new Date()).toISOString(), options, members },
           null,
           2
         );
@@ -3189,7 +3192,7 @@ SOFTWARE.
   }
 
   // src/members.js
-  function createMembers(store2, options2, topics, currentAccount) {
+  function createMembers(store, options, topics, currentAccount) {
     const registered = /* @__PURE__ */ new WeakSet(), byName = /* @__PURE__ */ new Map();
     function edit(name) {
       const dialog = modal(t("editTags", name), true);
@@ -3211,7 +3214,7 @@ SOFTWARE.
       input.className = "sl";
       input.rows = 4;
       input.style.width = "100%";
-      input.value = store2.getTags(name).join(", ");
+      input.value = store.getTags(name).join(", ");
       label.append(input);
       const error = element("p");
       form.append(label, error);
@@ -3219,7 +3222,7 @@ SOFTWARE.
       dialog.footer.append(
         button(t("saveTags"), () => {
           try {
-            store2.setTags(name, input.value);
+            store.setTags(name, input.value);
             draw(name);
             dialog.close();
           } catch (cause) {
@@ -3236,7 +3239,7 @@ SOFTWARE.
           groups?.delete(group);
           continue;
         }
-        const tags = store2.getTags(name);
+        const tags = store.getTags(name);
         group.replaceChildren();
         if (tags.length) group.append(element("b", "#"), `\xA0${tags.join("\uFF0C")}`);
         group.title = tags.join("\uFF0C");
@@ -3244,7 +3247,7 @@ SOFTWARE.
       }
     }
     function enhance(root) {
-      if (!options2.tags) return;
+      if (!options.tags) return;
       for (const link of matching(root, 'strong a[href^="/member/"], .header a[href^="/member/"]')) {
         const name = memberName(link);
         if (!name || !link.textContent.trim() || registered.has(link) || link.closest("[data-vx-owned],#Rightbar,#Bottom"))
@@ -3271,13 +3274,13 @@ SOFTWARE.
         else (author ?? link).after(group);
         if (!byName.has(key)) {
           byName.set(key, /* @__PURE__ */ new Set());
-          store2.watchTags(name, () => draw(name));
+          store.watchTags(name, () => draw(name));
         }
         byName.get(key).add(group);
         draw(name, group);
       }
     }
-    if (options2.userCards || options2.tags) initCards();
+    if (options.userCards || options.tags) initCards();
     function initCards() {
       const cache = /* @__PURE__ */ new Map();
       const popup = owned(element("div", void 0, "v2p-popup"));
@@ -3314,7 +3317,7 @@ SOFTWARE.
         const username = element("div", void 0, "v2p-username"), link = element("a", name);
         link.href = `/member/${name}`;
         for (const target of [avatarLink, link]) {
-          target.target = options2.newTab ? "_blank" : "_self";
+          target.target = options.newTab ? "_blank" : "_self";
           target.rel = "noopener noreferrer";
         }
         username.append(link);
@@ -3345,7 +3348,7 @@ SOFTWARE.
             const topicLink = element("a", topic.title, "v2p-member-topic-item");
             topicLink.href = topic.url;
             topicLink.title = topic.title;
-            topicLink.target = options2.newTab ? "_blank" : "_self";
+            topicLink.target = options.newTab ? "_blank" : "_self";
             topicLink.rel = "noopener noreferrer";
             row.append(topicLink);
             list.append(row);
@@ -3354,7 +3357,7 @@ SOFTWARE.
           topics?.enhance(section);
         }
         const actions = element("div", void 0, "v2p-member-card-actions");
-        if (options2.tags) {
+        if (options.tags) {
           const control = button(t("addTags"), () => {
             hide2();
             edit(name);
@@ -3436,7 +3439,7 @@ SOFTWARE.
           render(name, null, initialAvatar);
           popup.hidden = false;
           position(anchor);
-          if (!options2.userCards) return;
+          if (!options.userCards) return;
           const key = name.toLowerCase(), cached = cache.get(key);
           if (cached?.expires > Date.now()) {
             if (cached.banned) content.replaceChildren(element("span", t("memberMissing")));
@@ -3557,7 +3560,7 @@ SOFTWARE.
   }
 
   // src/preview.js
-  function createTopics(options2, themeCSS2 = "") {
+  function createTopics(options, themeCSS = "") {
     const seen = /* @__PURE__ */ new WeakSet();
     return {
       enhance(root) {
@@ -3569,23 +3572,23 @@ SOFTWARE.
           seen.add(link);
           const url = new URL(link.href, location.href);
           if (url.origin !== location.origin || !/^\/t\/\d+\/?$/.test(url.pathname)) continue;
-          if (options2.newTab) {
+          if (options.newTab) {
             link.target = "_blank";
             link.rel = "noopener noreferrer";
           }
-          if (!options2.preview) continue;
+          if (!options.preview) continue;
           const trigger = owned(
             button(t("preview"), () => {
               const dialog = modal(link.textContent);
               const titleLink = element("a", link.textContent, "v2p-topic-preview-title-link");
               titleLink.title = link.textContent;
               titleLink.href = url.href;
-              titleLink.target = options2.newTab ? "_blank" : "_self";
+              titleLink.target = options.newTab ? "_blank" : "_self";
               titleLink.rel = "noopener noreferrer";
               dialog.title.replaceChildren(titleLink);
               const original = element("a", t("openTopic"), "normal button special");
               original.href = url.href;
-              original.target = options2.newTab ? "_blank" : "_self";
+              original.target = options.newTab ? "_blank" : "_self";
               original.rel = "noopener noreferrer";
               dialog.actions.prepend(original);
               const frame = element("iframe", void 0, "v2p-topic-preview-frame");
@@ -3599,13 +3602,13 @@ SOFTWARE.
               frame.addEventListener("load", () => {
                 try {
                   const doc = frame.contentDocument;
-                  if (!doc?.querySelector("#Main")) return;
+                  if (!isV2EXPage(doc)) return;
                   applyTheme(doc, true);
                   const style = doc.createElement("style");
-                  style.textContent = themeCSS2;
+                  style.textContent = themeCSS;
                   doc.head.append(style);
                   enhanceEmojis(doc);
-                  createReplyFolding(options2.autoFold, doc).enhance(doc);
+                  createReplyFolding(options.autoFold, doc).enhance(doc);
                   syncOnce(doc);
                 } catch {
                 }
@@ -4089,7 +4092,7 @@ SOFTWARE.
     }
     return cloned;
   }
-  function initReplies({ options: options2, getDocument, enhance }) {
+  function initReplies({ options, getDocument, enhance }) {
     if (!/^\/t\/\d+\/?$/.test(location.pathname)) return null;
     const first = document.querySelector(`#Main ${REPLY}`);
     if (!first) return null;
@@ -4116,7 +4119,7 @@ SOFTWARE.
       retry.hidden = !error;
       retry.disabled = !!error && inFlight.has(error.page);
       paging.refresh(total, [...inFlight.keys()]);
-      if (!options2.hotReplies) return;
+      if (!options.hotReplies) return;
       const ranked = rankReplies(replies.values());
       const key = ranked.map((reply) => `${reply.id}:${reply.thanks}`).join("|");
       if (key === signature && panel) return;
@@ -4221,7 +4224,7 @@ SOFTWARE.
         }
       },
       async preload() {
-        for (let page = current + 1; page <= Math.min(total, current + options2.preloadPages); page++)
+        for (let page = current + 1; page <= Math.min(total, current + options.preloadPages); page++)
           if (!await loadPage(page)) break;
       }
     };
@@ -4245,7 +4248,7 @@ SOFTWARE.
     );
   }
   function createCheckIn({
-    store: store2,
+    store,
     getDocument,
     locks = navigator.locks,
     now = Date.now,
@@ -4266,20 +4269,20 @@ SOFTWARE.
           const time = now();
           const day = dayKey(time);
           const key = `daily:${name.toLowerCase()}`;
-          let state = store2.get(key);
+          let state = store.get(key);
           if (!canAttempt(state, day, time)) return;
-          const lease = store2.get("daily-lease");
+          const lease = store.get("daily-lease");
           if (lease?.until > time) return;
           const owner = crypto.randomUUID();
-          store2.set("daily-lease", { owner, until: time + 45e3 });
-          if (store2.get("daily-lease")?.owner !== owner) return;
+          store.set("daily-lease", { owner, until: time + 45e3 });
+          if (store.get("daily-lease")?.owner !== owner) return;
           state = {
             day,
             attempts: state?.day === day ? state.attempts + 1 : 1,
             success: false,
             nextAt: time + 6e4
           };
-          store2.set(key, state);
+          store.set(key, state);
           try {
             const doc = await getDocument("/mission/daily");
             if (currentUser(doc)?.toLowerCase() !== name.toLowerCase())
@@ -4297,14 +4300,14 @@ SOFTWARE.
               const result = await getDocument(path);
               if (!redeemed(result)) throw new Error(t("rewardUnconfirmed"));
             }
-            store2.set(key, { ...state, success: true, nextAt: 0 });
+            store.set(key, { ...state, success: true, nextAt: 0 });
             onStatus(t("rewardReceived"));
           } catch (error) {
-            store2.set(key, { ...state, nextAt: time + (state.attempts === 1 ? 6e4 : 3e5) });
+            store.set(key, { ...state, nextAt: time + (state.attempts === 1 ? 6e4 : 3e5) });
             onStatus(t("checkInError", error.message));
           } finally {
-            if (store2.get("daily-lease")?.owner === owner)
-              store2.set("daily-lease", { owner, until: 0 });
+            if (store.get("daily-lease")?.owner === owner)
+              store.set("daily-lease", { owner, until: 0 });
           }
         });
       } finally {
@@ -4375,10 +4378,10 @@ SOFTWARE.
       });
     });
   }
-  function openUploadHistory(store2) {
+  function openUploadHistory(store) {
     const dialog = modal(t("uploadHistory"));
     const content = element("div", void 0, "v2p-topic-preview");
-    const records = store2.uploads();
+    const records = store.uploads();
     if (!records.length) content.append(element("p", t("noUploads")));
     for (const record of records) {
       const row = element("div", void 0, "cell");
@@ -4402,11 +4405,11 @@ SOFTWARE.
     }
     dialog.content.append(content);
   }
-  function initUpload(options2, store2, request = GM_xmlhttpRequest) {
+  function initUpload(options, store, request = GM_xmlhttpRequest) {
     const textarea = document.querySelector(
       'textarea#reply_content, #reply-box textarea, textarea[name="content"]'
     );
-    if (!textarea || !options2.upload) return;
+    if (!textarea || !options.upload) return;
     const toolbar = owned(element("div", void 0, "vx-upload"));
     const input = element("input");
     input.type = "file";
@@ -4438,8 +4441,8 @@ SOFTWARE.
     textarea.after(toolbar);
     let queue = Promise.resolve();
     let pending = 0;
-    let pausedUntil = store2.get("upload-paused-until", 0);
-    const paused = () => Math.max(pausedUntil, store2.get("upload-paused-until", 0)) > Date.now();
+    let pausedUntil = store.get("upload-paused-until", 0);
+    const paused = () => Math.max(pausedUntil, store.get("upload-paused-until", 0)) > Date.now();
     function enqueue(files) {
       const images = [...files].filter((file) => file.type.startsWith("image/"));
       if (!images.length) return false;
@@ -4470,7 +4473,7 @@ ${marker}
           }
           row.textContent = t("uploading", file.name || t("pastedImage"));
           try {
-            const result = await uploadImage(file, options2.imgurClientId, request);
+            const result = await uploadImage(file, options.imgurClientId, request);
             const replaced = replacePlaceholder(textarea, marker, result.link);
             row.textContent = replaced ? t("uploaded") : t("draftMarkerRemoved");
             const link = element("a", result.link);
@@ -4486,7 +4489,7 @@ ${marker}
               row.append(deletion);
             }
             try {
-              store2.recordUpload({ ...result, fileName: file.name || t("pastedImage") });
+              store.recordUpload({ ...result, fileName: file.name || t("pastedImage") });
             } catch {
               row.append(` ${t("uploadRecordFailed")}`);
             }
@@ -4494,7 +4497,7 @@ ${marker}
             if (error.rateLimited) {
               pausedUntil = error.retryAt;
               try {
-                store2.set("upload-paused-until", error.retryAt);
+                store.set("upload-paused-until", error.retryAt);
               } catch {
               }
             }
@@ -4536,9 +4539,9 @@ ${marker}
   }
 
   // src/settings.js
-  function openSettings(store2, signedIn = Boolean(currentUser())) {
+  function openSettings(store, signedIn = Boolean(currentUser())) {
     if (document.querySelector("#vx-settings-dialog")) return;
-    const options2 = store2.options();
+    const options = store.options();
     const dialog = modal(`V2EX Lite ${t("settings")}`, true);
     dialog.root.id = "vx-settings-dialog";
     const form = element("form");
@@ -4564,14 +4567,14 @@ ${marker}
         control.disabled = login && !signedIn;
         if (key === "preloadPages") {
           Object.assign(control, { type: "number", min: "0", max: "5", step: "1", required: true });
-          control.value = String(options2[key]);
+          control.value = String(options[key]);
         } else if (key === "imgurClientId") {
           Object.assign(control, { type: "text", autocomplete: "off", pattern: "[A-Za-z0-9]{0,64}" });
-          control.value = options2[key];
+          control.value = options[key];
           control.placeholder = t("sharedClient");
         } else {
           control.type = "checkbox";
-          control.checked = !control.disabled && options2[key];
+          control.checked = !control.disabled && options[key];
         }
         const help = element("p", t(`${key}Help`));
         help.id = `${control.id}-help`;
@@ -4594,14 +4597,14 @@ ${marker}
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       if (!form.checkValidity()) return;
-      const next = { ...options2 };
+      const next = { ...options };
       for (const [key, control] of fields) {
         if (control.disabled) continue;
         next[key] = control.type === "checkbox" ? control.checked : control.value;
       }
       next.preloadPages = Number(next.preloadPages);
       try {
-        store2.saveOptions(next);
+        store.saveOptions(next);
         location.reload();
       } catch {
         message.textContent = t("saveFailed");
@@ -4616,7 +4619,7 @@ ${marker}
       try {
         if (!file.files[0]) return;
         if (file.files[0].size > 2e6) throw new Error(t("backupSize"));
-        const count = store2.import(await file.files[0].text());
+        const count = store.import(await file.files[0].text());
         message.textContent = t("imported", count);
       } catch (error) {
         message.textContent = t(
@@ -4631,7 +4634,7 @@ ${marker}
     const buttons = element("div", void 0, "vx-settings-backup-actions");
     buttons.append(
       button(t("exportBackup"), () => {
-        const url = URL.createObjectURL(new Blob([store2.export()], { type: "application/json" }));
+        const url = URL.createObjectURL(new Blob([store.export()], { type: "application/json" }));
         const anchor = element("a");
         anchor.href = url;
         anchor.download = "v2ex-lite-backup.json";
@@ -4648,14 +4651,17 @@ ${marker}
     dialog.actions.prepend(
       button(t("uploadHistory"), () => {
         dialog.close();
-        openUploadHistory(store2);
+        openUploadHistory(store);
       })
     );
   }
-  function installSettings(store2, signedIn) {
-    const open = () => openSettings(store2, signedIn);
+  function installSettings(store, signedIn) {
+    const open = () => openSettings(store, signedIn);
+    GM_registerMenuCommand(`V2EX Lite ${t("settings")}`, open);
+    const host = document.querySelector("#Bottom .content");
+    if (!host) return;
     const footer = owned(element("div", void 0, "v2p-footer"));
-    footer.append(element("div", "V2EX Lite \xB7 V2EX Polish", "v2p-footer-text"));
+    footer.append(element("div", "V2EX Lite", "v2p-footer-text"));
     const links = element("div", void 0, "v2p-footer-links");
     const entry = element("a", t("settings"), "v2p-footer-link v2p-hover-btn");
     entry.href = "#";
@@ -4668,27 +4674,26 @@ ${marker}
     uploads.href = "#";
     uploads.addEventListener("click", (event) => {
       event.preventDefault();
-      openUploadHistory(store2);
+      openUploadHistory(store);
     });
     links.append(entry, uploads);
     footer.append(links);
-    (document.querySelector("#Bottom .content") ?? document.body).append(footer);
-    GM_registerMenuCommand(`V2EX Lite ${t("settings")}`, open);
+    host.append(footer);
   }
 
   // src/main.js
-  var store = createStorage({
-    get: GM_getValue,
-    set: GM_setValue,
-    keys: GM_listValues,
-    listen: GM_addValueChangeListener
-  });
-  var options = store.options();
-  var themeCSS = `${theme_default}
-${styles_default}`;
-  GM_addStyle(themeCSS);
-  applyTheme();
   function start() {
+    if (!isV2EXPage(document)) return;
+    const store = createStorage({
+      get: GM_getValue,
+      set: GM_setValue,
+      keys: GM_listValues,
+      listen: GM_addValueChangeListener
+    });
+    const options = store.options();
+    const themeCSS = `${theme_default}
+${styles_default}`;
+    GM_addStyle(themeCSS);
     applyTheme();
     const name = currentUser();
     if (options.privacy) {
@@ -4765,7 +4770,8 @@ ${styles_default}`;
     }
     if (name && options.autoCheckIn) {
       const report = (message) => {
-        document.querySelector("#vx-settings").title = message;
+        const entry = document.querySelector("#vx-settings");
+        if (entry) entry.title = message;
         console.info(`[V2EX Lite] ${message}`);
       };
       const checkIn = createCheckIn({ store, getDocument, onStatus: report });

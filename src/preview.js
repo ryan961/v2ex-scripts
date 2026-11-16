@@ -1,5 +1,5 @@
 import { t } from "./i18n.js";
-import { button, element, matching, modal, owned, syncOnce } from "./dom.js";
+import { button, element, isV2EXPage, matching, modal, owned, syncOnce } from "./dom.js";
 import { applyTheme } from "./theme.js";
 import { enhanceEmojis } from "./emoji.js";
 import { createReplyFolding } from "./folding.js";
@@ -46,7 +46,7 @@ export function createTopics(options, themeCSS = "") {
             frame.addEventListener("load", () => {
               try {
                 const doc = frame.contentDocument;
-                if (!doc?.querySelector("#Main")) return;
+                if (!isV2EXPage(doc)) return;
                 applyTheme(doc, true);
                 const style = doc.createElement("style");
                 style.textContent = themeCSS;

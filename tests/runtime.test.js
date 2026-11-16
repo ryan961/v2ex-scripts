@@ -41,6 +41,7 @@ test("bundled script initializes, enhances only new nodes, and settles without s
   assert.equal(window.document.querySelector(".item_title a").target, "_blank");
   assert.equal(window.document.querySelectorAll(".vx-tags").length, 3);
   assert.equal(window.document.querySelectorAll("#vx-settings").length, 1);
+  assert.equal(window.document.querySelector("#Bottom .v2p-footer-text").textContent, "V2EX Lite");
   assert.equal(window.document.querySelectorAll(".vx-upload").length, 1);
   assert.ok(window.document.querySelector('#reply-box button[aria-expanded="false"]'));
   assert.equal(window.document.documentElement.dataset.v2pTheme, "minimalist");
@@ -62,6 +63,23 @@ test("bundled script initializes, enhances only new nodes, and settles without s
   await new Promise((resolve) => setTimeout(resolve, 60));
   assert.equal(window.document.querySelectorAll(".vx-tags").length, tagCount);
   assert.deepEqual(writes, []);
+  instance.window.close();
+});
+
+test("Cloudflare and error pages do not run V2EX Lite", async () => {
+  const instance = new JSDOM(
+    '<h1>Security verification</h1><div id="challenge-stage"></div><footer>Cloudflare</footer>',
+    { url: "https://v2ex.com/t/123", runScripts: "outside-only", pretendToBeVisual: true },
+  );
+  const { window } = instance;
+  const calls = [];
+  for (const name of ["GM_getValue", "GM_addStyle", "GM_registerMenuCommand", "fetch"])
+    window[name] = () => calls.push(name);
+  window.eval(built);
+  await new Promise((resolve) => window.setTimeout(resolve, 0));
+  assert.equal(window.document.querySelector(".v2p-footer"), null);
+  assert.equal(window.document.documentElement.dataset.v2pTheme, undefined);
+  assert.deepEqual(calls, []);
   instance.window.close();
 });
 

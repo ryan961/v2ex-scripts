@@ -121,8 +121,11 @@ export function openSettings(store, signedIn = Boolean(currentUser())) {
 
 export function installSettings(store, signedIn) {
   const open = () => openSettings(store, signedIn);
+  GM_registerMenuCommand(`V2EX Lite ${t("settings")}`, open);
+  const host = document.querySelector("#Bottom .content");
+  if (!host) return;
   const footer = owned(element("div", undefined, "v2p-footer"));
-  footer.append(element("div", "V2EX Lite \u00b7 V2EX Polish", "v2p-footer-text"));
+  footer.append(element("div", "V2EX Lite", "v2p-footer-text"));
   const links = element("div", undefined, "v2p-footer-links");
   const entry = element("a", t("settings"), "v2p-footer-link v2p-hover-btn");
   entry.href = "#";
@@ -139,6 +142,5 @@ export function installSettings(store, signedIn) {
   });
   links.append(entry, uploads);
   footer.append(links);
-  (document.querySelector("#Bottom .content") ?? document.body).append(footer);
-  GM_registerMenuCommand(`V2EX Lite ${t("settings")}`, open);
+  host.append(footer);
 }

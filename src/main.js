@@ -3,7 +3,7 @@ import polishCSS from "./theme.scss";
 import integrationCSS from "./styles.css";
 import { enhanceEmojis, initEmoji } from "./emoji.js";
 import { createStorage } from "./storage.js";
-import { createHTTP, currentUser } from "./dom.js";
+import { createHTTP, currentUser, isV2EXPage } from "./dom.js";
 import { createMembers } from "./members.js";
 import { createTopics } from "./preview.js";
 import { enhanceReplyActions, initReplies, REPLY } from "./replies.js";
@@ -12,18 +12,17 @@ import { initUpload } from "./upload.js";
 import { createReplyFolding } from "./folding.js";
 import { installSettings } from "./settings.js";
 
-const store = createStorage({
-  get: GM_getValue,
-  set: GM_setValue,
-  keys: GM_listValues,
-  listen: GM_addValueChangeListener,
-});
-const options = store.options();
-const themeCSS = `${polishCSS}\n${integrationCSS}`;
-GM_addStyle(themeCSS);
-applyTheme();
-
 function start() {
+  if (!isV2EXPage(document)) return;
+  const store = createStorage({
+    get: GM_getValue,
+    set: GM_setValue,
+    keys: GM_listValues,
+    listen: GM_addValueChangeListener,
+  });
+  const options = store.options();
+  const themeCSS = `${polishCSS}\n${integrationCSS}`;
+  GM_addStyle(themeCSS);
   applyTheme();
   const name = currentUser();
   if (options.privacy) {
@@ -102,7 +101,8 @@ function start() {
   }
   if (name && options.autoCheckIn) {
     const report = (message) => {
-      document.querySelector("#vx-settings").title = message;
+      const entry = document.querySelector("#vx-settings");
+      if (entry) entry.title = message;
       console.info(`[V2EX Lite] ${message}`);
     };
     const checkIn = createCheckIn({ store, getDocument, onStatus: report });

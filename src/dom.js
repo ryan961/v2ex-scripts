@@ -1,4 +1,9 @@
 import { t } from "./i18n.js";
+
+export function isV2EXPage(doc) {
+  return Boolean(doc?.querySelector("#Top") && doc.querySelector("#Main"));
+}
+
 export function element(tag, text, className) {
   const node = document.createElement(tag);
   if (text !== undefined) node.textContent = text;
