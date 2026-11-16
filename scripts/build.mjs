@@ -30,7 +30,6 @@ const header = `// ==UserScript==
 // @updateURL    ${base}.meta.js
 // @match        https://v2ex.com/*
 // @match        https://*.v2ex.com/*
-// @noframes
 // @run-at       document-start
 // @grant        GM_getValue
 // @grant        GM_setValue

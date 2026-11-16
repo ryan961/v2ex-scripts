@@ -1,6 +1,6 @@
 import { t } from "./i18n.js";
 import { button, element, isV2EXPage, matching, modal, owned, syncOnce } from "./dom.js";
-import { applyTheme } from "./theme.js";
+import { applyTheme, THEME_STYLE_ID } from "./theme.js";
 import { enhanceEmojis } from "./emoji.js";
 import { createReplyFolding } from "./folding.js";
 import { enhanceReplyActions } from "./reply-actions.js";
@@ -38,6 +38,7 @@ export function createTopics(options, themeCSS = "") {
             dialog.actions.prepend(original);
             const frame = element("iframe", undefined, "v2p-topic-preview-frame");
             frame.title = link.textContent;
+            frame.style.visibility = "hidden";
             const previewURL = new URL(url.href);
             previewURL.searchParams.set("v2p-preview", "1");
             frame.src = previewURL.href;
@@ -49,9 +50,12 @@ export function createTopics(options, themeCSS = "") {
                 const doc = frame.contentDocument;
                 if (!isV2EXPage(doc)) return;
                 applyTheme(doc, true);
-                const style = doc.createElement("style");
-                style.textContent = themeCSS;
-                doc.head.append(style);
+                if (!doc.getElementById(THEME_STYLE_ID)) {
+                  const style = doc.createElement("style");
+                  style.id = THEME_STYLE_ID;
+                  style.textContent = themeCSS;
+                  doc.head.append(style);
+                }
                 enhanceEmojis(doc);
                 const view = doc.defaultView;
                 enhanceReplyActions(doc, view);
@@ -67,6 +71,8 @@ export function createTopics(options, themeCSS = "") {
                 syncOnce(doc);
               } catch {
                 /* A sign-in redirect may leave the same-origin frame. */
+              } finally {
+                frame.style.removeProperty("visibility");
               }
             });
           }),

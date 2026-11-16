@@ -5,6 +5,41 @@ import { setLanguage } from "../src/i18n.js";
 import { createStorage } from "../src/storage.js";
 import { dom, memoryAPI } from "./helpers.js";
 
+test("closing upload history returns to settings and preserves unsaved fields", () => {
+  const { window } = dom("");
+  const api = memoryAPI();
+  openSettings(createStorage(api), true);
+  const settings = document.querySelector("#vx-settings-dialog");
+  const language = settings.querySelector('[name="language"]');
+  language.value = "ko";
+  const history = settings.querySelector(".v2p-modal-actions button");
+  for (const method of ["button", "escape", "backdrop"]) {
+    history.focus();
+    history.click();
+    const child = [...document.querySelectorAll(".v2p-modal-mask")].at(-1);
+    assert.notEqual(child, settings);
+    assert.equal(settings.hasAttribute("inert"), true);
+    if (method === "button") child.querySelector(".v2p-modal-close-btn").click();
+    else if (method === "escape")
+      document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    else {
+      child.dispatchEvent(new window.MouseEvent("mousedown", { bubbles: true }));
+      child.dispatchEvent(new window.MouseEvent("mouseup", { bubbles: true }));
+    }
+    assert.equal(document.querySelectorAll(".v2p-modal-mask").length, 1);
+    assert.equal(settings.isConnected, true);
+    assert.equal(settings.hasAttribute("inert"), false);
+    assert.equal(language.value, "ko");
+    assert.equal(document.activeElement, history);
+    assert.equal(document.body.classList.contains("v2p-modal-open"), true);
+  }
+  assert.deepEqual(api.writes, []);
+  settings.querySelector(".v2p-modal-close-btn").click();
+  assert.equal(document.querySelector(".v2p-modal-mask"), null);
+  assert.equal(document.body.classList.contains("v2p-modal-open"), false);
+  window.close();
+});
+
 test("settings expose Chinese labels and associated explanations for every option", () => {
   dom("");
   const store = createStorage(memoryAPI());

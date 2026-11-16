@@ -666,6 +666,34 @@
   visibility: visible;
 }
 
+.vx-settings-shortcut {
+  inset-inline-start: 0;
+  inset-inline-end: auto;
+  bottom: 0;
+  padding: max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.vx-settings-shortcut:hover,
+.vx-settings-shortcut:has(button:focus-visible) {
+  opacity: 1;
+}
+
+.vx-settings-shortcut button {
+  border: 1px solid var(--box-border-color);
+  background: var(--v2p-color-bg-widget);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 10%);
+}
+
+.vx-settings-shortcut .vx-page-action-hint {
+  inset-inline-start: calc(100% + 12px);
+  inset-inline-end: auto;
+}
+
 .v2p-modal-open .vx-page-actions {
   display: none;
 }

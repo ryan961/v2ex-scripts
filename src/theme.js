@@ -1,3 +1,5 @@
+export const THEME_STYLE_ID = "v2ex-lite-theme";
+
 export function applyTheme(doc = document, preview = false) {
   const root = doc.documentElement;
   if (!root) return;

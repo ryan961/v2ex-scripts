@@ -2,6 +2,7 @@ import { button, currentUser, element, modal, owned } from "./dom.js";
 import { interfaceLanguage, LANGUAGE_NAMES, t } from "./i18n.js";
 import { createTagManager } from "./tag-manager.js";
 import { openUploadHistory } from "./upload.js";
+import { icon } from "./icons.js";
 
 export function openSettings(store, signedIn = Boolean(currentUser()), tagActions) {
   if (document.querySelector("#vx-settings-dialog")) return;
@@ -145,17 +146,21 @@ export function openSettings(store, signedIn = Boolean(currentUser()), tagAction
   form.append(backup);
   if (!signedIn) dialog.content.append(element("p", t("guestNotice"), "vx-settings-notice"));
   dialog.content.append(form);
-  dialog.actions.prepend(
-    button(t("uploadHistory"), () => {
-      dialog.close();
-      openUploadHistory(store);
-    }),
-  );
+  dialog.actions.prepend(button(t("uploadHistory"), () => openUploadHistory(store)));
 }
 
 export function installSettings(store, signedIn, tagActions) {
   const open = () => openSettings(store, signedIn, tagActions);
   GM_registerMenuCommand(`V2EX Lite ${t("settings")}`, open);
+  const shortcut = owned(element("div", undefined, "vx-page-actions vx-settings-shortcut"));
+  const trigger = button("", open);
+  trigger.className = "vx-open-settings";
+  trigger.setAttribute("aria-label", t("settings"));
+  const hint = element("span", t("settings"), "vx-page-action-hint");
+  hint.setAttribute("aria-hidden", "true");
+  trigger.append(icon("settings"), hint);
+  shortcut.append(trigger);
+  document.body.append(shortcut);
   const host = document.querySelector("#Bottom .content");
   if (!host) return;
   const footer = owned(element("div", undefined, "v2p-footer"));

@@ -1,4 +1,4 @@
-import { applyTheme } from "./theme.js";
+import { applyTheme, THEME_STYLE_ID } from "./theme.js";
 import polishCSS from "./theme.scss";
 import integrationCSS from "./styles.css";
 import { enhanceEmojis, initEmoji } from "./emoji.js";
@@ -15,20 +15,29 @@ import { installSettings } from "./settings.js";
 import { installPageActions } from "./page-actions.js";
 
 const themeCSS = `${polishCSS}\n${integrationCSS}`;
+const previewFrame = window.frameElement?.matches("iframe.v2p-topic-preview-frame")
+  ? window.frameElement
+  : null;
 let themeReady = false;
 
 function prepareTheme() {
   if (!themeReady && isV2EXPage(document)) {
-    GM_addStyle(themeCSS);
-    applyTheme();
+    if (!document.getElementById(THEME_STYLE_ID)) {
+      const style = GM_addStyle(themeCSS);
+      if (style) style.id = THEME_STYLE_ID;
+    }
+    applyTheme(document, Boolean(previewFrame));
+    previewFrame?.style.removeProperty("visibility");
     themeReady = true;
   }
   return themeReady;
 }
 
 function start() {
+  previewFrame?.style.removeProperty("visibility");
   if (!isV2EXPage(document)) return;
   prepareTheme();
+  if (previewFrame) return;
   const store = createStorage({
     get: GM_getValue,
     set: GM_setValue,
@@ -131,17 +140,19 @@ function start() {
   void replies?.preload();
 }
 
-if (document.readyState === "loading") {
-  const observer = new MutationObserver(() => {
-    if (prepareTheme()) observer.disconnect();
-  });
-  if (!prepareTheme()) observer.observe(document, { childList: true, subtree: true });
-  document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-      observer.disconnect();
-      start();
-    },
-    { once: true },
-  );
-} else start();
+if (window.self === window.top || previewFrame) {
+  if (document.readyState === "loading") {
+    const observer = new MutationObserver(() => {
+      if (prepareTheme()) observer.disconnect();
+    });
+    if (!prepareTheme()) observer.observe(document, { childList: true, subtree: true });
+    document.addEventListener(
+      "DOMContentLoaded",
+      () => {
+        observer.disconnect();
+        start();
+      },
+      { once: true },
+    );
+  } else start();
+}

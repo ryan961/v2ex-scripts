@@ -96,6 +96,7 @@ export function safeContent(source, base) {
 }
 
 export function modal(title, hasFooter = false) {
+  const previousModal = [...document.querySelectorAll(".v2p-modal-mask")].at(-1);
   const mask = owned(element("div", undefined, "v2p-modal-mask"));
   const main = element("div", undefined, "v2p-modal-main");
   main.setAttribute("role", "dialog");
@@ -112,11 +113,13 @@ export function modal(title, hasFooter = false) {
   const closeModal = () => {
     mask.remove();
     document.removeEventListener("keydown", onKey);
+    previousModal?.removeAttribute("inert");
     if (!document.querySelector(".v2p-modal-mask"))
       document.body.classList.remove("v2p-modal-open");
     previous?.focus?.();
   };
   const onKey = (event) => {
+    if (mask.hasAttribute("inert")) return;
     if (event.key === "Escape") {
       event.preventDefault();
       closeModal();
@@ -152,6 +155,7 @@ export function modal(title, hasFooter = false) {
     if (down === mask && event.target === mask) closeModal();
   });
   document.addEventListener("keydown", onKey);
+  previousModal?.setAttribute("inert", "");
   document.body.append(mask);
   document.body.classList.add("v2p-modal-open");
   main.focus({ preventScroll: true });

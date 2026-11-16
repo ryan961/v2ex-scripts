@@ -6,6 +6,53 @@ import { JSDOM } from "jsdom";
 const fixture = readFileSync(new URL("./fixtures/topic.html", import.meta.url), "utf8");
 const built = readFileSync(new URL("../dist/v2ex-lite.user.js", import.meta.url), "utf8");
 
+test("only owned preview frames bootstrap the theme without account or storage work", async () => {
+  assert.equal(/^\/\/ @noframes\s*$/m.test(built), false);
+  for (const [owned, html, themed] of [
+    [true, fixture, true],
+    [false, fixture, false],
+    [true, '<h1>Security verification</h1><div id="challenge-stage"></div>', false],
+  ]) {
+    const instance = new JSDOM("", {
+      url: "https://www.v2ex.com/",
+      runScripts: "outside-only",
+      pretendToBeVisual: true,
+    });
+    const frame = instance.window.document.createElement("iframe");
+    if (owned) frame.className = "v2p-topic-preview-frame";
+    frame.style.visibility = "hidden";
+    instance.window.document.body.append(frame);
+    const view = frame.contentWindow;
+    const doc = view.document;
+    doc.open();
+    doc.write(html);
+    doc.close();
+    const calls = [];
+    for (const name of [
+      "GM_getValue",
+      "GM_setValue",
+      "GM_registerMenuCommand",
+      "GM_xmlhttpRequest",
+      "fetch",
+    ])
+      view[name] = () => calls.push(name);
+    view.GM_addStyle = (css) => {
+      calls.push("style");
+      const style = doc.createElement("style");
+      style.textContent = css;
+      doc.head.append(style);
+      return style;
+    };
+    view.eval(built);
+    await new Promise(setImmediate);
+    assert.deepEqual(calls, themed ? ["style"] : []);
+    assert.equal(doc.documentElement.dataset.v2pPreview, themed ? "1" : undefined);
+    assert.equal(doc.querySelectorAll("#v2ex-lite-theme").length, themed ? 1 : 0);
+    assert.equal(frame.style.visibility, owned ? "" : "hidden");
+    instance.window.close();
+  }
+});
+
 test("theme applies before DOMContentLoaded and functional initialization", async () => {
   const events = [];
   const reads = [];
@@ -88,6 +135,12 @@ test("bundled script initializes, enhances only new nodes, and settles without s
   assert.equal(window.document.querySelector(".item_title a").target, "_blank");
   assert.equal(window.document.querySelectorAll(".vx-tags").length, 3);
   assert.equal(window.document.querySelectorAll("#vx-settings").length, 1);
+  const settingsShortcut = window.document.querySelector(".vx-settings-shortcut button");
+  assert.ok(settingsShortcut.querySelector("svg"));
+  assert.equal(settingsShortcut.getAttribute("aria-label"), "\u8bbe\u7f6e");
+  settingsShortcut.click();
+  assert.equal(window.document.querySelectorAll("#vx-settings-dialog").length, 1);
+  window.document.querySelector("#vx-settings-dialog .v2p-modal-close-btn").click();
   assert.equal(window.document.querySelector("#Bottom .v2p-footer-text").textContent, "V2EX Lite");
   assert.equal(window.document.querySelectorAll(".vx-upload").length, 1);
   assert.ok(window.document.querySelector('#reply-box button[aria-expanded="false"]'));

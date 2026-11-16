@@ -52,6 +52,7 @@ test("Polish preview markup uses a same-origin iframe and removes it on close", 
   assert.equal(document.querySelector("iframe").src, "https://www.v2ex.com/t/456?v2p-preview=1");
   assert.equal(document.querySelector(".v2p-modal-main").getAttribute("role"), "dialog");
   const frame = document.querySelector("iframe");
+  assert.equal(frame.style.visibility, "hidden");
   const embedded = frame.contentDocument;
   embedded.open();
   embedded.write(`<div id="Top"></div><div id="Main"><div id="r_23" class="cell">
@@ -59,6 +60,10 @@ test("Polish preview markup uses a same-origin iframe and removes it on close", 
     </div></div>`);
   embedded.close();
   frame.dispatchEvent(new Event("load"));
+  assert.equal(frame.style.visibility, "");
+  assert.equal(embedded.querySelectorAll("#v2ex-lite-theme").length, 1);
+  frame.dispatchEvent(new Event("load"));
+  assert.equal(embedded.querySelectorAll("#v2ex-lite-theme").length, 1);
   const area = embedded.querySelector(".thank_area");
   assert.equal(area.querySelectorAll(".v2p-control > svg").length, 2);
   assert.equal(
