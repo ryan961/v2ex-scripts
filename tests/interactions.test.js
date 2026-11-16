@@ -3,9 +3,35 @@ import test from "node:test";
 import { createTopics } from "../src/preview.js";
 import { createMembers } from "../src/members.js";
 import { openSettings } from "../src/settings.js";
+import { installPageActions } from "../src/page-actions.js";
 import { setLanguage } from "../src/i18n.js";
 import { createStorage } from "../src/storage.js";
 import { dom, memoryAPI } from "./helpers.js";
+
+test("reply shortcut floats the existing draft when the native helper is unavailable", () => {
+  const { window } = dom(`<div id="Main"><div id="reply-box">
+    <button id="undock-button" style="display:none">Undock</button>
+    <textarea id="reply_content">Existing draft</textarea>
+    </div></div>`);
+  const editor = document.querySelector("#reply_content");
+  editor.scrollIntoView = () => assert.fail("opening a floating reply must not scroll");
+  window.scrollTo = () => assert.fail("opening a floating reply must not scroll");
+  editor.setSelectionRange(2, 5);
+  installPageActions(true, {});
+  const reply = document.querySelector(".vx-quick-reply");
+  const box = document.querySelector("#reply-box");
+  reply.click();
+  assert.equal(box.classList.contains("reply-box-sticky"), true);
+  assert.equal(document.querySelector("#undock-button").style.display, "inline-block");
+  assert.equal(document.activeElement, editor);
+  assert.equal(editor.value, "Existing draft");
+  assert.equal(editor.selectionStart, 2);
+  assert.equal(editor.selectionEnd, 5);
+  box.classList.remove("reply-box-sticky");
+  reply.click();
+  assert.equal(box.classList.contains("reply-box-sticky"), true);
+  window.close();
+});
 
 test("Polish preview markup uses a same-origin iframe and removes it on close", async () => {
   dom(

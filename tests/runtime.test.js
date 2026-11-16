@@ -47,10 +47,21 @@ test("bundled script initializes, enhances only new nodes, and settles without s
   assert.ok(window.document.querySelector('#reply-box button[aria-expanded="false"]'));
   const draft = window.document.querySelector("#reply_content");
   draft.value = "Existing draft";
-  let jumpedToReply = false;
-  draft.scrollIntoView = () => (jumpedToReply = true);
+  draft.scrollIntoView = () => assert.fail("opening the reply box must preserve scrolling");
+  let floatedReply = 0;
+  window.setReplyBoxSticky = () => {
+    floatedReply++;
+    window.document.querySelector("#reply-box").classList.add("reply-box-sticky");
+  };
+  Object.defineProperty(window, "scrollY", { configurable: true, value: 320 });
+  window.dispatchEvent(new window.Event("scroll"));
   window.document.querySelector(".vx-quick-reply").click();
-  assert.equal(jumpedToReply, true);
+  assert.equal(floatedReply, 1);
+  assert.equal(
+    window.document.querySelector("#reply-box").classList.contains("reply-box-sticky"),
+    true,
+  );
+  assert.equal(window.scrollY, 320);
   assert.equal(window.document.activeElement, draft);
   assert.equal(draft.value, "Existing draft");
   const top = window.document.querySelector(".vx-back-to-top");
@@ -60,14 +71,19 @@ test("bundled script initializes, enhances only new nodes, and settles without s
     top.querySelector(".vx-page-action-hint").textContent,
   );
   assert.ok(window.document.querySelector(".vx-quick-reply svg"));
+  Object.defineProperty(window, "scrollY", { configurable: true, value: 0 });
+  window.dispatchEvent(new window.Event("scroll"));
   assert.equal(top.hidden, true);
   Object.defineProperty(window, "scrollY", { configurable: true, value: 320 });
   window.dispatchEvent(new window.Event("scroll"));
   assert.equal(top.hidden, false);
   let jumpedToTop;
   window.scrollTo = (options) => (jumpedToTop = options.top);
+  const rightbar = window.document.querySelector("#Rightbar");
+  rightbar.scrollTop = 240;
   top.click();
   assert.equal(jumpedToTop, 0);
+  assert.equal(rightbar.scrollTop, 0);
   assert.equal(window.document.documentElement.dataset.v2pTheme, "minimalist");
   assert.equal(window.document.body.classList.contains("v2p-theme-minimalist"), true);
   assert.doesNotMatch(

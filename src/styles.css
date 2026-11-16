@@ -13,7 +13,13 @@
 }
 
 .thank_area.v2p-controls {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
+}
+
+#reply-box.reply-box-sticky {
+  isolation: isolate;
 }
 
 .thank_area.v2p-controls > a {
@@ -597,7 +603,7 @@
   display: grid;
   padding: 3px;
   border: 1px solid var(--box-border-color);
-  border-radius: 12px;
+  border-radius: 0;
   background: var(--v2p-color-bg-widget);
   box-shadow: 0 4px 16px rgb(0 0 0 / 10%);
 }
@@ -610,7 +616,7 @@
   height: 44px;
   padding: 0;
   border: 0;
-  border-radius: 8px;
+  border-radius: 0;
   color: var(--v2p-color-foreground);
   font: inherit;
   background: transparent;
@@ -646,7 +652,7 @@
   box-sizing: border-box;
   padding: 5px 10px;
   border: 1px solid var(--box-border-color);
-  border-radius: 5px;
+  border-radius: 0;
   font-size: 12px;
   line-height: 1.5;
   overflow-wrap: anywhere;

@@ -45,6 +45,8 @@ test("native thank-area styles cannot hide the Polish action icons", () => {
     "inline-flex",
   );
   assert.equal(window.getComputedStyle(document.querySelector("a")).visibility, "visible");
+  assert.equal(window.getComputedStyle(document.querySelector(".thank_area")).position, "relative");
+  assert.equal(window.getComputedStyle(document.querySelector(".thank_area")).zIndex, "1");
 });
 
 test("theme keeps native V2EX reply spacing and typography on desktop and mobile", () => {
