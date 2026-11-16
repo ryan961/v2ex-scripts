@@ -1044,8 +1044,8 @@ body {
   }
 
   .cell[id^="r_"] {
+    // V2EX group containers own reply backgrounds.
     --bg-reply: var(--v2p-color-bg-content);
-    background-color: var(--bg-reply);
 
     .ago {
       color: var(--v2p-color-font-quaternary);

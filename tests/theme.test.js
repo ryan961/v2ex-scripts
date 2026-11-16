@@ -49,3 +49,24 @@ test("theme keeps native V2EX reply spacing and typography on desktop and mobile
   document.documentElement.dataset.v2pMobile = "true";
   assert.deepEqual(metrics(), native);
 });
+
+test("native reply groups remain visible through transparent reply items", () => {
+  dom(`<style>
+    .box { background-color: rgb(255, 255, 255); }
+    .reply-group { background-color: rgb(247, 249, 251); }
+  </style><div id="Main"><div class="box"><div class="cell" id="r_1">Normal reply</div><div class="reply-group"><div class="cell reply-group-item" id="r_2"><table><tbody><tr><td>Grouped reply</td></tr></tbody></table></div><div class="reply-group"><div class="cell reply-group-item" id="r_3">Nested group</div></div></div></div></div><div id="Rightbar"><div id="top_replies"><div class="cell" id="top_r_2">Popular reply</div></div></div>`);
+  const items = ["#r_1", "#r_2", "#r_3", "#top_r_2"];
+  const colors = () =>
+    items.map(
+      (selector) => window.getComputedStyle(document.querySelector(selector)).backgroundColor,
+    );
+  const native = colors();
+  const style = document.createElement("style");
+  style.textContent = compile("src/theme.scss").css;
+  document.head.append(style);
+  assert.deepEqual(colors(), native);
+  assert.equal(
+    window.getComputedStyle(document.querySelector("#r_2 table")).backgroundColor,
+    "rgba(0, 0, 0, 0)",
+  );
+});
