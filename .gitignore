@@ -4,3 +4,5 @@ coverage/
 .env
 .env.*
 .DS_Store
+!src/vendor/
+!src/vendor/**

@@ -2,14 +2,7 @@ import { JSDOM } from "jsdom";
 
 export function dom(html, url = "https://www.v2ex.com/t/123") {
   const instance = new JSDOM(html, { url });
-  // jsdom has no native dialog lifecycle; browser acceptance verifies the real implementation.
-  instance.window.HTMLDialogElement.prototype.showModal = function () {
-    this.open = true;
-  };
-  instance.window.HTMLDialogElement.prototype.close = function () {
-    this.open = false;
-    this.dispatchEvent(new instance.window.Event("close"));
-  };
+  Object.defineProperty(globalThis, "window", { configurable: true, value: instance.window });
   for (const key of ["document", "location", "DOMParser", "Event", "FormData", "File"]) {
     Object.defineProperty(globalThis, key, { configurable: true, value: instance.window[key] });
   }

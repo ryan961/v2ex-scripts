@@ -1,5 +1,7 @@
-import css from "./styles.css";
-import minimalist from "./polish-minimalist.css";
+import { applyTheme } from "./theme.js";
+import polishCSS from "./theme.scss";
+import integrationCSS from "./styles.css";
+import { enhanceEmojis, initEmoji } from "./emoji.js";
 import { createStorage } from "./storage.js";
 import { createHTTP, currentUser } from "./dom.js";
 import { createMembers } from "./members.js";
@@ -16,45 +18,46 @@ const store = createStorage({
   listen: GM_addValueChangeListener,
 });
 const options = store.options();
-GM_addStyle(`${minimalist}\n${css}`);
-function applyTheme() {
-  if (!document.documentElement) return;
-  document.documentElement.dataset.vxTheme = "minimalist";
-  document.documentElement.dataset.v2pTheme = "minimalist";
-  document.body?.classList.add("v2p-theme-minimalist");
-  document.documentElement.toggleAttribute("data-vx-privacy", options.privacy);
-}
+const themeCSS = `${polishCSS}\n${integrationCSS}`;
+GM_addStyle(themeCSS);
 applyTheme();
 
 function start() {
   applyTheme();
   const name = currentUser();
   if (options.privacy) {
-    document.title = "Workspace";
-    for (const icon of document.querySelectorAll('link[rel~="icon"]')) icon.remove();
-    const icon = document.createElement("link");
-    icon.rel = "icon";
-    icon.href = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect x="3" y="3" width="26" height="26" rx="5" fill="#657581"/><path d="M9 11h14v2H9zm0 6h14v2H9z" fill="white"/></svg>')}`;
-    document.head.append(icon);
+    for (const icon of document.querySelectorAll('link[rel~="icon"]'))
+      icon.href = "https://v2p.leoku.dev/favicon.svg";
+    for (const link of document.querySelectorAll('#Top a[href^="/member/"]')) link.remove();
+    const logo = document.querySelector("#Logo");
+    if (logo) {
+      logo.classList.add("v2p-logo");
+      logo.innerHTML =
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
+    }
     if (name) {
       const account = [...document.querySelectorAll('#Rightbar a[href^="/member/"]')].find(
         (link) => link.getAttribute("href").toLowerCase() === `/member/${name.toLowerCase()}`,
       );
       const box = account?.closest(".box");
-      if (box) box.id = "vx-account-box";
+      for (const link of box?.querySelectorAll('a[href^="/member/"]') ?? [])
+        link.classList.add("v2p-hide-account");
+      box?.querySelector(".balance_area")?.classList.add("v2p-hide-balance");
     }
   }
   const getDocument = createHTTP();
   const members = createMembers(store, options);
-  const topics = createTopics(options, getDocument);
+  const topics = createTopics(options, themeCSS);
   const enhance = (root) => {
     members.enhance(root);
     topics.enhance(root);
+    enhanceEmojis(root);
   };
   enhance(document);
   const replies = initReplies({ options, getDocument, enhance });
   installSettings(store);
-  initUpload(options);
+  initUpload(options, store);
+  initEmoji(options);
   const main = document.querySelector("#Main");
   if (main) {
     const roots = new Set();

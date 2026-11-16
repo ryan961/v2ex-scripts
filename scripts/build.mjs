@@ -1,9 +1,15 @@
 import { build } from "esbuild";
+import { compile } from "sass";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 
 const { version } = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
 const polishLicense = await readFile(
   new URL("../licenses/v2ex-polish-MIT.txt", import.meta.url),
+  "utf8",
+);
+const repLicense = await readFile(new URL("../licenses/v2ex-rep-MIT.txt", import.meta.url), "utf8");
+const floatingLicense = await readFile(
+  new URL("../licenses/floating-ui-MIT.txt", import.meta.url),
   "utf8",
 );
 const base = "https://raw.githubusercontent.com/ryan961/v2ex-scripts/main/dist/v2ex-lite";
@@ -40,8 +46,21 @@ await build({
   format: "iife",
   target: ["chrome120", "firefox121"],
   outfile: "dist/v2ex-lite.user.js",
-  banner: { js: `${header}\n/*\n${polishLicense.trim()}\n*/` },
+  banner: {
+    js: `${header}\n/*\n${polishLicense.trim()}\n\n${repLicense.trim()}\n\n${floatingLicense.trim()}\n*/`,
+  },
   legalComments: "inline",
   loader: { ".css": "text" },
+  plugins: [
+    {
+      name: "sass",
+      setup(builder) {
+        builder.onLoad({ filter: /\.scss$/ }, (args) => ({
+          contents: compile(args.path).css,
+          loader: "text",
+        }));
+      },
+    },
+  ],
 });
 await writeFile(new URL("../dist/v2ex-lite.meta.js", import.meta.url), `${header}\n`);

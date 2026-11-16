@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { replacePlaceholder, uploadImage } from "../src/upload.js";
-import { dom } from "./helpers.js";
+import { initUpload, replacePlaceholder, uploadImage } from "../src/upload.js";
+import { createStorage, DEFAULT_IMGUR_CLIENT_ID } from "../src/storage.js";
+import { dom, memoryAPI } from "./helpers.js";
 
 test("upload completion preserves concurrent typing and removed markers", () => {
   dom("<textarea></textarea>");
@@ -31,7 +32,7 @@ test("upload validates files and response URLs before changing the draft", async
   });
   assert.equal(result.link, "https://i.imgur.com/a.png");
   await assert.rejects(
-    uploadImage(image, "", () => assert.fail()),
+    uploadImage(image, "invalid\r\nid", () => assert.fail()),
     /Client ID/,
   );
   await assert.rejects(
@@ -51,4 +52,57 @@ test("upload validates files and response URLs before changing the draft", async
     uploadImage(image, "client", (request) => request.ontimeout()),
     /timed out/,
   );
+});
+
+test("empty custom Client ID uses the upstream public default", async () => {
+  dom("");
+  const image = new File(["image"], "image.png", { type: "image/png" });
+  await uploadImage(image, "", (request) => {
+    assert.equal(request.headers.Authorization, `Client-ID ${DEFAULT_IMGUR_CLIENT_ID}`);
+    request.onload({
+      status: 200,
+      responseText:
+        '{"success":true,"data":{"link":"https://i.imgur.com/a.png","deletehash":"hash123"}}',
+    });
+  });
+});
+
+test("rate limiting stops the queue and persists the pause without rotating IDs", async () => {
+  dom(
+    '<form><textarea id="reply_content">Existing draft</textarea><button type="submit">Reply</button></form>',
+  );
+  const store = createStorage(memoryAPI());
+  let calls = 0;
+  initUpload({ upload: true, imgurClientId: "" }, store, (request) => {
+    calls++;
+    request.onload({
+      status: 429,
+      responseHeaders: "Retry-After: 60",
+      responseText: "Too many uploads",
+    });
+  });
+  const input = document.querySelector('input[type="file"]');
+  Object.defineProperty(input, "files", {
+    value: [
+      new File(["a"], "a.png", { type: "image/png" }),
+      new File(["b"], "b.png", { type: "image/png" }),
+    ],
+  });
+  input.dispatchEvent(new Event("change"));
+  await new Promise(setImmediate);
+  assert.equal(calls, 1);
+  assert.ok(store.get("upload-paused-until") > Date.now());
+  assert.doesNotMatch(document.querySelector("textarea").value, /vx-upload/);
+  assert.match(document.querySelector("textarea").value, /Existing draft/);
+  assert.equal(store.uploads().length, 0);
+});
+
+test("upload records survive another storage instance and stay out of tag backups", () => {
+  const api = memoryAPI(),
+    first = createStorage(api),
+    second = createStorage(api);
+  first.recordUpload({ link: "https://i.imgur.com/a.png", deleteHash: "abc", fileName: "a.png" });
+  second.recordUpload({ link: "https://i.imgur.com/b.png", deleteHash: "def", fileName: "b.png" });
+  assert.equal(createStorage(api).uploads().length, 2);
+  assert.doesNotMatch(first.export(), /deleteHash|i.imgur.com/);
 });

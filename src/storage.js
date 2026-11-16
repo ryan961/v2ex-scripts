@@ -1,4 +1,5 @@
 export const PREFIX = "v2ex-lite:";
+export const DEFAULT_IMGUR_CLIENT_ID = "3107b9ef8b316f3";
 export const DEFAULTS = Object.freeze({
   privacy: false,
   newTab: true,
@@ -9,6 +10,7 @@ export const DEFAULTS = Object.freeze({
   hotReplies: true,
   autoCheckIn: true,
   upload: true,
+  emoji: true,
   imgurClientId: "",
 });
 
@@ -120,5 +122,16 @@ export function createStorage(api) {
     },
     get: (key, fallback) => api.get(`${PREFIX}${key}`, fallback),
     set: (key, value) => write(`${PREFIX}${key}`, value),
+    recordUpload(record) {
+      const id = crypto.randomUUID();
+      write(`${PREFIX}upload:${id}`, { ...record, id, createdAt: new Date().toISOString() });
+    },
+    uploads() {
+      return api
+        .keys()
+        .filter((key) => key.startsWith(`${PREFIX}upload:`))
+        .map((key) => api.get(key))
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    },
   };
 }

@@ -2,16 +2,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { JSDOM } from "jsdom";
-import { build } from "esbuild";
 
 const fixture = readFileSync(new URL("./fixtures/topic.html", import.meta.url), "utf8");
-const built = await build({
-  entryPoints: ["src/main.js"],
-  bundle: true,
-  write: false,
-  format: "iife",
-  loader: { ".css": "text" },
-});
+const built = readFileSync(new URL("../dist/v2ex-lite.user.js", import.meta.url), "utf8");
 
 test("bundled script initializes, enhances only new nodes, and settles without storage writes", async () => {
   const instance = new JSDOM(fixture, {
@@ -43,7 +36,7 @@ test("bundled script initializes, enhances only new nodes, and settles without s
     matchMedia: () => ({ matches: false, addEventListener() {} }),
     unsafeWindow: window,
   });
-  window.eval(built.outputFiles[0].text);
+  window.eval(built);
   await new Promise((resolve) => setTimeout(resolve, 40));
   assert.equal(window.document.querySelector(".item_title a").target, "_blank");
   assert.equal(window.document.querySelectorAll(".vx-tags").length, 3);
@@ -51,7 +44,10 @@ test("bundled script initializes, enhances only new nodes, and settles without s
   assert.equal(window.document.querySelectorAll(".vx-upload").length, 1);
   assert.equal(window.document.documentElement.dataset.v2pTheme, "minimalist");
   assert.equal(window.document.body.classList.contains("v2p-theme-minimalist"), true);
-  assert.match(window.document.querySelector("style").textContent, /vivoSans-Regular\.woff2/);
+  assert.doesNotMatch(
+    window.document.querySelector("style").textContent,
+    /@font-face|vivoSans-Regular\.woff2/,
+  );
   const row = window.document.createElement("div");
   row.className = "cell";
   row.id = "r_99";
@@ -60,7 +56,7 @@ test("bundled script initializes, enhances only new nodes, and settles without s
   window.document.querySelector("#replies").append(row);
   await new Promise((resolve) => setTimeout(resolve, 60));
   assert.equal(row.querySelectorAll(".vx-tags").length, 1);
-  assert.equal(window.document.querySelector("#vx-hot a").getAttribute("href"), "#r_99");
+  assert.equal(window.document.querySelector("#top_replies a.no").getAttribute("href"), "#r_99");
   const tagCount = window.document.querySelectorAll(".vx-tags").length;
   await new Promise((resolve) => setTimeout(resolve, 60));
   assert.equal(window.document.querySelectorAll(".vx-tags").length, tagCount);

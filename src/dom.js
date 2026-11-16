@@ -6,7 +6,7 @@ export function element(tag, text, className) {
 }
 
 export function button(text, onClick) {
-  const node = element("button", text, "vx-button");
+  const node = element("button", text, "normal button");
   node.type = "button";
   node.addEventListener("click", onClick);
   return node;
@@ -89,19 +89,67 @@ export function safeContent(source, base) {
   return fragment;
 }
 
-export function modal(title) {
-  const dialog = owned(element("dialog", undefined, "vx-dialog"));
-  const heading = element("h2", title);
-  const close = button("Close", () => dialog.close());
+export function modal(title, hasFooter = false) {
+  const mask = owned(element("div", undefined, "v2p-modal-mask"));
+  const main = element("div", undefined, "v2p-modal-main");
+  main.setAttribute("role", "dialog");
+  main.setAttribute("aria-modal", "true");
+  main.tabIndex = -1;
+  const heading = element("div", title, "v2p-modal-title");
+  heading.id = `vx-modal-${crypto.randomUUID()}`;
+  main.setAttribute("aria-labelledby", heading.id);
+  const actions = element("div", undefined, "v2p-modal-actions");
+  const header = element("div", undefined, "v2p-modal-header");
+  const content = element("div", undefined, "v2p-modal-content");
+  const footer = element("div", undefined, hasFooter ? "v2p-modal-footer" : undefined);
+  const previous = document.activeElement;
+  const closeModal = () => {
+    mask.remove();
+    document.removeEventListener("keydown", onKey);
+    if (!document.querySelector(".v2p-modal-mask"))
+      document.body.classList.remove("v2p-modal-open");
+    previous?.focus?.();
+  };
+  const onKey = (event) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeModal();
+    }
+    if (event.key === "Tab") {
+      const controls = [
+        ...main.querySelectorAll('a[href],button,input,select,textarea,[tabindex="0"]'),
+      ].filter((node) => !node.disabled && !node.hidden);
+      const first = controls[0],
+        last = controls.at(-1);
+      if (event.shiftKey && (document.activeElement === first || document.activeElement === main)) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    }
+  };
+  const close = button("\u5173\u95ed", closeModal);
+  close.classList.add("v2p-modal-close-btn");
+  close.append(element("kbd", "Esc"));
   close.setAttribute("aria-label", `Close ${title}`);
-  dialog.append(close, heading);
-  dialog.addEventListener("click", (event) => {
-    if (event.target === dialog) dialog.close();
+  actions.append(close);
+  header.append(heading, actions);
+  main.append(header, content, footer);
+  mask.append(main);
+  let down;
+  mask.addEventListener("mousedown", (event) => {
+    down = event.target;
   });
-  dialog.addEventListener("close", () => dialog.remove(), { once: true });
-  document.body.append(dialog);
-  dialog.showModal();
-  return dialog;
+  mask.addEventListener("mouseup", (event) => {
+    if (down === mask && event.target === mask) closeModal();
+  });
+  document.addEventListener("keydown", onKey);
+  document.body.append(mask);
+  document.body.classList.add("v2p-modal-open");
+  main.focus({ preventScroll: true });
+  return { root: mask, main, title: heading, actions, content, footer, close: closeModal };
 }
 
 export function syncOnce(doc, pageWindow = globalThis.unsafeWindow) {

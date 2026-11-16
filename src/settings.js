@@ -1,19 +1,22 @@
 import { button, element, modal, owned } from "./dom.js";
+import { openUploadHistory } from "./upload.js";
 
 export function openSettings(store) {
   if (document.querySelector("#vx-settings-dialog")) return;
   const options = store.options();
   const dialog = modal("V2EX Lite settings");
-  dialog.id = "vx-settings-dialog";
+  dialog.root.id = "vx-settings-dialog";
   const form = element("form");
+  form.className = "v2p-topic-preview";
   const fields = new Map();
   function field(key, label, control) {
-    const wrapper = element("label", `${label} `, "vx-setting");
-    wrapper.append(control);
+    const wrapper = element("div", undefined, "cell");
+    const caption = element("label", `${label} `);
+    caption.append(control);
+    wrapper.append(caption);
     form.append(wrapper);
     fields.set(key, control);
   }
-  form.append(element("p", "Appearance: V2EX Polish Minimalist / Vivo Sans."));
   const names = {
     privacy: "Privacy mode (hide account, logo and tab identity)",
     newTab: "Open topics in a new tab",
@@ -23,6 +26,7 @@ export function openSettings(store) {
     hotReplies: "Popular replies sidebar",
     autoCheckIn: "Daily check-in on page open / returning to a visible tab",
     upload: "Image upload, paste and drop",
+    emoji: "Polish emoji picker",
   };
   for (const [key, label] of Object.entries(names)) {
     const input = element("input");
@@ -42,10 +46,11 @@ export function openSettings(store) {
   client.autocomplete = "off";
   client.pattern = "[A-Za-z0-9]{0,64}";
   client.value = options.imgurClientId;
-  field("imgurClientId", "Your Imgur Client ID (no Client Secret)", client);
+  client.placeholder = "Built-in shared Client ID";
+  field("imgurClientId", "Custom Imgur Client ID (optional)", client);
   const message = element("p");
   message.setAttribute("aria-live", "polite");
-  const save = element("button", "Save and reload", "vx-button");
+  const save = element("button", "Save and reload", "normal button special");
   save.type = "submit";
   form.append(save);
   form.addEventListener("submit", (event) => {
@@ -73,8 +78,8 @@ export function openSettings(store) {
       file.value = "";
     }
   });
-  dialog.append(
-    form,
+  const backup = element("div", undefined, "v2p-topic-preview");
+  backup.append(
     element("h3", "Local backup / Polish migration"),
     element(
       "p",
@@ -92,11 +97,34 @@ export function openSettings(store) {
     file,
     message,
   );
+  dialog.content.append(form, backup);
+  dialog.actions.prepend(
+    button("Upload history", () => {
+      dialog.close();
+      openUploadHistory(store);
+    }),
+  );
 }
 
 export function installSettings(store) {
-  const entry = owned(button("V2EX Lite", () => openSettings(store)));
+  const footer = owned(element("div", undefined, "v2p-footer"));
+  footer.append(element("div", "V2EX Lite · V2EX Polish", "v2p-footer-text"));
+  const links = element("div", undefined, "v2p-footer-links");
+  const entry = element("a", "Settings", "v2p-footer-link v2p-hover-btn");
+  entry.href = "#";
+  entry.addEventListener("click", (event) => {
+    event.preventDefault();
+    openSettings(store);
+  });
   entry.id = "vx-settings";
-  document.body.append(entry);
+  const uploads = element("a", "Upload history", "v2p-footer-link v2p-hover-btn");
+  uploads.href = "#";
+  uploads.addEventListener("click", (event) => {
+    event.preventDefault();
+    openUploadHistory(store);
+  });
+  links.append(entry, uploads);
+  footer.append(links);
+  (document.querySelector("#Bottom .content") ?? document.body).append(footer);
   GM_registerMenuCommand("V2EX Lite settings", () => openSettings(store));
 }
