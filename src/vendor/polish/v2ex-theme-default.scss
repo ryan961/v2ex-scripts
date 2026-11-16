@@ -1097,6 +1097,12 @@ body {
 
   .topic_content {
     @include share.text-content;
+
+    a[href^="/member"] {
+      position: relative;
+      bottom: 1px;
+      font-size: 13px;
+    }
   }
 
   .topic_content,
