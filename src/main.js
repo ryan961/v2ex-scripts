@@ -96,8 +96,9 @@ function start() {
       for (const mutation of mutations) {
         const target =
           mutation.target.nodeType === 1 ? mutation.target : mutation.target.parentElement;
-        if (target?.closest("[data-vx-owned]")) continue;
         const reply = target?.closest(REPLY);
+        if (reply) replies?.invalidate(reply);
+        if (target?.closest("[data-vx-owned]")) continue;
         if (reply) changed.add(reply);
         for (const node of mutation.addedNodes) {
           if (node.nodeType === 1 && !node.matches("[data-vx-owned]")) roots.add(node);

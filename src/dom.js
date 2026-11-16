@@ -194,7 +194,11 @@ export function createHTTP(fetcher = fetch) {
       syncOnce(doc);
       return doc;
     });
-    tail = task.catch(() => {});
+    // The queue only needs completion, not the last parsed document.
+    tail = task.then(
+      () => undefined,
+      () => undefined,
+    );
     return task;
   };
 }

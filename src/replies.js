@@ -162,6 +162,7 @@ export function initReplies({ options, getDocument, enhance }) {
   first.before(firstMarker);
   pages.set(current, firstMarker);
   const paging = createPagination({ container, first, toolbar, pages, current, total, loadPage });
+  const topClones = new Map();
 
   function render() {
     toolbar.hidden = !inFlight.size && !error;
@@ -178,23 +179,45 @@ export function initReplies({ options, getDocument, enhance }) {
     const key = ranked.map((reply) => `${reply.id}:${reply.thanks}`).join("|");
     if (key === signature && panel) return;
     signature = key;
-    if (panel?.previousElementSibling?.matches("[data-vx-hot-gap]"))
-      panel.previousElementSibling.remove();
-    panel?.remove();
-    panel = null;
-    if (!ranked.length) return;
-    panel = owned(element("div", undefined, "box"));
-    panel.id = "top_replies";
-    const header = element("div", undefined, "cell");
-    header.title = t("hotRepliesHelp");
-    header.append(element("div", undefined, "fr"), element("span", t("hotReplies"), "fade"));
-    panel.append(header, ...ranked.map(cloneTopReply));
+    if (!ranked.length) {
+      if (panel?.previousElementSibling?.matches("[data-vx-hot-gap]"))
+        panel.previousElementSibling.remove();
+      panel?.remove();
+      panel = null;
+      topClones.clear();
+      return;
+    }
     const anchor = document.querySelector("#Rightbar .box");
-    if (anchor) {
+    if (!anchor) return;
+    if (!panel) {
+      panel = owned(element("div", undefined, "box"));
+      panel.id = "top_replies";
+      const header = element("div", undefined, "cell");
+      header.title = t("hotRepliesHelp");
+      header.append(element("div", undefined, "fr"), element("span", t("hotReplies"), "fade"));
+      panel.append(header);
       const gap = owned(element("div", undefined, "sep20"));
       gap.dataset.vxHotGap = "";
       anchor.after(gap, panel);
       document.querySelector("#Wrapper")?.classList.add("sticky_rightbar");
+    }
+    const rankedIds = new Set(ranked.map((reply) => reply.id));
+    for (const [id, cloned] of topClones) {
+      if (rankedIds.has(id)) continue;
+      cloned.node.remove();
+      topClones.delete(id);
+    }
+    let previous = panel.firstElementChild;
+    for (const reply of ranked) {
+      let cloned = topClones.get(reply.id);
+      if (!cloned || cloned.thanks !== reply.thanks || cloned.dirty) {
+        const node = cloneTopReply(reply);
+        cloned?.node.replaceWith(node);
+        cloned = { node, thanks: reply.thanks };
+        topClones.set(reply.id, cloned);
+      }
+      if (previous.nextElementSibling !== cloned.node) previous.after(cloned.node);
+      previous = cloned.node;
     }
   }
   function add(root) {
@@ -269,6 +292,10 @@ export function initReplies({ options, getDocument, enhance }) {
     paging,
     get loaded() {
       return new Set(pages.keys());
+    },
+    invalidate(node) {
+      const cloned = topClones.get(node.id);
+      if (cloned) cloned.dirty = true;
     },
     update(node) {
       enhanceReplyActions(node);

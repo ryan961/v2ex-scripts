@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         V2EX Lite
 // @namespace    https://github.com/ryan961/v2ex-scripts
-// @version      0.1.14
+// @version      0.1.15
 // @description  Focused V2EX themes, tags, previews, replies, check-in and image uploads.
 // @author       ryan961
 // @license      MIT

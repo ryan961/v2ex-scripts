@@ -1,4 +1,4 @@
-import { build } from "esbuild";
+import { build, transform } from "esbuild";
 import { compile } from "sass";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 
@@ -17,6 +17,7 @@ const lucideLicense = await readFile(
   "utf8",
 );
 const base = "https://raw.githubusercontent.com/ryan961/v2ex-scripts/main/dist/v2ex-lite";
+const target = ["chrome120", "firefox121"];
 const header = `// ==UserScript==
 // @name         V2EX Lite
 // @namespace    https://github.com/ryan961/v2ex-scripts
@@ -48,7 +49,8 @@ await build({
   entryPoints: ["src/main.js"],
   bundle: true,
   format: "iife",
-  target: ["chrome120", "firefox121"],
+  target,
+  minify: true,
   outfile: "dist/v2ex-lite.user.js",
   banner: {
     js: `${header}\n/*\n${polishLicense.trim()}\n\n${repLicense.trim()}\n\n${floatingLicense.trim()}\n\n${lucideLicense.trim()}\n*/`,
@@ -57,12 +59,20 @@ await build({
   loader: { ".css": "text" },
   plugins: [
     {
-      name: "sass",
+      name: "styles",
       setup(builder) {
-        builder.onLoad({ filter: /\.scss$/ }, (args) => ({
-          contents: compile(args.path).css,
-          loader: "text",
-        }));
+        builder.onLoad({ filter: /\.(scss|css)$/ }, async (args) => {
+          const source = args.path.endsWith(".scss")
+            ? compile(args.path).css
+            : await readFile(args.path, "utf8");
+          const { code } = await transform(source, {
+            loader: "css",
+            minify: true,
+            target,
+            legalComments: "inline",
+          });
+          return { contents: code, loader: "text" };
+        });
       },
     },
   ],

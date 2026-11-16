@@ -70,6 +70,8 @@ test("page requests serialize, survive failures and reject sign-in redirects", a
   const results = await Promise.allSettled([get("/bad"), get("/good"), get("/good2")]);
   assert.equal(results[0].status, "rejected");
   assert.equal(results[1].status, "fulfilled");
+  assert.equal(results[1].value.querySelector("#Main").textContent, "ok");
+  assert.equal(results[2].value.querySelector("#Main").textContent, "ok");
   assert.equal(peak, 1);
   await assert.rejects(get("https://evil.test"), /Cross-origin/);
 });

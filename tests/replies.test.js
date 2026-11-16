@@ -72,6 +72,68 @@ test("thanks sorting uses floor order for ties", () => {
   );
 });
 
+test("hot replies retain unchanged rows and update counts, ordering and empty states", () => {
+  const row = (floor, thanks) => `<div class="cell" id="r_${floor}"><table><tbody><tr><td>
+    <div class="flex-one-row"><div class="flex-one-row"><strong><a href="/member/Member${floor}">Member${floor}</a></strong>
+    <span class="small fade"><img src="/heart.png"><span class="thank_count">${thanks}</span></span></div>
+    <div class="fr"><span class="no">${floor}</span></div></div>
+    <div class="reply_content">Complete reply ${floor}</div></td></tr></tbody></table></div>`;
+  const { window } = dom(
+    `<div id="Rightbar"><div class="box"></div></div><div id="Main"><div class="box">${row(1, 2)}${row(2, 5)}${row(3, 0)}</div></div>`,
+  );
+  enhanceReplyActions(document);
+  const module = initReplies({
+    options: { hotReplies: true, preloadPages: 0 },
+    enhance: () => {},
+    getDocument: () => assert.fail("unexpected page load"),
+  });
+  const panel = document.querySelector("#top_replies");
+  const header = panel.firstElementChild;
+  const unchanged = document.querySelector("#top_r_2");
+  const original = document.querySelector("#top_r_1");
+  const ids = () =>
+    [...document.querySelectorAll('#top_replies > [id^="top_r_"]')].map((n) => n.id);
+  const update = (id, count) => {
+    const reply = document.querySelector(`#r_${id}`);
+    reply.querySelector(".thank_count").textContent = String(count);
+    module.update(reply);
+  };
+  assert.deepEqual(ids(), ["top_r_2", "top_r_1"]);
+  update(1, 9);
+  assert.equal(document.querySelector("#top_replies"), panel);
+  assert.equal(panel.firstElementChild, header);
+  assert.equal(document.querySelector("#top_r_2"), unchanged);
+  assert.notEqual(document.querySelector("#top_r_1"), original);
+  assert.equal(document.querySelector("#top_r_1 .thank_count").textContent, "9");
+  assert.equal(document.querySelector("#top_r_1 .reply_content").textContent, "Complete reply 1");
+  assert.deepEqual(ids(), ["top_r_1", "top_r_2"]);
+  const updated = document.querySelector("#top_r_1");
+  update(1, 9);
+  assert.equal(document.querySelector("#top_r_1"), updated);
+  document.querySelector("#r_2 .reply_content").textContent = "Updated reply 2";
+  module.invalidate(document.querySelector("#r_2"));
+  update(1, 10);
+  assert.notEqual(document.querySelector("#top_r_2"), unchanged);
+  assert.equal(document.querySelector("#top_r_2 .reply_content").textContent, "Updated reply 2");
+  update(2, 0);
+  assert.equal(unchanged.isConnected, false);
+  assert.deepEqual(ids(), ["top_r_1"]);
+  update(1, 0);
+  assert.equal(document.querySelector("#top_replies"), null);
+  assert.equal(document.querySelector("[data-vx-hot-gap]"), null);
+  update(3, 1);
+  const retained = document.querySelector("#top_r_3");
+  document.querySelector("[data-vx-paging]").insertAdjacentHTML("beforebegin", row(4, 7));
+  module.add(document.querySelector("#r_4"));
+  assert.equal(document.querySelector("#top_r_3"), retained);
+  assert.deepEqual(ids(), ["top_r_4", "top_r_3"]);
+  let jumped = false;
+  document.querySelector("#r_3").scrollIntoView = () => (jumped = true);
+  retained.querySelector("a.no").click();
+  assert.equal(jumped, true);
+  window.close();
+});
+
 test("nested replies cannot donate their thanks count to a parent", () => {
   dom(
     '<div class="cell" id="r_1"><strong><a href="/member/parent">parent</a></strong><span class="no">1</span><div class="reply_content">parent</div><div class="cell" id="r_2"><strong><a href="/member/child">child</a></strong><span><img src="/heart.png">9</span><div class="reply_content">child</div></div></div>',
