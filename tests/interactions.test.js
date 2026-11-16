@@ -6,12 +6,19 @@ import { createStorage } from "../src/storage.js";
 import { dom, memoryAPI } from "./helpers.js";
 
 test("Polish preview markup uses a same-origin iframe and removes it on close", async () => {
-  dom('<div id="Main"><span class="item_title"><a href="/t/456">Preview title</a></span></div>');
+  dom(
+    '<div id="Main"><div class="cell item"><span class="item_title"><a href="/t/456">Preview title</a></span><span class="topic_info"><span title="timestamp">now</span></span></div></div>',
+  );
   const topics = createTopics({ preview: true, newTab: true });
   topics.enhance(document);
   topics.enhance(document);
   const preview = document.querySelector("button");
   assert.equal(document.querySelectorAll("button").length, 1);
+  assert.equal(
+    document.querySelector(".topic_info > span[title]").nextElementSibling.className,
+    "v2p-topic-actions",
+  );
+  assert.equal(document.querySelector(".item_title button"), null);
   preview.click();
   await new Promise(setImmediate);
   assert.equal(document.querySelector(".v2p-modal-title").textContent, "Preview title");
@@ -50,4 +57,25 @@ test("editing one member updates all visible instances without duplicate control
   assert.equal(document.querySelectorAll(".vx-tags button").length, 0);
   assert.match(document.querySelector(".v2p-reply-tags").textContent, /backend/);
   assert.equal(api.writes.length, 1);
+});
+
+test("tags retain the Polish header and inline reply positions", () => {
+  dom(
+    '<div id="Main"><div class="header"><a href="/member/Alice">Alice</a></div><div class="cell" id="r_1"><table><tbody><tr><td><div class="flex-one-row"><strong><a href="/member/Alice">Alice</a></strong><div class="badges"></div><span class="ago">now</span></div><div class="reply_content">Body</div></td></tr></tbody></table></div></div>',
+  );
+  const store = createStorage(memoryAPI());
+  store.setTags("Alice", ["backend"]);
+  createMembers(store, { tags: true, userCards: false }).enhance(document);
+  assert.equal(
+    document.querySelector(".header").lastElementChild.classList.contains("v2p-reply-tags"),
+    true,
+  );
+  assert.equal(
+    document
+      .querySelector(".badges")
+      .previousElementSibling.classList.contains("v2p-reply-tags-inline"),
+    true,
+  );
+  assert.equal(document.querySelector("strong .v2p-reply-tags"), null);
+  assert.equal(document.querySelector("#r_1 .v2p-reply-tags b").textContent, "#");
 });

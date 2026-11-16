@@ -1,5 +1,5 @@
 /* V2EX Polish c8f1b70; Copyright (c) 2023-present LeoKu and contributors.
- * MIT; see licenses/v2ex-polish-MIT.txt. Font overrides removed as requested.
+ * MIT; see licenses/v2ex-polish-MIT.txt. Font and reply-spacing overrides removed as requested.
  */
 @use "./share";
 
@@ -861,7 +861,9 @@ body {
 #Main {
   .box {
     overflow: auto;
-    padding: 0 var(--v2p-spacing-box);
+    &:not(:has(.cell[id^="r_"])) {
+      padding: 0 var(--v2p-spacing-box);
+    }
 
     &.node-header {
       > .cell {
@@ -870,7 +872,9 @@ body {
     }
 
     .cell {
-      padding: var(--v2p-tp-item-x) var(--v2p-tp-item-y);
+      &:not([id^="r_"]) {
+        padding: var(--v2p-tp-item-x) var(--v2p-tp-item-y);
+      }
       background-image: none !important;
     }
 
@@ -1039,146 +1043,15 @@ body {
     }
   }
 
-  .box,
-  .v2p-modal-content {
-    > .cell[id^="r"]:not(:has(.cell[id^="r"])) .reply_content {
-      padding-bottom: 0;
-    }
-  }
-
-  .cell[id^="r"] {
+  .cell[id^="r_"] {
     --bg-reply: var(--v2p-color-bg-content);
-
     background-color: var(--bg-reply);
 
-    &:not(:has(+ .cell[id^="r"])) {
-      border-bottom: none;
-    }
-
-    &:hover {
-      > table {
-        td:last-of-type {
-          .fr {
-            a {
-              opacity: 1;
-            }
-          }
-        }
-      }
-    }
-
     .ago {
-      font-size: 12px;
       color: var(--v2p-color-font-quaternary);
-      white-space: nowrap;
-    }
-
-    .reply_content {
-      padding-bottom: 10px;
-      line-height: 1.5;
-    }
-
-    > table {
-      &:first-of-type td {
-        &:first-of-type {
-          width: 40px;
-
-          .avatar {
-            display: inline-block;
-            aspect-ratio: 1;
-            width: 40px !important;
-            height: 40px !important;
-            border-radius: var(--v2p-button-radius);
-            background-color: var(--v2p-color-bg-avatar);
-          }
-        }
-      }
-
-      ~ .cell[id^="r"] {
-        --bg-reply: var(--v2p-color-bg-reply);
-
-        position: relative;
-        z-index: var(--zidx-expand-btn);
-        padding: var(--v2p-tp-nested-pd) 0 0 var(--v2p-tp-nested-pd);
-        border: none;
-        border-radius: 0;
-        box-shadow: -2.4px 0 var(--v2p-color-border-darker);
-
-        .cell[id^="r"] {
-          padding: 0;
-          box-shadow: none;
-
-          &.v2p-indent {
-            padding-left: var(--v2p-tp-nested-pd);
-            border-left: 1px solid var(--v2p-color-border-darker);
-          }
-        }
-
-        tr td {
-          &:first-of-type {
-            width: 25px;
-
-            .avatar {
-              width: 25px !important;
-              height: 25px !important;
-              border-radius: var(--v2p-button-radius);
-            }
-          }
-
-          &:nth-child(3) strong a {
-            font-size: 13px;
-          }
-        }
-
-        .reply_content {
-          padding-right: 5px;
-        }
-      }
-
-      td {
-        &:nth-of-type(2) {
-          width: 15px;
-        }
-
-        &:last-of-type {
-          a.dark {
-            color: var(--v2p-color-font-secondary);
-            text-decoration: none;
-
-            &:hover {
-              text-decoration: none;
-            }
-          }
-
-          .fr {
-            user-select: none;
-            position: relative;
-            top: -3px;
-
-            a {
-              opacity: 0;
-            }
-
-            & + .sep3 {
-              height: 0;
-            }
-          }
-        }
-      }
-    }
-
-    &:last-of-type {
-      border: none;
     }
 
     .no {
-      user-select: none;
-      position: relative;
-      top: -4px;
-      padding: 5px 10px;
-      border-radius: var(--v2p-button-radius);
-      font-size: 12px;
-      font-variant-numeric: tabular-nums;
       color: var(--v2p-color-cell-num);
       background-color: transparent;
     }
@@ -1222,16 +1095,15 @@ body {
     }
   }
 
+  .topic_content {
+    @include share.text-content;
+  }
+
   .topic_content,
   .reply_content {
-    @include share.text-content;
-
     color: currentColor;
 
     a[href^="/member"] {
-      position: relative;
-      bottom: 1px;
-      font-size: 13px;
       color: var(--v2p-color-font-tertiary);
       text-decoration: underline;
       text-underline-offset: 0.4ex;

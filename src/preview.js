@@ -66,7 +66,9 @@ export function createTopics(options, themeCSS = "") {
           const anchor = info.querySelector(":scope > span:first-of-type");
           if (anchor) anchor.after(actions);
           else info.append(actions);
-        } else link.parentElement.append(trigger);
+        } else if (link.parentElement.matches(".item_hot_topic_title")) {
+          link.parentElement.append(trigger);
+        }
       }
     },
   };

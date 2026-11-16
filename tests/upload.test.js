@@ -67,6 +67,15 @@ test("empty custom Client ID uses the upstream public default", async () => {
   });
 });
 
+test("upload entry uses the original REP reply header position", () => {
+  dom(
+    '<div id="reply-box"><div class="cell"><div>New Comment</div><div>Back to top</div></div><div class="cell"><form><textarea id="reply_content"></textarea><button type="submit">Reply</button></form></div></div>',
+  );
+  initUpload({ upload: true }, createStorage(memoryAPI()), () => assert.fail());
+  assert.ok(document.querySelector("#reply-box > div > div > .vr_upload_image"));
+  assert.equal(document.querySelector(".vx-upload .vr_upload_image"), null);
+});
+
 test("rate limiting stops the queue and persists the pause without rotating IDs", async () => {
   dom(
     '<form><textarea id="reply_content">Existing draft</textarea><button type="submit">Reply</button></form>',

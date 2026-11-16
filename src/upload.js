@@ -137,7 +137,7 @@ export function initUpload(options, store, request = GM_xmlhttpRequest) {
   });
   const messages = element("div");
   messages.setAttribute("aria-live", "polite");
-  const pick = element("a", " + \u63D2\u5165\u56FE\u7247", "vr_upload_image");
+  const pick = owned(element("a", " + \u63D2\u5165\u56FE\u7247", "vr_upload_image"));
   pick.tabIndex = 0;
   pick.setAttribute("role", "button");
   pick.setAttribute("aria-label", "Upload images to Imgur");
@@ -147,7 +147,9 @@ export function initUpload(options, store, request = GM_xmlhttpRequest) {
   pick.addEventListener("keydown", (event) => {
     if (event.key === "Enter") input.click();
   });
-  toolbar.append(pick, input, messages);
+  const appendPosition = document.querySelector("#reply-box > div > div") ?? textarea.form;
+  appendPosition?.append(pick);
+  toolbar.append(input, messages);
   textarea.after(toolbar);
   let queue = Promise.resolve();
   let pending = 0;

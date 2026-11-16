@@ -50,7 +50,9 @@ export function createMembers(store, options) {
         continue;
       }
       const tags = store.getTags(name);
-      group.textContent = tags.join("\uFF0C");
+      group.replaceChildren();
+      if (tags.length) group.append(element("b", "#"), `\u00A0${tags.join("\uFF0C")}`);
+      group.title = tags.join("\uFF0C");
       group.hidden = !tags.length;
     }
   }
@@ -68,7 +70,7 @@ export function createMembers(store, options) {
       registered.add(link);
       const key = name.toLowerCase();
       const group = owned(
-        element("span", undefined, "vx-tags v2p-reply-tags v2p-reply-tags-inline"),
+        element("div", undefined, "vx-tags v2p-reply-tags v2p-reply-tags-inline"),
       );
       group.setAttribute("role", "button");
       group.tabIndex = 0;
@@ -77,7 +79,14 @@ export function createMembers(store, options) {
       group.addEventListener("keydown", (event) => {
         if (event.key === "Enter") edit(name);
       });
-      link.after(group);
+      const header = link.closest(".header");
+      const author = link.closest("strong");
+      const badges = author?.parentElement.querySelector(":scope > .badges");
+      if (header) {
+        group.classList.remove("v2p-reply-tags-inline");
+        header.append(group);
+      } else if (badges) badges.before(group);
+      else (author ?? link).after(group);
       if (!byName.has(key)) {
         byName.set(key, new Set());
         store.watchTags(name, () => draw(name));

@@ -25,7 +25,7 @@ body.v2p-mobile,
       display: block;
       padding: 0;
 
-      .flex-one-row:first-of-type {
+      .flex-one-row:first-of-type:not(.cell[id^="r_"] .flex-one-row) {
         padding: 8px var(--v2p-spacing-cell) !important;
       }
 
@@ -39,7 +39,9 @@ body.v2p-mobile,
     border-radius: 0;
 
     .cell {
-      padding: var(--v2p-spacing-cell);
+      &:not([id^="r_"]) {
+        padding: var(--v2p-spacing-cell);
+      }
 
       .item {
         padding-right: 8px;
