@@ -16,11 +16,12 @@ export function createMembers(store, options, topics, currentAccount) {
     const toolbar = element("div", undefined, "vx-tag-toolbar");
     const count = element("span", undefined, "vx-tag-count");
     toolbar.append(element("strong", t("tags")), count);
+    const box = element("div", undefined, "vx-tag-input");
     const fields = element("div", undefined, "vx-tag-fields");
     const hint = element("p", t("tagInstructions", TAG_LIMITS.perMember));
     hint.id = `vx-tag-hint-${crypto.randomUUID()}`;
     const input = element("textarea", undefined, "sl");
-    input.rows = 2;
+    input.rows = 1;
     input.placeholder = t("tagEntry");
     input.setAttribute("aria-label", t("addTag"));
     input.setAttribute("aria-describedby", hint.id);
@@ -30,8 +31,7 @@ export function createMembers(store, options, topics, currentAccount) {
     function syncLabels() {
       count.textContent = t("tagUsage", fields.childElementCount, TAG_LIMITS.perMember);
       [...fields.children].forEach((row, index) => {
-        row.firstElementChild.setAttribute("aria-label", t("editableTag", index + 1));
-        row.lastElementChild.setAttribute("aria-label", t("removeTag", index + 1));
+        row.querySelector("textarea").setAttribute("aria-label", t("editableTag", index + 1));
       });
     }
     function showTags(values) {
@@ -40,24 +40,58 @@ export function createMembers(store, options, topics, currentAccount) {
         const row = element("div", undefined, "vx-tag-field");
         const field = element("textarea", undefined, "sl");
         field.rows = 1;
-        field.value = tag;
+        field.defaultValue = tag;
         field.maxLength = TAG_LIMITS.length;
-        row.append(
-          field,
-          button(t("remove"), () => {
-            const next = row.nextElementSibling ?? row.previousElementSibling;
-            row.remove();
-            syncLabels();
-            error.textContent = "";
-            (next?.firstElementChild ?? input).focus();
-          }),
-        );
+        field.hidden = true;
+        const edit = button(tag, () => {
+          edit.hidden = true;
+          row.classList.add("vx-tag-field-editing");
+          field.hidden = false;
+          field.focus();
+          field.select();
+        });
+        edit.className = "vx-tag-edit-value";
+        const remove = button("\u00d7", () => {
+          const next = row.nextElementSibling ?? row.previousElementSibling;
+          row.remove();
+          syncLabels();
+          error.textContent = "";
+          (next?.querySelector(".vx-tag-edit-value") ?? input).focus();
+        });
+        remove.className = "vx-tag-remove-value";
+        function updateLabels(value) {
+          edit.textContent = value;
+          edit.title = value;
+          edit.setAttribute("aria-label", t("editTagValue", value));
+          remove.setAttribute("aria-label", t("removeTagValue", value));
+        }
+        function finish(commit) {
+          if (field.hidden) return;
+          const value = (commit && field.value.trim()) || field.defaultValue;
+          field.defaultValue = field.value = value;
+          field.hidden = true;
+          edit.hidden = false;
+          row.classList.remove("vx-tag-field-editing");
+          updateLabels(value);
+        }
+        field.addEventListener("blur", () => finish(true));
+        field.addEventListener("keydown", (event) => {
+          if (event.isComposing || (event.key !== "Enter" && event.key !== "Escape")) return;
+          event.preventDefault();
+          event.stopPropagation();
+          finish(event.key === "Enter");
+          edit.focus();
+        });
+        updateLabels(tag);
+        row.append(edit, field, remove);
         fields.append(row);
       }
       syncLabels();
     }
     function readTags() {
-      const values = [...fields.querySelectorAll("textarea")].map((field) => field.value.trim());
+      const values = [...fields.querySelectorAll("textarea")].map(
+        (field) => field.value.trim() || field.defaultValue,
+      );
       values.push(...input.value.split(/[,\uFF0C\n]/).map((tag) => tag.trim()));
       return normalizeTags([...new Set(values.filter(Boolean))]);
     }
@@ -81,19 +115,28 @@ export function createMembers(store, options, topics, currentAccount) {
       onSave();
     });
     save.classList.add("special");
-    form.addEventListener("keydown", (event) => {
-      if (event.key !== "Enter" || event.isComposing || event.shiftKey) return;
-      if (event.target === input) {
-        event.preventDefault();
-        add.click();
-      } else if (event.target.matches?.(".vx-tag-field textarea")) {
-        event.preventDefault();
-      }
+    input.addEventListener("keydown", (event) => {
+      if (event.isComposing || event.ctrlKey || event.metaKey || event.altKey) return;
+      if (
+        ![",", "\uFF0C", "Enter"].includes(event.key) ||
+        (event.key === "Enter" && event.shiftKey)
+      )
+        return;
+      event.preventDefault();
+      add.click();
+    });
+    input.addEventListener("paste", (event) => {
+      const text = event.clipboardData?.getData("text");
+      if (!text || !/[,\uFF0C\r\n]/.test(text)) return;
+      event.preventDefault();
+      input.setRangeText(text, input.selectionStart, input.selectionEnd, "end");
+      add.click();
     });
     form.addEventListener("input", () => (error.textContent = ""));
     showTags(tags);
     entry.append(input, add);
-    form.append(toolbar, fields, hint, entry, error);
+    box.append(fields, entry);
+    form.append(toolbar, box, hint, error);
     return { form, input, save };
   }
   function edit(name) {

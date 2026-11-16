@@ -90,13 +90,8 @@
   margin: 0;
 }
 
-.vx-settings-option select {
-  min-width: 0;
-  max-width: 100%;
-}
-
 .vx-settings-option input[type="number"] {
-  width: 4ch;
+  width: 5em;
 }
 
 .vx-settings-option:has(input[type="text"]) {
@@ -168,30 +163,55 @@
   padding: 20px;
 }
 
-.v2p-tag-input-wrapper :is(textarea, input),
-.vx-tag-manager input[type="search"],
-.vx-settings-option select {
+:is(#vx-settings-dialog, .vx-tag-editor-dialog) {
+  --vx-control-radius: 3px;
+  --vx-control-accent: var(--v2p-color-accent-600);
+}
+
+:is(#vx-settings-dialog, .vx-tag-editor-dialog)
+  :is(input[type="text"], input[type="search"], input[type="number"], select, .vx-tag-input) {
   box-sizing: border-box;
+  min-height: 32px;
   min-width: 0;
-  width: 100%;
-  padding: 7px 9px;
-  border: 1px solid var(--box-border-color);
-  border-radius: var(--v2p-input-radius);
+  padding: 5px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--vx-control-radius);
   color: var(--v2p-color-font-primary);
   font: inherit;
   background: var(--v2p-color-bg-input);
 }
 
-.vx-settings-option select {
-  width: auto;
-  flex-shrink: 1;
+:is(#vx-settings-dialog, .vx-tag-editor-dialog)
+  :is(input[type="text"], input[type="search"], input[type="number"], select, .vx-tag-input):hover {
+  border-color: var(--box-border-color);
 }
 
-.v2p-tag-input-wrapper :is(textarea, input):focus-visible,
-.vx-tag-manager input[type="search"]:focus-visible,
-.vx-settings-option select:focus-visible {
-  outline: 2px solid var(--v2p-color-font-tertiary);
-  outline-offset: 1px;
+:is(#vx-settings-dialog, .vx-tag-editor-dialog)
+  :is(input[type="text"], input[type="search"], input[type="number"], select):focus,
+:is(#vx-settings-dialog, .vx-tag-editor-dialog) .vx-tag-input:focus-within {
+  border-color: var(--vx-control-accent);
+  outline: 2px solid color-mix(in srgb, var(--vx-control-accent) 22%, transparent);
+  outline-offset: 0;
+  background: var(--v2p-color-bg-content);
+}
+
+#vx-settings-dialog :is(select, input[type="search"]) {
+  max-width: 100%;
+}
+
+#vx-settings-dialog input[type="checkbox"] {
+  accent-color: var(--vx-control-accent);
+}
+
+:is(#vx-settings-dialog, .vx-tag-editor-dialog) button.normal.button {
+  min-height: 30px;
+  max-width: 100%;
+  border-radius: var(--vx-control-radius);
+}
+
+:is(#vx-settings-dialog, .vx-tag-editor-dialog) button:focus-visible {
+  outline: 2px solid var(--vx-control-accent);
+  outline-offset: 2px;
 }
 
 .v2p-tag-input-wrapper [role="alert"]:empty {
@@ -212,8 +232,7 @@
 
 .vx-tag-toolbar,
 .vx-tag-entry,
-.vx-tag-actions,
-.vx-tag-field {
+.vx-tag-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -227,7 +246,7 @@
 
 .vx-tag-toolbar label {
   display: grid;
-  flex: 1 1 18em;
+  flex: 1 1 15em;
   min-width: 0;
   gap: 4px;
 }
@@ -238,8 +257,7 @@
   color: var(--v2p-color-font-secondary);
 }
 
-.vx-tag-count,
-.vx-tag-chips li {
+.vx-tag-count {
   padding: 3px 8px;
   border-radius: 12px;
   background: var(--button-background-hover-color);
@@ -264,33 +282,101 @@
 }
 
 .vx-tag-fields {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
-  gap: 8px;
-  max-height: 240px;
-  overflow-y: auto;
+  display: contents;
 }
 
-.vx-tag-fields:not(:empty) {
-  padding: 2px;
+.vx-tag-input {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  max-height: min(38vh, 230px);
+  overflow: auto;
 }
 
 .vx-tag-field {
-  flex-wrap: nowrap;
+  display: inline-flex;
+  box-sizing: border-box;
+  max-width: 100%;
+  align-items: center;
+  gap: 2px;
+  padding-inline: 6px 3px;
+  border: 1px solid var(--box-border-color);
+  border-radius: var(--vx-control-radius);
+  background: var(--v2p-color-bg-content);
 }
 
-.vx-tag-field textarea {
+.vx-tag-field-editing {
+  flex: 1 1 13em;
+}
+
+.vx-tag-input textarea {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 24px;
+  padding: 3px 2px;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  line-height: 18px;
+  background: transparent;
   resize: none;
 }
 
+.vx-tag-field textarea {
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.vx-tag-input textarea:focus {
+  outline: none;
+}
+
 .vx-tag-entry {
-  align-items: flex-start;
-  margin-top: 8px;
+  flex: 1 1 13em;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .vx-tag-entry textarea {
-  flex: 1 1 16em;
-  resize: vertical;
+  flex: 1 1 0;
+}
+
+:is(#vx-settings-dialog, .vx-tag-editor-dialog) .vx-tag-entry button {
+  min-height: 24px;
+  padding-block: 0;
+  font-size: 12px;
+}
+
+.vx-tag-edit-value,
+.vx-tag-remove-value,
+.vx-tag-filter {
+  min-width: 0;
+  border: 1px solid transparent;
+  border-radius: var(--vx-control-radius);
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  line-height: 20px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.vx-tag-edit-value {
+  padding: 0 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vx-tag-remove-value {
+  flex: 0 0 20px;
+  padding: 0;
+  font-size: 16px;
+}
+
+:is(.vx-tag-edit-value, .vx-tag-remove-value):hover {
+  background: var(--v2p-color-button-background-hover);
 }
 
 .vx-tag-list {
@@ -339,9 +425,25 @@
 }
 
 .vx-tag-chips li {
-  box-sizing: border-box;
+  min-width: 0;
   max-width: 100%;
-  font-size: 12px;
+}
+
+.vx-tag-filter {
+  max-width: 100%;
+  padding: 0 7px;
+  overflow-wrap: anywhere;
+  background: var(--v2p-color-bg-input);
+}
+
+.vx-tag-filter:hover {
+  border-color: var(--box-border-color);
+}
+
+.vx-tag-filter[aria-pressed="true"] {
+  border-color: var(--v2p-color-button-special-border);
+  color: var(--v2p-color-button-special-foreground);
+  background: var(--v2p-color-button-special-background);
 }
 
 .vx-tag-actions .vx-tag-delete.normal.button {

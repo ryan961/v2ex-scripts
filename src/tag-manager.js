@@ -22,8 +22,12 @@ export function createTagManager(store, { createTagEditor, updateTags }) {
   search.type = "search";
   search.className = "sl";
   label.append(search);
+  const groupLabel = element("label", t("tagGroup"));
+  const group = element("select", undefined, "sl vx-tag-group");
+  groupLabel.append(group);
   const count = element("span", undefined, "vx-tag-count");
-  toolbar.append(label, count);
+  count.setAttribute("aria-live", "polite");
+  toolbar.append(label, groupLabel, count);
   const status = element("p");
   status.setAttribute("role", "status");
   const editor = element("div", undefined, "vx-tag-editor");
@@ -32,7 +36,7 @@ export function createTagManager(store, { createTagEditor, updateTags }) {
     const previousLimit = limit;
     limit += pageSize;
     render();
-    list.children[previousLimit]?.querySelector("button")?.focus();
+    list.children[previousLimit]?.querySelector(".vx-tag-profile")?.focus();
   });
   let members = [],
     limit = pageSize,
@@ -63,8 +67,13 @@ export function createTagManager(store, { createTagEditor, updateTags }) {
     const query = search.value.trim().toLowerCase();
     const matching = members.filter(
       ({ name, tags }) =>
-        name.includes(query) || tags.some((tag) => tag.toLowerCase().includes(query)),
+        (!group.value || tags.includes(group.value)) &&
+        (name.includes(query) || tags.some((tag) => tag.toLowerCase().includes(query))),
     );
+    count.textContent =
+      query || group.value
+        ? t("filteredTaggedCount", matching.length, members.length)
+        : t("taggedCount", members.length);
     list.replaceChildren();
     more.hidden = matching.length <= limit;
     if (!matching.length) list.append(element("li", t("noMatchingTags"), "vx-tag-empty"));
@@ -76,7 +85,18 @@ export function createTagManager(store, { createTagEditor, updateTags }) {
       profile.target = "_blank";
       profile.rel = "noopener noreferrer";
       const chips = element("ul", undefined, "vx-tag-chips");
-      for (const tag of tags) chips.append(element("li", tag));
+      for (const tag of tags) {
+        const filter = button(tag, () => {
+          group.value = group.value === tag ? "" : tag;
+          filterList();
+          group.focus();
+        });
+        filter.className = "vx-tag-filter";
+        filter.setAttribute("aria-pressed", String(group.value === tag));
+        const chip = element("li");
+        chip.append(filter);
+        chips.append(chip);
+      }
       text.append(profile, chips);
       const edit = button(t("edit"), () => {
         if (editing === name) {
@@ -110,14 +130,29 @@ export function createTagManager(store, { createTagEditor, updateTags }) {
     }
   }
   function refresh() {
+    const selected = group.value;
     members = store.taggedMembers();
-    count.textContent = t("taggedCount", members.length);
+    const groups = new Map();
+    for (const { tags } of members)
+      for (const tag of tags) groups.set(tag, (groups.get(tag) ?? 0) + 1);
+    const all = element("option", t("allTagGroups"));
+    all.value = "";
+    group.replaceChildren(all);
+    for (const [tag, size] of [...groups].sort(([a], [b]) => a.localeCompare(b))) {
+      const option = element("option", t("tagGroupOption", tag, size));
+      option.value = tag;
+      group.append(option);
+    }
+    group.value = groups.has(selected) ? selected : "";
+    if (selected && !group.value) limit = pageSize;
     render();
   }
-  search.addEventListener("input", () => {
+  function filterList() {
     limit = pageSize;
     render();
-  });
+  }
+  group.addEventListener("change", filterList);
+  search.addEventListener("input", filterList);
   search.addEventListener("keydown", (event) => {
     if (event.key === "Enter") event.preventDefault();
   });

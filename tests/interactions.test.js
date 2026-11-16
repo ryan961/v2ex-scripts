@@ -124,6 +124,7 @@ test("settings edit and delete saved tags without submitting the settings form",
   });
   const list = details.querySelector(".vx-tag-list");
   const manager = details.querySelector(".vx-tag-manager");
+  const group = details.querySelector(".vx-tag-group");
   assert.match(manager.textContent, /20 tags per member.*80 characters.*20,000 members/);
   assert.match(manager.textContent, /51 tagged members/);
   assert.equal(list.children.length, 50);
@@ -135,6 +136,22 @@ test("settings edit and delete saved tags without submitting the settings form",
     search.value = value;
     search.dispatchEvent(new Event("input", { bubbles: true }));
   };
+  assert.match([...group.options].find((option) => option.value === "example").textContent, /49/);
+  group.value = "Database";
+  group.dispatchEvent(new Event("change"));
+  assert.equal(list.children.length, 1);
+  assert.match(manager.querySelector(".vx-tag-count").textContent, /1 of 51/);
+  query("BOB");
+  assert.equal(list.textContent, "No matching member tags.");
+  query("");
+  const matchingChip = [...list.querySelectorAll(".vx-tag-filter")].find(
+    (chip) => chip.textContent === "Research, Development",
+  );
+  matchingChip.click();
+  assert.equal(group.value, "Research, Development");
+  assert.equal(list.querySelector('[aria-pressed="true"]').textContent, "Research, Development");
+  group.value = "Database";
+  group.dispatchEvent(new Event("change"));
   query("DATABASE");
   assert.equal(list.children.length, 1);
   assert.match(list.textContent, /alice.*Database/);
@@ -145,7 +162,7 @@ test("settings edit and delete saved tags without submitting the settings form",
     search.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Enter", cancelable: true })),
     false,
   );
-  list.querySelector("button").click();
+  list.querySelector(".vx-tag-actions button").click();
   const input = details.querySelector(".vx-tag-fields textarea");
   const entry = details.querySelector(".vx-tag-entry textarea");
   assert.equal(input.value, "Database");
@@ -156,17 +173,40 @@ test("settings edit and delete saved tags without submitting the settings form",
   save.click();
   assert.match(details.querySelector('[role="alert"]').textContent, /80 characters/);
   assert.deepEqual(store.getTags("alice"), ["Database", "Research, Development"]);
-  entry.value = "UI, Browser\nDatabase";
-  entry.dispatchEvent(
-    new window.KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }),
-  );
+  entry.select();
+  const paste = new Event("paste", { bubbles: true, cancelable: true });
+  Object.defineProperty(paste, "clipboardData", {
+    value: { getData: () => "UI, Browser\nDatabase" },
+  });
+  entry.dispatchEvent(paste);
+  assert.equal(paste.defaultPrevented, true);
   assert.deepEqual(
     [...details.querySelectorAll(".vx-tag-fields textarea")].map((field) => field.value),
     ["Database", "Research, Development", "UI", "Browser"],
   );
   const [first, , third] = details.querySelectorAll(".vx-tag-field");
-  first.querySelector("textarea").value = "Backend";
-  third.querySelector("button").click();
+  const editTag = first.querySelector(".vx-tag-edit-value");
+  const rename = first.querySelector("textarea");
+  assert.equal(rename.hidden, true);
+  editTag.click();
+  assert.equal(rename.hidden, false);
+  rename.value = "Discard";
+  rename.dispatchEvent(
+    new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }),
+  );
+  assert.equal(editTag.textContent, "Database");
+  editTag.click();
+  rename.value = "Backend";
+  rename.dispatchEvent(
+    new window.KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }),
+  );
+  assert.equal(editTag.textContent, "Backend");
+  third.querySelector(".vx-tag-remove-value").click();
+  entry.value = "Comma";
+  entry.dispatchEvent(
+    new window.KeyboardEvent("keydown", { key: ",", bubbles: true, cancelable: true }),
+  );
+  assert.equal(entry.value, "");
   entry.value = "Pending";
   save.click();
   assert.match(document.querySelector("#Main .vx-tags").textContent, /Backend/);
@@ -175,8 +215,11 @@ test("settings edit and delete saved tags without submitting the settings form",
     "Backend",
     "Research, Development",
     "Browser",
+    "Comma",
     "Pending",
   ]);
+  assert.equal(group.value, "");
+  assert.ok([...group.options].some((option) => option.value === "Backend"));
   query("ALICE");
   assert.match(list.textContent, /alice.*Backend/);
   const remove = list.querySelector(".vx-tag-delete");
@@ -186,7 +229,7 @@ test("settings edit and delete saved tags without submitting the settings form",
   window.confirm = (message) => message === "Delete all tags for alice?";
   remove.click();
   assert.equal(list.textContent, "No matching member tags.");
-  assert.match(manager.textContent, /50 tagged members/);
+  assert.match(manager.textContent, /0 of 50 tagged members/);
   assert.equal(document.querySelector("#Main .vx-tags").hidden, true);
   assert.equal(store.import('{"schema":1,"members":{"Alice":["old"]}}'), 0);
   assert.equal(
