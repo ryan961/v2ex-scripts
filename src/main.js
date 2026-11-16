@@ -14,8 +14,21 @@ import { createReplyFolding } from "./folding.js";
 import { installSettings } from "./settings.js";
 import { installPageActions } from "./page-actions.js";
 
+const themeCSS = `${polishCSS}\n${integrationCSS}`;
+let themeReady = false;
+
+function prepareTheme() {
+  if (!themeReady && isV2EXPage(document)) {
+    GM_addStyle(themeCSS);
+    applyTheme();
+    themeReady = true;
+  }
+  return themeReady;
+}
+
 function start() {
   if (!isV2EXPage(document)) return;
+  prepareTheme();
   const store = createStorage({
     get: GM_getValue,
     set: GM_setValue,
@@ -25,9 +38,6 @@ function start() {
   });
   const options = store.options();
   setLanguage(options.language);
-  const themeCSS = `${polishCSS}\n${integrationCSS}`;
-  GM_addStyle(themeCSS);
-  applyTheme();
   const name = currentUser();
   if (options.privacy) {
     for (const icon of document.querySelectorAll('link[rel~="icon"]'))
@@ -121,6 +131,17 @@ function start() {
   void replies?.preload();
 }
 
-if (document.readyState === "loading")
-  document.addEventListener("DOMContentLoaded", start, { once: true });
-else start();
+if (document.readyState === "loading") {
+  const observer = new MutationObserver(() => {
+    if (prepareTheme()) observer.disconnect();
+  });
+  if (!prepareTheme()) observer.observe(document, { childList: true, subtree: true });
+  document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+      observer.disconnect();
+      start();
+    },
+    { once: true },
+  );
+} else start();

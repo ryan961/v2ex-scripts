@@ -6,6 +6,52 @@ import { JSDOM } from "jsdom";
 const fixture = readFileSync(new URL("./fixtures/topic.html", import.meta.url), "utf8");
 const built = readFileSync(new URL("../dist/v2ex-lite.user.js", import.meta.url), "utf8");
 
+test("theme applies before DOMContentLoaded and functional initialization", async () => {
+  const events = [];
+  const reads = [];
+  const instance = new JSDOM(fixture, {
+    url: "https://www.v2ex.com/t/123",
+    runScripts: "outside-only",
+    pretendToBeVisual: true,
+    beforeParse(window) {
+      const doc = window.document;
+      doc.addEventListener("DOMContentLoaded", () => events.push("ready"), { once: true });
+      Object.assign(window, {
+        GM_getValue: (key, fallback) => {
+          reads.push(doc.readyState);
+          return key === "v2ex-lite:options"
+            ? { autoCheckIn: false, preloadPages: 0, userCards: false }
+            : fallback;
+        },
+        GM_setValue: () => assert.fail("unexpected storage write"),
+        GM_deleteValue: () => {},
+        GM_listValues: () => [],
+        GM_addValueChangeListener: () => {},
+        GM_addStyle: (css) => {
+          events.push("theme");
+          const style = doc.createElement("style");
+          style.textContent = css;
+          doc.head.append(style);
+        },
+        GM_registerMenuCommand: () => events.push("menu"),
+        GM_xmlhttpRequest: () => assert.fail("unexpected upload"),
+        fetch: () => assert.fail("unexpected network request"),
+        matchMedia: () => ({ matches: false, addEventListener() {} }),
+        unsafeWindow: window,
+      });
+      assert.equal(doc.documentElement, null);
+      window.eval(built);
+    },
+  });
+  await new Promise(setImmediate);
+  assert.deepEqual(events, ["theme", "ready", "menu"]);
+  assert.ok(reads.length > 0);
+  assert.equal(reads.includes("loading"), false);
+  assert.equal(instance.window.document.documentElement.dataset.v2pTheme, "minimalist");
+  assert.equal(instance.window.document.querySelectorAll("style").length, 1);
+  instance.window.close();
+});
+
 test("bundled script initializes, enhances only new nodes, and settles without storage writes", async () => {
   const instance = new JSDOM(fixture, {
     url: "https://www.v2ex.com/t/123",
@@ -119,6 +165,9 @@ test("Cloudflare and error pages do not run V2EX Lite", async () => {
   await new Promise((resolve) => window.setTimeout(resolve, 0));
   assert.equal(window.document.querySelector(".v2p-footer"), null);
   assert.equal(window.document.documentElement.dataset.v2pTheme, undefined);
+  assert.deepEqual(calls, []);
+  window.document.body.insertAdjacentHTML("beforeend", '<div id="Top"></div><div id="Main"></div>');
+  await new Promise((resolve) => window.setTimeout(resolve, 0));
   assert.deepEqual(calls, []);
   instance.window.close();
 });

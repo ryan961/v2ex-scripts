@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         V2EX Lite
 // @namespace    https://github.com/ryan961/v2ex-scripts
-// @version      0.1.11
+// @version      0.1.12
 // @description  Focused V2EX themes, tags, previews, replies, check-in and image uploads.
 // @author       ryan961
 // @license      MIT
@@ -4044,7 +4044,7 @@ SOFTWARE.
   }
 
   // src/preview.js
-  function createTopics(options, themeCSS = "") {
+  function createTopics(options, themeCSS2 = "") {
     const seen = /* @__PURE__ */ new WeakSet();
     return {
       enhance(root) {
@@ -4089,7 +4089,7 @@ SOFTWARE.
                   if (!isV2EXPage(doc)) return;
                   applyTheme(doc, true);
                   const style = doc.createElement("style");
-                  style.textContent = themeCSS;
+                  style.textContent = themeCSS2;
                   doc.head.append(style);
                   enhanceEmojis(doc);
                   const view = doc.defaultView;
@@ -5350,8 +5350,20 @@ ${marker}
   }
 
   // src/main.js
+  var themeCSS = `${theme_default}
+${styles_default}`;
+  var themeReady = false;
+  function prepareTheme() {
+    if (!themeReady && isV2EXPage(document)) {
+      GM_addStyle(themeCSS);
+      applyTheme();
+      themeReady = true;
+    }
+    return themeReady;
+  }
   function start() {
     if (!isV2EXPage(document)) return;
+    prepareTheme();
     const store = createStorage({
       get: GM_getValue,
       set: GM_setValue,
@@ -5361,10 +5373,6 @@ ${marker}
     });
     const options = store.options();
     setLanguage(options.language);
-    const themeCSS = `${theme_default}
-${styles_default}`;
-    GM_addStyle(themeCSS);
-    applyTheme();
     const name = currentUser();
     if (options.privacy) {
       for (const icon2 of document.querySelectorAll('link[rel~="icon"]'))
@@ -5455,7 +5463,18 @@ ${styles_default}`;
     }
     void replies?.preload();
   }
-  if (document.readyState === "loading")
-    document.addEventListener("DOMContentLoaded", start, { once: true });
-  else start();
+  if (document.readyState === "loading") {
+    const observer = new MutationObserver(() => {
+      if (prepareTheme()) observer.disconnect();
+    });
+    if (!prepareTheme()) observer.observe(document, { childList: true, subtree: true });
+    document.addEventListener(
+      "DOMContentLoaded",
+      () => {
+        observer.disconnect();
+        start();
+      },
+      { once: true }
+    );
+  } else start();
 })();
