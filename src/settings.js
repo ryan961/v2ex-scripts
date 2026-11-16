@@ -1,8 +1,9 @@
 import { button, currentUser, element, modal, owned } from "./dom.js";
 import { t } from "./i18n.js";
+import { createTagManager } from "./tag-manager.js";
 import { openUploadHistory } from "./upload.js";
 
-export function openSettings(store, signedIn = Boolean(currentUser())) {
+export function openSettings(store, signedIn = Boolean(currentUser()), createTagEditor) {
   if (document.querySelector("#vx-settings-dialog")) return;
   const options = store.options();
   const dialog = modal(`V2EX Lite ${t("settings")}`, true);
@@ -77,12 +78,14 @@ export function openSettings(store, signedIn = Boolean(currentUser())) {
   file.type = "file";
   file.accept = ".json,application/json,text/plain";
   file.hidden = true;
+  let manager;
   file.setAttribute("aria-label", t("selectBackup"));
   file.addEventListener("change", async () => {
     try {
       if (!file.files[0]) return;
       if (file.files[0].size > 2_000_000) throw new Error(t("backupSize"));
       const count = store.import(await file.files[0].text());
+      manager?.refresh();
       message.textContent = t("imported", count);
     } catch (error) {
       message.textContent = t(
@@ -108,6 +111,19 @@ export function openSettings(store, signedIn = Boolean(currentUser())) {
     file,
   );
   backup.append(element("legend", t("backup")), element("p", t("backupHelp")), buttons);
+  if (createTagEditor) {
+    const details = element("details", undefined, "vx-settings-tag-manager");
+    details.append(element("summary", t("manageTags")));
+    details.addEventListener("toggle", () => {
+      if (!details.open) return;
+      if (!manager) {
+        manager = createTagManager(store, createTagEditor);
+        details.append(manager.root);
+      }
+      manager.refresh();
+    });
+    backup.append(details);
+  }
   form.append(backup);
   if (!signedIn) dialog.content.append(element("p", t("guestNotice"), "vx-settings-notice"));
   dialog.content.append(form);
@@ -119,8 +135,8 @@ export function openSettings(store, signedIn = Boolean(currentUser())) {
   );
 }
 
-export function installSettings(store, signedIn) {
-  const open = () => openSettings(store, signedIn);
+export function installSettings(store, signedIn, createTagEditor) {
+  const open = () => openSettings(store, signedIn, createTagEditor);
   GM_registerMenuCommand(`V2EX Lite ${t("settings")}`, open);
   const host = document.querySelector("#Bottom .content");
   if (!host) return;

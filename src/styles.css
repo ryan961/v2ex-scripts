@@ -30,6 +30,16 @@
   --bg-reply: var(--box-background-alt-color);
 }
 
+.vx-member-popup .v2p-member-topic-item-row:not(:hover, :focus-within) .v2p-topic-preview-btn {
+  display: none;
+}
+
+.vx-member-popup .v2p-member-topic-item-row:focus-within .v2p-topic-preview-btn {
+  max-width: none;
+  max-height: none;
+  visibility: visible;
+}
+
 #vx-settings-dialog {
   display: flex;
   align-items: center;
@@ -135,4 +145,68 @@
   #vx-settings-dialog .v2p-modal-header {
     flex-wrap: wrap;
   }
+}
+
+.vx-tag-editor-dialog {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vx-tag-editor-dialog .v2p-modal-main {
+  width: min(100%, 800px);
+  height: auto;
+  max-height: 100%;
+}
+
+.vx-tag-editor-dialog .v2p-tag-input-wrapper {
+  padding: 20px;
+}
+
+.v2p-tag-input-wrapper textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.v2p-tag-input-wrapper [role="alert"]:empty {
+  display: none;
+}
+
+.vx-settings-tag-manager {
+  margin-top: 14px;
+}
+
+.vx-settings-tag-manager summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.vx-tag-manager > label {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-block: 10px;
+}
+
+.vx-tag-manager input {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.vx-tag-list {
+  margin: 10px 0;
+  padding: 0;
+  list-style: none;
+  overflow-wrap: anywhere;
+}
+
+.vx-tag-list .cell {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 0;
 }

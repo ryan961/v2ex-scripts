@@ -6,42 +6,35 @@ import { blockMember, fetchMember } from "./member-data.js";
 export function createMembers(store, options, topics, currentAccount) {
   const registered = new WeakSet(),
     byName = new Map();
-  function edit(name) {
-    const dialog = modal(t("editTags", name), true);
-    Object.assign(dialog.root.style, {
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-    });
-    dialog.main.style.height = "auto";
+  function createTagEditor(name, onSave, tags = store.getTags(name)) {
     const form = element("div", undefined, "v2p-tag-input-wrapper");
-    Object.assign(form.style, {
-      padding: "20px",
-      display: "flex",
-      flexDirection: "column",
-      gap: "15px",
-    });
-    const label = element("label", t("tagInstructions"));
+    const label = element("label", `${t("tagInstructions")} ${t("clearTags")}`);
     const input = element("textarea");
     input.className = "sl";
     input.rows = 4;
-    input.style.width = "100%";
-    input.value = store.getTags(name).join(", ");
+    input.value = tags.join(", ");
     label.append(input);
     const error = element("p");
+    error.setAttribute("role", "alert");
     form.append(label, error);
+    const save = button(t("saveTags"), () => {
+      try {
+        store.setTags(name, input.value);
+      } catch (cause) {
+        error.textContent = cause.message;
+        return;
+      }
+      draw(name);
+      onSave();
+    });
+    return { form, input, save };
+  }
+  function edit(name) {
+    const dialog = modal(t("editTags", name), true);
+    dialog.root.classList.add("vx-tag-editor-dialog");
+    const { form, input, save } = createTagEditor(name, dialog.close);
     dialog.content.append(form);
-    dialog.footer.append(
-      button(t("saveTags"), () => {
-        try {
-          store.setTags(name, input.value);
-          draw(name);
-          dialog.close();
-        } catch (cause) {
-          error.textContent = cause.message;
-        }
-      }),
-    );
+    dialog.footer.append(save);
     input.focus();
   }
   function draw(name, only) {
@@ -100,7 +93,7 @@ export function createMembers(store, options, topics, currentAccount) {
   if (options.userCards || options.tags) initCards();
   function initCards() {
     const cache = new Map();
-    const popup = owned(element("div", undefined, "v2p-popup"));
+    const popup = owned(element("div", undefined, "v2p-popup vx-member-popup"));
     popup.hidden = true;
     const content = element("div", undefined, "v2p-popup-content");
     popup.append(content);
@@ -331,5 +324,5 @@ export function createMembers(store, options, topics, currentAccount) {
     });
     window.addEventListener("scroll", hide, { passive: true });
   }
-  return { enhance, edit };
+  return { enhance, edit, createTagEditor };
 }

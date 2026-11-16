@@ -68,7 +68,9 @@ export function parseImport(text) {
 
 export function createStorage(api) {
   const cache = new Map();
-  const keyFor = (name) => `${PREFIX}member:${name.toLowerCase()}`;
+  const memberPrefix = `${PREFIX}member:`;
+  const keyFor = (name) => memberPrefix + name.toLowerCase();
+  const memberKeys = () => api.keys().filter((key) => key.startsWith(memberPrefix));
   const write = (key, value) => {
     if (JSON.stringify(api.get(key)) === JSON.stringify(value)) return false;
     api.set(key, value);
@@ -81,6 +83,15 @@ export function createStorage(api) {
       const key = keyFor(name);
       if (!cache.has(key)) cache.set(key, normalizeTags(api.get(key, [])));
       return cache.get(key);
+    },
+    taggedMembers() {
+      return memberKeys()
+        .map((key) => ({
+          name: key.slice(memberPrefix.length),
+          tags: normalizeTags(api.get(key, [])),
+        }))
+        .filter(({ name, tags }) => validName.test(name) && tags.length)
+        .sort((a, b) => a.name.localeCompare(b.name));
     },
     setTags(name, value) {
       if (!validName.test(name)) throw new Error(t("badUsername"));
@@ -98,10 +109,7 @@ export function createStorage(api) {
     },
     export() {
       const members = Object.create(null);
-      for (const key of api.keys()) {
-        if (key.startsWith(`${PREFIX}member:`))
-          members[key.slice(`${PREFIX}member:`.length)] = api.get(key);
-      }
+      for (const key of memberKeys()) members[key.slice(memberPrefix.length)] = api.get(key);
       const { imgurClientId: _clientId, ...options } = this.options();
       return JSON.stringify(
         { schema: 1, exportedAt: new Date().toISOString(), options, members },

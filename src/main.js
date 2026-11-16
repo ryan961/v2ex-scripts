@@ -58,7 +58,7 @@ function start() {
   };
   enhance(document);
   const replies = initReplies({ options, getDocument, enhance });
-  installSettings(store, Boolean(name));
+  installSettings(store, Boolean(name), members.createTagEditor);
   if (name) {
     initUpload(options, store);
     initEmoji(options);

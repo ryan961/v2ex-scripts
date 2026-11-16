@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createTopics } from "../src/preview.js";
 import { createMembers } from "../src/members.js";
+import { openSettings } from "../src/settings.js";
 import { createStorage } from "../src/storage.js";
 import { dom, memoryAPI } from "./helpers.js";
 
@@ -77,4 +78,71 @@ test("tags retain the Polish header and inline reply positions", () => {
   );
   assert.equal(document.querySelector("strong .v2p-reply-tags"), null);
   assert.equal(document.querySelector("#r_1 .v2p-reply-tags b").textContent, "#");
+});
+
+test("settings search and edit saved tags without submitting the settings form", async () => {
+  const { window } = dom('<div id="Main"><strong><a href="/member/Alice">Alice</a></strong></div>');
+  document.cookie = "V2EX_LANG=enus";
+  const api = memoryAPI();
+  const store = createStorage(api);
+  store.import(`{"schema":1,"members":{"Alice":["Database"],"Bob":["UX"],"Former":[]}}`);
+  for (let i = 0; i < 49; i++) store.setTags(`test-${i}`, ["example"]);
+  const members = createMembers(store, { tags: true, userCards: false });
+  members.enhance(document);
+  openSettings(store, false, members.createTagEditor);
+  const details = document.querySelector(".vx-settings-tag-manager");
+  assert.equal(details.querySelector("summary").textContent, "Manage member tags");
+  assert.equal(details.querySelector("input"), null);
+  await new Promise((resolve) => {
+    details.addEventListener("toggle", resolve, { once: true });
+    details.open = true;
+  });
+  const list = details.querySelector(".vx-tag-list");
+  const manager = details.querySelector(".vx-tag-manager");
+  assert.equal(list.children.length, 50);
+  manager.lastElementChild.click();
+  assert.equal(list.children.length, 51);
+  assert.doesNotMatch(list.textContent, /Former/i);
+  const search = details.querySelector('input[type="search"]');
+  const query = (value) => {
+    search.value = value;
+    search.dispatchEvent(new Event("input", { bubbles: true }));
+  };
+  query("DATABASE");
+  assert.equal(list.children.length, 1);
+  assert.match(list.textContent, /alice.*Database/);
+  assert.equal(
+    search.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Enter", cancelable: true })),
+    false,
+  );
+  list.querySelector("button").click();
+  const input = details.querySelector("textarea");
+  assert.equal(input.value, "Database");
+  const save = [...details.querySelectorAll("button")].find(
+    (button) => button.textContent === "Save tags",
+  );
+  input.value = "x".repeat(81);
+  save.click();
+  assert.match(details.querySelector('[role="alert"]').textContent, /80 characters/);
+  assert.deepEqual(store.getTags("alice"), ["Database"]);
+  input.value = "Backend";
+  save.click();
+  assert.match(document.querySelector("#Main .vx-tags").textContent, /Backend/);
+  assert.match(details.querySelector('[role="status"]').textContent, /saved for alice/);
+  query("ALICE");
+  assert.match(list.textContent, /alice.*Backend/);
+  list.querySelector("button").click();
+  details.querySelector("textarea").value = "";
+  [...details.querySelectorAll("button")]
+    .find((button) => button.textContent === "Save tags")
+    .click();
+  assert.equal(list.textContent, "No matching member tags.");
+  assert.equal(document.querySelector("#Main .vx-tags").hidden, true);
+  assert.equal(store.import('{"schema":1,"members":{"Alice":["old"]}}'), 0);
+  assert.equal(
+    api.writes.some((write) => write.endsWith(":options")),
+    false,
+  );
+  document.querySelector(".v2p-modal-close-btn").click();
+  window.close();
 });

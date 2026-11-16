@@ -131,6 +131,7 @@ test("V2EX language cookie localizes script modules and guests skip account feat
     assert.equal(window.document.querySelector(".vx-upload"), null);
     assert.equal(window.document.querySelector('#reply-box button[type="button"]'), null);
     window.document.querySelector("#vx-settings").click();
+    assert.ok(window.document.querySelector(".vx-settings-tag-manager summary"));
     assert.equal(window.document.querySelector('[name="autoCheckIn"]').disabled, true);
     assert.equal(window.document.querySelector('[name="autoFold"]').checked, true);
     assert.deepEqual(requests, []);
