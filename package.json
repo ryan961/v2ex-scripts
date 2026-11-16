@@ -1,0 +1,23 @@
+{
+  "name": "v2ex-scripts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A focused V2EX userscript with incremental reply processing.",
+  "license": "MIT",
+  "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run format:check && npm test && npm run build"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "jsdom": "^31.0.1",
+    "prettier": "^3.10.1"
+  }
+}

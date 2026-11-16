@@ -1,0 +1,143 @@
+export function element(tag, text, className) {
+  const node = document.createElement(tag);
+  if (text !== undefined) node.textContent = text;
+  if (className) node.className = className;
+  return node;
+}
+
+export function button(text, onClick) {
+  const node = element("button", text, "vx-button");
+  node.type = "button";
+  node.addEventListener("click", onClick);
+  return node;
+}
+
+export function owned(node) {
+  node.dataset.vxOwned = "";
+  return node;
+}
+
+export function matching(root, selector) {
+  return [...(root.matches?.(selector) ? [root] : []), ...root.querySelectorAll(selector)];
+}
+
+export function memberName(link) {
+  if (!link?.getAttribute) return null;
+  const path = link.getAttribute("href");
+  return /^\/member\/([a-z0-9_-]{1,64})\/?$/i.exec(path ?? "")?.[1] ?? null;
+}
+
+export function currentUser(doc = document) {
+  const links = doc.querySelectorAll(
+    '#Top .tools a[href^="/member/"], #Top a.top[href^="/member/"]',
+  );
+  const top = [...links].map(memberName).find(Boolean);
+  if (top) return top;
+  const accountBox = doc.querySelector(
+    '#Rightbar .box:has(a[href="/balance"]), #Rightbar .box:has(a[href="/my/nodes"])',
+  );
+  return memberName(accountBox?.querySelector('a[href^="/member/"]'));
+}
+
+export function safeURL(value, base, image = false) {
+  if (typeof value !== "string" || !value.trim()) return null;
+  try {
+    const url = new URL(value, base);
+    if (!["https:", "http:"].includes(url.protocol) || url.username || url.password) return null;
+    if (image && url.protocol !== "https:") return null;
+    return url.href;
+  } catch {
+    return null;
+  }
+}
+
+const allowedTags = new Set(
+  "A ABBR B BLOCKQUOTE BR CODE DEL DETAILS DIV EM H1 H2 H3 H4 H5 H6 HR I IMG LI OL P PRE S SMALL SPAN STRONG SUB SUMMARY SUP TABLE TBODY TD TH THEAD TR U UL".split(
+    " ",
+  ),
+);
+
+export function safeContent(source, base) {
+  const fragment = document.createDocumentFragment();
+  function append(parent, child) {
+    if (child.nodeType === 3) {
+      parent.append(document.createTextNode(child.textContent));
+      return;
+    }
+    if (child.nodeType !== 1 || !allowedTags.has(child.tagName)) return;
+    const copy = document.createElement(child.tagName.toLowerCase());
+    if (child.tagName === "A") {
+      const url = safeURL(child.getAttribute("href"), base);
+      if (url) {
+        copy.href = url;
+        copy.target = "_blank";
+        copy.rel = "noopener noreferrer";
+      }
+    }
+    if (child.tagName === "IMG") {
+      const url = safeURL(child.getAttribute("src"), base, true);
+      if (!url) return;
+      copy.src = url;
+      copy.alt = child.getAttribute("alt") ?? "";
+      copy.loading = "lazy";
+      copy.referrerPolicy = "no-referrer";
+    }
+    for (const node of child.childNodes) append(copy, node);
+    parent.append(copy);
+  }
+  for (const child of source.childNodes) append(fragment, child);
+  return fragment;
+}
+
+export function modal(title) {
+  const dialog = owned(element("dialog", undefined, "vx-dialog"));
+  const heading = element("h2", title);
+  const close = button("Close", () => dialog.close());
+  close.setAttribute("aria-label", `Close ${title}`);
+  dialog.append(close, heading);
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+  dialog.addEventListener("close", () => dialog.remove(), { once: true });
+  document.body.append(dialog);
+  dialog.showModal();
+  return dialog;
+}
+
+export function syncOnce(doc, pageWindow = globalThis.unsafeWindow) {
+  const input = doc.querySelector('input[name="once"]');
+  const scriptToken = [...doc.scripts]
+    .map((script) => /\bvar\s+once\s*=\s*["'](\d+)["']/.exec(script.textContent)?.[1])
+    .find(Boolean);
+  const token = input?.value ?? scriptToken;
+  if (!token || !/^\d+$/.test(token)) return;
+  for (const field of document.querySelectorAll('form input[name="once"]')) field.value = token;
+  if (pageWindow && "once" in pageWindow) pageWindow.once = token;
+}
+
+export function createHTTP(fetcher = fetch) {
+  let tail = Promise.resolve();
+  return (path) => {
+    const task = tail.then(async () => {
+      const url = new URL(path, location.href);
+      if (url.origin !== location.origin) throw new Error("Cross-origin page request blocked.");
+      const response = await fetcher(url.href, {
+        credentials: "same-origin",
+        signal: AbortSignal.timeout(15_000),
+      });
+      if (!response.ok) throw new Error(`V2EX returned HTTP ${response.status}.`);
+      const final = new URL(response.url || url.href);
+      const rewardRedirect =
+        url.pathname === "/mission/daily/redeem" && final.pathname === "/mission/daily";
+      if (final.origin !== url.origin || (final.pathname !== url.pathname && !rewardRedirect))
+        throw new Error("V2EX redirected this request. Open the page directly first.");
+      const doc = new DOMParser().parseFromString(await response.text(), "text/html");
+      if (!doc.querySelector("#Main"))
+        throw new Error("Unexpected page. Complete sign-in or verification on V2EX first.");
+      syncOnce(doc);
+      return doc;
+    });
+    tail = task.catch(() => {});
+    return task;
+  };
+}
