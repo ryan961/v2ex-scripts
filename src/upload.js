@@ -87,29 +87,69 @@ export function uploadImage(file, clientId = DEFAULT_IMGUR_CLIENT_ID, request = 
   });
 }
 
+function sourceTopicURL(value) {
+  const href = safeURL(value, location.href, true);
+  if (!href) return null;
+  const url = new URL(href);
+  if (!/(^|\.)v2ex\.com$/i.test(url.hostname) || !/^\/t\/\d+\/?$/.test(url.pathname)) return null;
+  return url.origin + url.pathname.replace(/\/$/, "");
+}
+
 export function openUploadHistory(store) {
   const dialog = modal(t("uploadHistory"));
   const content = element("div", undefined, "v2p-topic-preview");
   const records = store.uploads();
   if (!records.length) content.append(element("p", t("noUploads")));
   for (const record of records) {
-    const row = element("div", undefined, "cell");
-    row.append(element("p", `${record.createdAt} · ${record.fileName}`));
+    const row = element("div", undefined, "cell vx-upload-record");
+    const details = element("div", undefined, "vx-upload-record-details");
+    details.append(element("p", `${record.createdAt} · ${record.fileName}`));
     const url = safeURL(record.link, "https://i.imgur.com", true);
-    if (url && new URL(url).hostname === "i.imgur.com") {
+    if (url && new URL(url).origin === "https://i.imgur.com") {
       const link = element("a", url);
       link.href = url;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
-      row.append(link);
+      const preview = link.cloneNode(false);
+      preview.className = "vx-upload-record-preview";
+      const image = element("img");
+      image.alt = record.fileName || t("preview");
+      image.setAttribute("loading", "lazy");
+      image.setAttribute("decoding", "async");
+      image.setAttribute("referrerpolicy", "no-referrer");
+      const thumbnail = new URL(url);
+      thumbnail.pathname = thumbnail.pathname.replace(
+        /^\/([a-z0-9]+)\.(jpe?g|png|gif|webp)$/i,
+        "/$1m.$2",
+      );
+      image.addEventListener("error", () => {
+        if (image.src === url) preview.remove();
+        else image.src = url;
+      });
+      image.src = thumbnail.href;
+      preview.append(image);
+      row.append(preview);
+      details.append(link);
     }
     if (/^[a-z0-9]+$/i.test(record.deleteHash ?? "")) {
       const link = element("a", t("deleteImage"));
       link.href = `https://imgur.com/delete/${record.deleteHash}`;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
-      row.append(" · ", link);
+      details.append(" · ", link);
     }
+    const source = sourceTopicURL(record.sourceTopic?.url);
+    if (source) {
+      const context = element("p");
+      const title = record.sourceTopic.title;
+      const link = element("a", typeof title === "string" && title.trim() ? title : source);
+      link.href = source;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      context.append(element("strong", t("sourceTopic")), " ", link);
+      details.append(context);
+    }
+    row.append(details);
     content.append(row);
   }
   dialog.content.append(content);
@@ -120,6 +160,14 @@ export function initUpload(options, store, request = GM_xmlhttpRequest) {
     'textarea#reply_content, #reply-box textarea, textarea[name="content"]',
   );
   if (!textarea || !options.upload) return;
+  const sourceURL = sourceTopicURL(location.href);
+  const sourceTopic = sourceURL
+    ? {
+        title:
+          document.querySelector("#Main .header h1")?.textContent.trim() || document.title.trim(),
+        url: sourceURL,
+      }
+    : null;
   const toolbar = owned(element("div", undefined, "vx-upload"));
   const input = element("input");
   input.type = "file";
@@ -198,7 +246,9 @@ export function initUpload(options, store, request = GM_xmlhttpRequest) {
             row.append(deletion);
           }
           try {
-            store.recordUpload({ ...result, fileName: file.name || t("pastedImage") });
+            const record = { ...result, fileName: file.name || t("pastedImage") };
+            if (sourceTopic) record.sourceTopic = sourceTopic;
+            store.recordUpload(record);
           } catch {
             row.append(` ${t("uploadRecordFailed")}`);
           }

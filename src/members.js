@@ -2,31 +2,98 @@ import { t } from "./i18n.js";
 import { button, element, matching, memberName, modal, owned, safeURL } from "./dom.js";
 import { computePosition, flip, offset, shift } from "@floating-ui/dom";
 import { blockMember, fetchMember } from "./member-data.js";
+import { normalizeTags, TAG_LIMITS } from "./storage.js";
 
 export function createMembers(store, options, topics, currentAccount) {
   const registered = new WeakSet(),
     byName = new Map();
+  function updateTags(name, tags) {
+    store.setTags(name, tags);
+    draw(name);
+  }
   function createTagEditor(name, onSave, tags = store.getTags(name)) {
     const form = element("div", undefined, "v2p-tag-input-wrapper");
-    const label = element("label", `${t("tagInstructions")} ${t("clearTags")}`);
-    const input = element("textarea");
-    input.className = "sl";
-    input.rows = 4;
-    input.value = tags.join(", ");
-    label.append(input);
+    const toolbar = element("div", undefined, "vx-tag-toolbar");
+    const count = element("span", undefined, "vx-tag-count");
+    toolbar.append(element("strong", t("tags")), count);
+    const fields = element("div", undefined, "vx-tag-fields");
+    const hint = element("p", t("tagInstructions", TAG_LIMITS.perMember));
+    hint.id = `vx-tag-hint-${crypto.randomUUID()}`;
+    const input = element("textarea", undefined, "sl");
+    input.rows = 2;
+    input.placeholder = t("tagEntry");
+    input.setAttribute("aria-label", t("addTag"));
+    input.setAttribute("aria-describedby", hint.id);
+    const entry = element("div", undefined, "vx-tag-entry");
     const error = element("p");
     error.setAttribute("role", "alert");
-    form.append(label, error);
+    function syncLabels() {
+      count.textContent = t("tagUsage", fields.childElementCount, TAG_LIMITS.perMember);
+      [...fields.children].forEach((row, index) => {
+        row.firstElementChild.setAttribute("aria-label", t("editableTag", index + 1));
+        row.lastElementChild.setAttribute("aria-label", t("removeTag", index + 1));
+      });
+    }
+    function showTags(values) {
+      fields.replaceChildren();
+      for (const tag of values) {
+        const row = element("div", undefined, "vx-tag-field");
+        const field = element("textarea", undefined, "sl");
+        field.rows = 1;
+        field.value = tag;
+        field.maxLength = TAG_LIMITS.length;
+        row.append(
+          field,
+          button(t("remove"), () => {
+            const next = row.nextElementSibling ?? row.previousElementSibling;
+            row.remove();
+            syncLabels();
+            error.textContent = "";
+            (next?.firstElementChild ?? input).focus();
+          }),
+        );
+        fields.append(row);
+      }
+      syncLabels();
+    }
+    function readTags() {
+      const values = [...fields.querySelectorAll("textarea")].map((field) => field.value.trim());
+      values.push(...input.value.split(/[,\uFF0C\n]/).map((tag) => tag.trim()));
+      return normalizeTags([...new Set(values.filter(Boolean))]);
+    }
+    const add = button(t("addTag"), () => {
+      try {
+        showTags(readTags());
+        input.value = "";
+        error.textContent = "";
+      } catch (cause) {
+        error.textContent = cause.message;
+      }
+      input.focus();
+    });
     const save = button(t("saveTags"), () => {
       try {
-        store.setTags(name, input.value);
+        updateTags(name, readTags());
       } catch (cause) {
         error.textContent = cause.message;
         return;
       }
-      draw(name);
       onSave();
     });
+    save.classList.add("special");
+    form.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" || event.isComposing || event.shiftKey) return;
+      if (event.target === input) {
+        event.preventDefault();
+        add.click();
+      } else if (event.target.matches?.(".vx-tag-field textarea")) {
+        event.preventDefault();
+      }
+    });
+    form.addEventListener("input", () => (error.textContent = ""));
+    showTags(tags);
+    entry.append(input, add);
+    form.append(toolbar, fields, hint, entry, error);
     return { form, input, save };
   }
   function edit(name) {
@@ -46,7 +113,8 @@ export function createMembers(store, options, topics, currentAccount) {
       }
       const tags = store.getTags(name);
       group.replaceChildren();
-      if (tags.length) group.append(element("b", "#"), `\u00A0${tags.join("\uFF0C")}`);
+      if (tags.length)
+        group.append(element("b", "#"), element("span", tags.join("\uFF0C"), "vx-tags-text"));
       group.title = tags.join("\uFF0C");
       group.hidden = !tags.length;
     }
@@ -324,5 +392,5 @@ export function createMembers(store, options, topics, currentAccount) {
     });
     window.addEventListener("scroll", hide, { passive: true });
   }
-  return { enhance, edit, createTagEditor };
+  return { enhance, edit, createTagEditor, updateTags };
 }

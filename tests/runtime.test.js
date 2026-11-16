@@ -83,8 +83,8 @@ test("Cloudflare and error pages do not run V2EX Lite", async () => {
   instance.window.close();
 });
 
-test("V2EX language cookie localizes script modules and guests skip account features", async () => {
-  for (const [locale, labels] of Object.entries({
+test("script language preferences localize modules and guests skip account features", async () => {
+  const translations = {
     enus: ["Settings", "Preview", "Top replies on this page"],
     zhcn: ["\u8bbe\u7f6e", "\u9884\u89c8", "\u5f53\u524d\u9875\u70ed\u95e8\u56de\u590d"],
     jajp: [
@@ -97,7 +97,14 @@ test("V2EX language cookie localizes script modules and guests skip account feat
       "\ubbf8\ub9ac\ubcf4\uae30",
       "\ud604\uc7ac \ud398\uc774\uc9c0 \uc778\uae30 \ub313\uae00",
     ],
-  })) {
+  };
+  for (const [language, locale, expected] of [
+    [undefined, "enus", "zhcn"],
+    ["en", "jajp", "enus"],
+    ["ja", "enus", "jajp"],
+    ["ko", "enus", "kokr"],
+    ...Object.keys(translations).map((locale) => ["site", locale, locale]),
+  ]) {
     const instance = new JSDOM(
       fixture
         .replace("<html>", '<html lang="zh-CN">')
@@ -111,7 +118,7 @@ test("V2EX language cookie localizes script modules and guests skip account feat
     Object.assign(window, {
       GM_getValue: (key, fallback) =>
         key === "v2ex-lite:options"
-          ? { preloadPages: 0, autoCheckIn: true, emoji: true, upload: true }
+          ? { language, preloadPages: 0, autoCheckIn: true, emoji: true, upload: true }
           : fallback,
       GM_setValue: () => assert.fail("guest settings should not write on startup"),
       GM_listValues: () => [],
@@ -124,13 +131,14 @@ test("V2EX language cookie localizes script modules and guests skip account feat
     });
     window.eval(built);
     await new Promise((resolve) => window.setTimeout(resolve, 0));
-    const [settings, preview, popular] = labels;
+    const [settings, preview, popular] = translations[expected];
     assert.equal(menu, `V2EX Lite ${settings}`);
     assert.equal(window.document.querySelector(".v2p-topic-preview-btn").textContent, preview);
     assert.equal(window.document.querySelector("#top_replies > .cell").textContent, popular);
     assert.equal(window.document.querySelector(".vx-upload"), null);
     assert.equal(window.document.querySelector('#reply-box button[type="button"]'), null);
     window.document.querySelector("#vx-settings").click();
+    assert.equal(window.document.querySelector('[name="language"]').value, language ?? "zh");
     assert.ok(window.document.querySelector(".vx-settings-tag-manager summary"));
     assert.equal(window.document.querySelector('[name="autoCheckIn"]').disabled, true);
     assert.equal(window.document.querySelector('[name="autoFold"]').checked, true);

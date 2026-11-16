@@ -1,18 +1,19 @@
 import { button, currentUser, element, modal, owned } from "./dom.js";
-import { t } from "./i18n.js";
+import { interfaceLanguage, LANGUAGE_NAMES, t } from "./i18n.js";
 import { createTagManager } from "./tag-manager.js";
 import { openUploadHistory } from "./upload.js";
 
-export function openSettings(store, signedIn = Boolean(currentUser()), createTagEditor) {
+export function openSettings(store, signedIn = Boolean(currentUser()), tagActions) {
   if (document.querySelector("#vx-settings-dialog")) return;
   const options = store.options();
   const dialog = modal(`V2EX Lite ${t("settings")}`, true);
   dialog.root.id = "vx-settings-dialog";
+  dialog.root.lang = interfaceLanguage();
   const form = element("form");
   form.id = "vx-settings-form";
   const fields = new Map();
   const groups = {
-    browse: ["privacy", "newTab", "preview", "userCards", "tags"],
+    browse: ["language", "privacy", "newTab", "preview", "userCards", "tags"],
     discussion: ["hotReplies", "autoFold", "preloadPages", "autoCheckIn"],
     editor: ["emoji", "upload", "imgurClientId"],
   };
@@ -25,11 +26,22 @@ export function openSettings(store, signedIn = Boolean(currentUser()), createTag
       const login = requiresLogin.has(key);
       const wrapper = element("div", undefined, "vx-settings-option");
       const caption = element("label", t(key));
-      const control = element("input");
+      const control = element(key === "language" ? "select" : "input");
       control.id = `vx-option-${key}`;
       control.name = key;
       control.disabled = login && !signedIn;
-      if (key === "preloadPages") {
+      if (key === "language") {
+        for (const [value, name] of [
+          ...Object.entries(LANGUAGE_NAMES),
+          ["site", t("followSite")],
+        ]) {
+          const option = element("option", name);
+          option.value = value;
+          if (value !== "site") option.lang = value;
+          control.append(option);
+        }
+        control.value = options.language;
+      } else if (key === "preloadPages") {
         Object.assign(control, { type: "number", min: "0", max: "5", step: "1", required: true });
         control.value = String(options[key]);
       } else if (key === "imgurClientId") {
@@ -110,19 +122,25 @@ export function openSettings(store, signedIn = Boolean(currentUser()), createTag
     button(t("importBackup"), () => file.click()),
     file,
   );
-  backup.append(element("legend", t("backup")), element("p", t("backupHelp")), buttons);
-  if (createTagEditor) {
+  backup.append(
+    element("legend", t("backup")),
+    element("strong", t("storage")),
+    element("p", t("storageHelp"), "vx-storage-help"),
+    element("p", t("backupHelp")),
+    buttons,
+  );
+  if (tagActions) {
     const details = element("details", undefined, "vx-settings-tag-manager");
     details.append(element("summary", t("manageTags")));
     details.addEventListener("toggle", () => {
       if (!details.open) return;
       if (!manager) {
-        manager = createTagManager(store, createTagEditor);
+        manager = createTagManager(store, tagActions);
         details.append(manager.root);
       }
       manager.refresh();
     });
-    backup.append(details);
+    form.append(details);
   }
   form.append(backup);
   if (!signedIn) dialog.content.append(element("p", t("guestNotice"), "vx-settings-notice"));
@@ -135,8 +153,8 @@ export function openSettings(store, signedIn = Boolean(currentUser()), createTag
   );
 }
 
-export function installSettings(store, signedIn, createTagEditor) {
-  const open = () => openSettings(store, signedIn, createTagEditor);
+export function installSettings(store, signedIn, tagActions) {
+  const open = () => openSettings(store, signedIn, tagActions);
   GM_registerMenuCommand(`V2EX Lite ${t("settings")}`, open);
   const host = document.querySelector("#Bottom .content");
   if (!host) return;

@@ -90,6 +90,11 @@
   margin: 0;
 }
 
+.vx-settings-option select {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .vx-settings-option input[type="number"] {
   width: 4ch;
 }
@@ -163,11 +168,30 @@
   padding: 20px;
 }
 
-.v2p-tag-input-wrapper textarea {
-  display: block;
+.v2p-tag-input-wrapper :is(textarea, input),
+.vx-tag-manager input[type="search"],
+.vx-settings-option select {
   box-sizing: border-box;
+  min-width: 0;
   width: 100%;
-  margin-top: 8px;
+  padding: 7px 9px;
+  border: 1px solid var(--box-border-color);
+  border-radius: var(--v2p-input-radius);
+  color: var(--v2p-color-font-primary);
+  font: inherit;
+  background: var(--v2p-color-bg-input);
+}
+
+.vx-settings-option select {
+  width: auto;
+  flex-shrink: 1;
+}
+
+.v2p-tag-input-wrapper :is(textarea, input):focus-visible,
+.vx-tag-manager input[type="search"]:focus-visible,
+.vx-settings-option select:focus-visible {
+  outline: 2px solid var(--v2p-color-font-tertiary);
+  outline-offset: 1px;
 }
 
 .v2p-tag-input-wrapper [role="alert"]:empty {
@@ -175,7 +199,10 @@
 }
 
 .vx-settings-tag-manager {
-  margin-top: 14px;
+  margin: 0 0 12px;
+  padding: 12px;
+  border: 1px solid var(--box-border-color);
+  border-radius: var(--box-border-radius);
 }
 
 .vx-settings-tag-manager summary {
@@ -183,30 +210,184 @@
   font-weight: 600;
 }
 
-.vx-tag-manager > label {
+.vx-tag-toolbar,
+.vx-tag-entry,
+.vx-tag-actions,
+.vx-tag-field {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
+}
+
+.vx-tag-toolbar {
+  justify-content: space-between;
   margin-block: 10px;
 }
 
-.vx-tag-manager input {
+.vx-tag-toolbar label {
+  display: grid;
+  flex: 1 1 18em;
   min-width: 0;
-  max-width: 100%;
+  gap: 4px;
+}
+
+#vx-settings-dialog .vx-tag-capacity,
+#vx-settings-dialog .vx-storage-help {
+  margin-block: 8px;
+  color: var(--v2p-color-font-secondary);
+}
+
+.vx-tag-count,
+.vx-tag-chips li {
+  padding: 3px 8px;
+  border-radius: 12px;
+  background: var(--button-background-hover-color);
+}
+
+.vx-tag-editor:not(:empty) {
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid var(--box-border-color);
+  border-radius: var(--box-border-radius);
+  background: var(--box-background-alt-color);
+}
+
+.vx-tag-editor h3 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.vx-tag-editor > .vx-tag-actions {
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.vx-tag-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.vx-tag-fields:not(:empty) {
+  padding: 2px;
+}
+
+.vx-tag-field {
+  flex-wrap: nowrap;
+}
+
+.vx-tag-field textarea {
+  resize: none;
+}
+
+.vx-tag-entry {
+  align-items: flex-start;
+  margin-top: 8px;
+}
+
+.vx-tag-entry textarea {
+  flex: 1 1 16em;
+  resize: vertical;
 }
 
 .vx-tag-list {
-  margin: 10px 0;
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
   padding: 0;
   list-style: none;
   overflow-wrap: anywhere;
 }
 
-.vx-tag-list .cell {
+.vx-tag-row,
+.vx-tag-empty {
+  padding: 10px;
+  border: 1px solid var(--box-border-color);
+  border-radius: var(--box-border-radius);
+  background: var(--box-background-color);
+}
+
+.vx-tag-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   align-items: center;
   justify-content: space-between;
-  padding-inline: 0;
+}
+
+.vx-tag-member {
+  flex: 1 1 14em;
+  min-width: 0;
+}
+
+.vx-tag-profile {
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+}
+
+.vx-tag-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vx-tag-chips li {
+  box-sizing: border-box;
+  max-width: 100%;
+  font-size: 12px;
+}
+
+.vx-tag-actions .vx-tag-delete.normal.button {
+  color: color-mix(in srgb, var(--v2p-color-error) 70%, var(--v2p-color-font-primary));
+}
+
+.vx-tag-actions .vx-tag-delete.normal.button:hover {
+  border-color: var(--v2p-color-error);
+}
+
+.vx-tags {
+  min-width: 0;
+  max-width: min(300px, 100%);
+  gap: 3px;
+}
+
+.vx-tags-text {
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vx-upload-record {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.vx-upload-record-preview {
+  display: flex;
+  flex: 0 0 min(112px, 32%);
+  height: 80px;
+  overflow: hidden;
+  border: 1px solid var(--box-border-color);
+  border-radius: var(--box-border-radius);
+  background: var(--box-background-alt-color);
+}
+
+.vx-upload-record-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.vx-upload-record-details {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }

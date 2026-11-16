@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { setLanguage } from "../src/i18n.js";
 import { createHTTP, currentUser, safeContent, safeURL, syncOnce } from "../src/dom.js";
 import { dom } from "./helpers.js";
 
@@ -40,7 +41,7 @@ test("current site account cards work without a top navigation username", () => 
 
 test("reward redirects are allowed, but external redirects with identical paths are rejected", async () => {
   dom("");
-  document.cookie = "V2EX_LANG=enus";
+  setLanguage("en");
   const get = createHTTP(async (url) => ({
     ok: true,
     url: url.includes("redeem") ? "https://www.v2ex.com/mission/daily" : "https://evil.test/t/123",
@@ -52,7 +53,7 @@ test("reward redirects are allowed, but external redirects with identical paths 
 
 test("page requests serialize, survive failures and reject sign-in redirects", async () => {
   dom("<div></div>");
-  document.cookie = "V2EX_LANG=enus";
+  setLanguage("en");
   let active = 0;
   let peak = 0;
   const get = createHTTP(async (url) => {

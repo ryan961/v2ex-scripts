@@ -3,6 +3,7 @@ import { button, element, isV2EXPage, matching, modal, owned, syncOnce } from ".
 import { applyTheme } from "./theme.js";
 import { enhanceEmojis } from "./emoji.js";
 import { createReplyFolding } from "./folding.js";
+import { enhanceReplyActions } from "./reply-actions.js";
 
 export function createTopics(options, themeCSS = "") {
   const seen = new WeakSet();
@@ -52,6 +53,16 @@ export function createTopics(options, themeCSS = "") {
                 style.textContent = themeCSS;
                 doc.head.append(style);
                 enhanceEmojis(doc);
+                const view = doc.defaultView;
+                enhanceReplyActions(doc, view);
+                const observer = new view.MutationObserver((records) => {
+                  for (const { target } of records) {
+                    const area = target.closest(".thank_area");
+                    if (area) enhanceReplyActions(area, view);
+                  }
+                });
+                observer.observe(doc.querySelector("#Main"), { childList: true, subtree: true });
+                view.addEventListener("pagehide", () => observer.disconnect(), { once: true });
                 createReplyFolding(options.autoFold, doc).enhance(doc);
                 syncOnce(doc);
               } catch {

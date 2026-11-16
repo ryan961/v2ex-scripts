@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         V2EX Lite
 // @namespace    https://github.com/ryan961/v2ex-scripts
-// @version      0.1.6
+// @version      0.1.7
 // @description  Focused V2EX themes, tags, previews, replies, check-in and image uploads.
 // @author       ryan961
 // @license      MIT
@@ -158,10 +158,109 @@ SOFTWARE.
   var theme_default = '@charset "UTF-8";\n/* V2EX Polish c8f1b70; Copyright (c) 2023-present LeoKu and contributors.\n * MIT; see licenses/v2ex-polish-MIT.txt. Font overrides removed as requested.\n */\n:root {\n  --zidx-search: 100;\n  --zidx-tabs: 10;\n  --zidx-tools-card: 10;\n  --zidx-reply-box: 99;\n  --zidx-modal-header: 50;\n  --zidx-modal-mask: 888;\n  --zidx-toast: 999;\n  --zidx-tip: 999;\n  --zidx-popup: 99;\n  --zidx-expand-mask: 10;\n  --zidx-expand-btn: 20;\n  --zidx-rightbar: 99;\n  --v2p-spacing-box: 12px;\n  --v2p-spacing-cell: 10px;\n  --v2p-underline-offset: 0.5ex;\n  --v2p-layout-column-gap: 25px;\n  --v2p-layout-row-gap: 20px;\n  --v2p-nav-height: 55px;\n  --v2p-tp-item-x: 20px;\n  --v2p-tp-item-y: 10px;\n  --v2p-tp-tabs-pd: 10px;\n  --v2p-tp-nested-pd: 15px;\n  --v2p-tp-preview-pd: 20px;\n  --v2p-emoji-size: 21px;\n  --v2p-box-radius: 10px;\n  --v2p-input-radius: 6px;\n  --v2p-button-radius: 6px;\n  --v2p-popup-radius: 6px;\n  --v2p-content-width: 1120px;\n  --v2p-rightbar-width: 270px;\n  --v2p-color-main-50: #f7f9fb;\n  --v2p-color-main-100: #f1f5f9;\n  --v2p-color-main-150: #eaeff5;\n  --v2p-color-main-200: #e2e8f0;\n  --v2p-color-main-300: #cbd5e1;\n  --v2p-color-main-350: #94a3b8cc;\n  --v2p-color-main-400: #94a3b8;\n  --v2p-color-main-500: #64748b;\n  --v2p-color-main-600: #475569;\n  --v2p-color-main-700: #334155;\n  --v2p-color-main-800: #1e293b;\n  --v2p-color-accent-50: oklch(97.9% 0.021 166.113deg);\n  --v2p-color-accent-100: oklch(95% 0.052 163.051deg);\n  --v2p-color-accent-200: oklch(90.5% 0.093 164.15deg);\n  --v2p-color-accent-300: oklch(84.5% 0.143 164.978deg);\n  --v2p-color-accent-400: oklch(76.5% 0.177 163.223deg);\n  --v2p-color-accent-500: oklch(69.6% 0.17 162.48deg);\n  --v2p-color-accent-600: oklch(59.6% 0.145 163.225deg);\n  --v2p-color-accent-700: oklch(50.8% 0.118 165.612deg);\n  --v2p-color-orange-50: #fff7ed;\n  --v2p-color-orange-100: #ffedd5;\n  --v2p-color-orange-400: #fb923c;\n  --v2p-color-background: #f2f3f5;\n  --v2p-color-foreground: var(--v2p-color-main-800);\n  --v2p-color-selection-foreground: var(--v2p-color-main-100);\n  --v2p-color-selection-background: var(--v2p-color-main-700);\n  --v2p-color-selection-background-img: var(--v2p-color-main-500);\n  --v2p-color-font-secondary: var(--v2p-color-main-600);\n  --v2p-color-font-tertiary: var(--v2p-color-main-500);\n  --v2p-color-font-quaternary: var(--v2p-color-main-400);\n  --v2p-color-button-background: var(--v2p-color-main-100);\n  --v2p-color-button-foreground: var(--v2p-color-main-500);\n  --v2p-color-button-background-hover: var(--v2p-color-main-200);\n  --v2p-color-button-foreground-hover: var(--v2p-color-main-600);\n  --v2p-color-button-border: var(--v2p-color-main-300);\n  --v2p-color-button-special-background: var(--v2p-color-accent-50);\n  --v2p-color-button-special-foreground: var(--v2p-color-accent-700);\n  --v2p-color-button-special-border: var(--v2p-color-accent-600);\n  --v2p-color-button-special-foreground-hover: var(--v2p-color-accent-700);\n  --v2p-color-bg-content: #fff;\n  --v2p-color-bg-footer: var(--v2p-color-bg-content);\n  --v2p-color-bg-hover-btn: rgb(226 232 240 / 70%);\n  --v2p-color-bg-subtle: rgb(236 253 245 / 90%);\n  --v2p-color-bg-input: var(--v2p-color-main-50);\n  --v2p-color-bg-search: var(--v2p-color-main-100);\n  --v2p-color-bg-search-active: var(--v2p-color-main-150);\n  --v2p-color-bg-widget: rgb(255 255 255 / 70%);\n  --v2p-color-bg-reply: var(--v2p-color-main-100);\n  --v2p-color-bg-tooltip: var(--v2p-color-bg-content);\n  --v2p-color-bg-tabs: var(--v2p-color-main-100);\n  --v2p-color-bg-tpr: var(--v2p-color-main-100);\n  --v2p-color-bg-avatar: var(--v2p-color-main-300);\n  --v2p-color-bg-block: var(--v2p-color-main-100);\n  --v2p-color-bg-block-darker: var(--v2p-color-main-300);\n  --v2p-color-bg-link: var(--v2p-color-main-100);\n  --v2p-color-bg-link-hover: var(--v2p-color-main-200);\n  --v2p-color-bg-error: #fee2e2;\n  --v2p-color-tabs: var(--v2p-color-foreground);\n  --v2p-color-heart: #ef4444;\n  --v2p-color-heart-fill: #fee2e2;\n  --v2p-color-mask: rgb(0 0 0 / 25%);\n  --v2p-color-divider: var(--v2p-color-main-200);\n  --v2p-color-border: var(--v2p-color-main-200);\n  --v2p-color-input-border: var(--v2p-color-main-300);\n  --v2p-color-input-border-focus: var(--v2p-color-main-400);\n  --v2p-color-border-darker: var(--v2p-color-main-300);\n  --v2p-color-link-visited: var(--v2p-color-main-400);\n  --v2p-color-error: #ef4444;\n  --v2p-color-cell-num: var(--v2p-color-main-350);\n  --v2p-color-badge: var(--v2p-color-bg-content);\n  --v2p-box-shadow: 0 3px 5px 0 rgb(0 0 0 / 4%);\n  --v2p-widget-shadow: 0 9px 24px -3px rgb(0 0 0 / 6%), 0 4px 8px -1px rgb(0 0 0 /12%);\n  --v2p-toast-shadow:\n    0 6px 16px 0 rgb(0 0 0 / 8%), 0 3px 6px -4px rgb(0 0 0 / 12%), 0 9px 28px 8px rgb(0 0 0 / 5%);\n  --color-fade: var(--v2p-color-font-secondary);\n  --color-gray: var(--v2p-color-font-secondary);\n  --link-color: var(--v2p-color-foreground);\n  --link-darker-color: var(--v2p-color-main-600);\n  --link-hover-color: var(--v2p-color-foreground);\n  --link-caution-color: var(--v2p-color-orange-400);\n  --link-visited-color: currentColor;\n  --box-border-color: var(--v2p-color-border);\n  --box-foreground-color: var(--v2p-color-foreground);\n  --box-background-color: var(--v2p-color-bg-content);\n  --box-background-alt-color: var(--v2p-color-main-100);\n  --box-background-hover-color: var(--v2p-color-main-200);\n  --box-border-focus-color: var(--v2p-color-main-200);\n  --box-border-radius: var(--v2p-box-radius);\n  --button-background-color: var(--v2p-color-button-background);\n  --button-foreground-color: var(--v2p-color-button-foreground);\n  --button-hover-color: var(--v2p-color-button-background-hover);\n  --button-background-hover-color: var(--v2p-color-button-background-hover);\n  --button-foreground-hover-color: var(--v2p-color-button-foreground-hover);\n  --button-border-color: var(--v2p-color-main-300);\n  --button-border-hover-color: var(--v2p-color-main-400);\n}\n:root body {\n  --v2p-color-main-50: #f7f9fb;\n  --v2p-color-main-100: #f1f5f9;\n  --v2p-color-main-150: #eaeff5;\n  --v2p-color-main-200: #e2e8f0;\n  --v2p-color-main-300: #cbd5e1;\n  --v2p-color-main-350: #94a3b8cc;\n  --v2p-color-main-400: #94a3b8;\n  --v2p-color-main-500: #64748b;\n  --v2p-color-main-600: #475569;\n  --v2p-color-main-700: #334155;\n  --v2p-color-main-800: #1e293b;\n  --v2p-color-accent-50: oklch(97.9% 0.021 166.113deg);\n  --v2p-color-accent-100: oklch(95% 0.052 163.051deg);\n  --v2p-color-accent-200: oklch(90.5% 0.093 164.15deg);\n  --v2p-color-accent-300: oklch(84.5% 0.143 164.978deg);\n  --v2p-color-accent-400: oklch(76.5% 0.177 163.223deg);\n  --v2p-color-accent-500: oklch(69.6% 0.17 162.48deg);\n  --v2p-color-accent-600: oklch(59.6% 0.145 163.225deg);\n  --v2p-color-accent-700: oklch(50.8% 0.118 165.612deg);\n  --v2p-color-orange-50: #fff7ed;\n  --v2p-color-orange-100: #ffedd5;\n  --v2p-color-orange-400: #fb923c;\n  --v2p-color-background: #f2f3f5;\n  --v2p-color-foreground: var(--v2p-color-main-800);\n  --v2p-color-selection-foreground: var(--v2p-color-main-100);\n  --v2p-color-selection-background: var(--v2p-color-main-700);\n  --v2p-color-selection-background-img: var(--v2p-color-main-500);\n  --v2p-color-font-secondary: var(--v2p-color-main-600);\n  --v2p-color-font-tertiary: var(--v2p-color-main-500);\n  --v2p-color-font-quaternary: var(--v2p-color-main-400);\n  --v2p-color-button-background: var(--v2p-color-main-100);\n  --v2p-color-button-foreground: var(--v2p-color-main-500);\n  --v2p-color-button-background-hover: var(--v2p-color-main-200);\n  --v2p-color-button-foreground-hover: var(--v2p-color-main-600);\n  --v2p-color-button-border: var(--v2p-color-main-300);\n  --v2p-color-button-special-background: var(--v2p-color-accent-50);\n  --v2p-color-button-special-foreground: var(--v2p-color-accent-700);\n  --v2p-color-button-special-border: var(--v2p-color-accent-600);\n  --v2p-color-button-special-foreground-hover: var(--v2p-color-accent-700);\n  --v2p-color-bg-content: #fff;\n  --v2p-color-bg-footer: var(--v2p-color-bg-content);\n  --v2p-color-bg-hover-btn: rgb(226 232 240 / 70%);\n  --v2p-color-bg-subtle: rgb(236 253 245 / 90%);\n  --v2p-color-bg-input: var(--v2p-color-main-50);\n  --v2p-color-bg-search: var(--v2p-color-main-100);\n  --v2p-color-bg-search-active: var(--v2p-color-main-150);\n  --v2p-color-bg-widget: rgb(255 255 255 / 70%);\n  --v2p-color-bg-reply: var(--v2p-color-main-100);\n  --v2p-color-bg-tooltip: var(--v2p-color-bg-content);\n  --v2p-color-bg-tabs: var(--v2p-color-main-100);\n  --v2p-color-bg-tpr: var(--v2p-color-main-100);\n  --v2p-color-bg-avatar: var(--v2p-color-main-300);\n  --v2p-color-bg-block: var(--v2p-color-main-100);\n  --v2p-color-bg-block-darker: var(--v2p-color-main-300);\n  --v2p-color-bg-link: var(--v2p-color-main-100);\n  --v2p-color-bg-link-hover: var(--v2p-color-main-200);\n  --v2p-color-bg-error: #fee2e2;\n  --v2p-color-tabs: var(--v2p-color-foreground);\n  --v2p-color-heart: #ef4444;\n  --v2p-color-heart-fill: #fee2e2;\n  --v2p-color-mask: rgb(0 0 0 / 25%);\n  --v2p-color-divider: var(--v2p-color-main-200);\n  --v2p-color-border: var(--v2p-color-main-200);\n  --v2p-color-input-border: var(--v2p-color-main-300);\n  --v2p-color-input-border-focus: var(--v2p-color-main-400);\n  --v2p-color-border-darker: var(--v2p-color-main-300);\n  --v2p-color-link-visited: var(--v2p-color-main-400);\n  --v2p-color-error: #ef4444;\n  --v2p-color-cell-num: var(--v2p-color-main-350);\n  --v2p-color-badge: var(--v2p-color-bg-content);\n  --v2p-box-shadow: 0 3px 5px 0 rgb(0 0 0 / 4%);\n  --v2p-widget-shadow: 0 9px 24px -3px rgb(0 0 0 / 6%), 0 4px 8px -1px rgb(0 0 0 /12%);\n  --v2p-toast-shadow:\n    0 6px 16px 0 rgb(0 0 0 / 8%), 0 3px 6px -4px rgb(0 0 0 / 12%), 0 9px 28px 8px rgb(0 0 0 / 5%);\n  --color-fade: var(--v2p-color-font-secondary);\n  --color-gray: var(--v2p-color-font-secondary);\n  --link-color: var(--v2p-color-foreground);\n  --link-darker-color: var(--v2p-color-main-600);\n  --link-hover-color: var(--v2p-color-foreground);\n  --link-caution-color: var(--v2p-color-orange-400);\n  --link-visited-color: currentColor;\n  --box-border-color: var(--v2p-color-border);\n  --box-foreground-color: var(--v2p-color-foreground);\n  --box-background-color: var(--v2p-color-bg-content);\n  --box-background-alt-color: var(--v2p-color-main-100);\n  --box-background-hover-color: var(--v2p-color-main-200);\n  --box-border-focus-color: var(--v2p-color-main-200);\n  --box-border-radius: var(--v2p-box-radius);\n  --button-background-color: var(--v2p-color-button-background);\n  --button-foreground-color: var(--v2p-color-button-foreground);\n  --button-hover-color: var(--v2p-color-button-background-hover);\n  --button-background-hover-color: var(--v2p-color-button-background-hover);\n  --button-foreground-hover-color: var(--v2p-color-button-foreground-hover);\n  --button-border-color: var(--v2p-color-main-300);\n  --button-border-hover-color: var(--v2p-color-main-400);\n  color: var(--v2p-color-foreground);\n  text-autospace: normal;\n  background-color: var(--v2p-color-background);\n}\n:root body.v2p-theme-light-default,\n:root body .v2p-theme-light-default {\n  --v2p-color-main-50: #f7f9fb;\n  --v2p-color-main-100: #f1f5f9;\n  --v2p-color-main-150: #eaeff5;\n  --v2p-color-main-200: #e2e8f0;\n  --v2p-color-main-300: #cbd5e1;\n  --v2p-color-main-350: #94a3b8cc;\n  --v2p-color-main-400: #94a3b8;\n  --v2p-color-main-500: #64748b;\n  --v2p-color-main-600: #475569;\n  --v2p-color-main-700: #334155;\n  --v2p-color-main-800: #1e293b;\n  --v2p-color-accent-50: oklch(97.9% 0.021 166.113deg);\n  --v2p-color-accent-100: oklch(95% 0.052 163.051deg);\n  --v2p-color-accent-200: oklch(90.5% 0.093 164.15deg);\n  --v2p-color-accent-300: oklch(84.5% 0.143 164.978deg);\n  --v2p-color-accent-400: oklch(76.5% 0.177 163.223deg);\n  --v2p-color-accent-500: oklch(69.6% 0.17 162.48deg);\n  --v2p-color-accent-600: oklch(59.6% 0.145 163.225deg);\n  --v2p-color-accent-700: oklch(50.8% 0.118 165.612deg);\n  --v2p-color-orange-50: #fff7ed;\n  --v2p-color-orange-100: #ffedd5;\n  --v2p-color-orange-400: #fb923c;\n  --v2p-color-background: #f2f3f5;\n  --v2p-color-foreground: var(--v2p-color-main-800);\n  --v2p-color-selection-foreground: var(--v2p-color-main-100);\n  --v2p-color-selection-background: var(--v2p-color-main-700);\n  --v2p-color-selection-background-img: var(--v2p-color-main-500);\n  --v2p-color-font-secondary: var(--v2p-color-main-600);\n  --v2p-color-font-tertiary: var(--v2p-color-main-500);\n  --v2p-color-font-quaternary: var(--v2p-color-main-400);\n  --v2p-color-button-background: var(--v2p-color-main-100);\n  --v2p-color-button-foreground: var(--v2p-color-main-500);\n  --v2p-color-button-background-hover: var(--v2p-color-main-200);\n  --v2p-color-button-foreground-hover: var(--v2p-color-main-600);\n  --v2p-color-button-border: var(--v2p-color-main-300);\n  --v2p-color-button-special-background: var(--v2p-color-accent-50);\n  --v2p-color-button-special-foreground: var(--v2p-color-accent-700);\n  --v2p-color-button-special-border: var(--v2p-color-accent-600);\n  --v2p-color-button-special-foreground-hover: var(--v2p-color-accent-700);\n  --v2p-color-bg-content: #fff;\n  --v2p-color-bg-footer: var(--v2p-color-bg-content);\n  --v2p-color-bg-hover-btn: rgb(226 232 240 / 70%);\n  --v2p-color-bg-subtle: rgb(236 253 245 / 90%);\n  --v2p-color-bg-input: var(--v2p-color-main-50);\n  --v2p-color-bg-search: var(--v2p-color-main-100);\n  --v2p-color-bg-search-active: var(--v2p-color-main-150);\n  --v2p-color-bg-widget: rgb(255 255 255 / 70%);\n  --v2p-color-bg-reply: var(--v2p-color-main-100);\n  --v2p-color-bg-tooltip: var(--v2p-color-bg-content);\n  --v2p-color-bg-tabs: var(--v2p-color-main-100);\n  --v2p-color-bg-tpr: var(--v2p-color-main-100);\n  --v2p-color-bg-avatar: var(--v2p-color-main-300);\n  --v2p-color-bg-block: var(--v2p-color-main-100);\n  --v2p-color-bg-block-darker: var(--v2p-color-main-300);\n  --v2p-color-bg-link: var(--v2p-color-main-100);\n  --v2p-color-bg-link-hover: var(--v2p-color-main-200);\n  --v2p-color-bg-error: #fee2e2;\n  --v2p-color-tabs: var(--v2p-color-foreground);\n  --v2p-color-heart: #ef4444;\n  --v2p-color-heart-fill: #fee2e2;\n  --v2p-color-mask: rgb(0 0 0 / 25%);\n  --v2p-color-divider: var(--v2p-color-main-200);\n  --v2p-color-border: var(--v2p-color-main-200);\n  --v2p-color-input-border: var(--v2p-color-main-300);\n  --v2p-color-input-border-focus: var(--v2p-color-main-400);\n  --v2p-color-border-darker: var(--v2p-color-main-300);\n  --v2p-color-link-visited: var(--v2p-color-main-400);\n  --v2p-color-error: #ef4444;\n  --v2p-color-cell-num: var(--v2p-color-main-350);\n  --v2p-color-badge: var(--v2p-color-bg-content);\n  --v2p-box-shadow: 0 3px 5px 0 rgb(0 0 0 / 4%);\n  --v2p-widget-shadow: 0 9px 24px -3px rgb(0 0 0 / 6%), 0 4px 8px -1px rgb(0 0 0 /12%);\n  --v2p-toast-shadow:\n    0 6px 16px 0 rgb(0 0 0 / 8%), 0 3px 6px -4px rgb(0 0 0 / 12%), 0 9px 28px 8px rgb(0 0 0 / 5%);\n  --color-fade: var(--v2p-color-font-secondary);\n  --color-gray: var(--v2p-color-font-secondary);\n  --link-color: var(--v2p-color-foreground);\n  --link-darker-color: var(--v2p-color-main-600);\n  --link-hover-color: var(--v2p-color-foreground);\n  --link-caution-color: var(--v2p-color-orange-400);\n  --link-visited-color: currentColor;\n  --box-border-color: var(--v2p-color-border);\n  --box-foreground-color: var(--v2p-color-foreground);\n  --box-background-color: var(--v2p-color-bg-content);\n  --box-background-alt-color: var(--v2p-color-main-100);\n  --box-background-hover-color: var(--v2p-color-main-200);\n  --box-border-focus-color: var(--v2p-color-main-200);\n  --box-border-radius: var(--v2p-box-radius);\n  --button-background-color: var(--v2p-color-button-background);\n  --button-foreground-color: var(--v2p-color-button-foreground);\n  --button-hover-color: var(--v2p-color-button-background-hover);\n  --button-background-hover-color: var(--v2p-color-button-background-hover);\n  --button-foreground-hover-color: var(--v2p-color-button-foreground-hover);\n  --button-border-color: var(--v2p-color-main-300);\n  --button-border-hover-color: var(--v2p-color-main-400);\n}\n:root body #Logo {\n  background-image: url("https://www.v2ex.com/static/img/v2ex@2x.png");\n}\n:root body ::selection {\n  color: var(--v2p-color-selection-foreground);\n  background-color: var(--v2p-color-selection-background);\n}\n:root body img::selection {\n  background-color: var(--v2p-color-selection-background-img);\n}\n:root code,\n:root pre,\n:root table {\n  text-autospace: no-autospace;\n}\n\n/* V2EX Polish c8f1b70; Copyright (c) 2023-present LeoKu and contributors.\n * MIT; see licenses/v2ex-polish-MIT.txt. Font and reply-spacing overrides removed as requested.\n */\n/* V2EX Polish c8f1b70; Copyright (c) 2023-present LeoKu and contributors.\n * MIT; see licenses/v2ex-polish-MIT.txt. Font overrides removed as requested.\n */\n:root {\n  color-scheme: light;\n  background-color: var(--v2p-color-background);\n}\n\nhtml,\nbody {\n  min-height: 100vh;\n}\n\n:root[data-v2p-theme] body {\n  visibility: visible;\n}\n\n@keyframes v2p-boot-reveal {\n  to {\n    visibility: visible;\n  }\n}\nbody {\n  scrollbar-gutter: stable;\n  overflow: auto;\n  visibility: hidden;\n  animation: v2p-boot-reveal 0s 800ms forwards;\n}\nbody.v2p-theme-light-default {\n  visibility: visible;\n}\nbody h1 {\n  font-weight: bold;\n}\nbody a {\n  cursor: default;\n  text-decoration: none;\n}\nbody a[href] {\n  cursor: pointer;\n}\nbody a:hover {\n  text-decoration: underline 1px;\n  text-underline-offset: var(--v2p-underline-offset);\n}\nbody pre {\n  max-width: calc(var(--v2p-content-width) - var(--v2p-rightbar-width) - 2 * var(--v2p-layout-column-gap) - 24px);\n}\nbody #Top {\n  height: var(--v2p-nav-height);\n  border: none;\n  background-color: var(--v2p-color-bg-content);\n}\nbody #Bottom {\n  border: none;\n  color: var(--v2p-color-font-secondary);\n  background-color: var(--v2p-color-bg-footer);\n}\nbody #Bottom .content {\n  flex-direction: column;\n}\nbody #Wrapper {\n  background-color: inherit;\n  background-image: none;\n}\nbody #Wrapper.Night {\n  background-color: inherit;\n  background-image: none;\n}\nbody #Wrapper .content {\n  display: flex;\n  gap: var(--v2p-layout-column-gap);\n  max-width: var(--v2p-content-width);\n}\n#Navcol .nav_item:hover {\n  background-color: var(--box-background-hover-color);\n}\n#Navcol .nav_item:hover:active {\n  box-shadow: none;\n}\n#Navcol .nav_item_current:hover {\n  color: var(--box-foreground-color);\n  background-color: var(--v2p-color-bg-content);\n}\n#Navcol .nav_item_current:active {\n  box-shadow: none;\n}\n\n#Rightcol #page-outline-title {\n  background-color: var(--v2p-color-button-background-hover);\n}\n#Rightcol .page-outline-item:hover {\n  background-color: var(--box-background-hover-color);\n}\n\nbody #Wrapper:has(#Singleton) {\n  padding: 20px 0 0;\n}\nbody #Wrapper:has(#Singleton) #Singleton {\n  overflow: hidden;\n  box-shadow: var(--v2p-box-shadow);\n}\nbody #Leftbar {\n  float: none;\n  order: 1;\n}\nbody #Main {\n  flex: 1;\n  order: 2;\n  max-width: clamp(400px, 92vw, 1200px);\n  margin: 0;\n}\nbody #Rightbar {\n  float: none;\n  order: 3;\n  width: var(--v2p-rightbar-width);\n  margin-right: var(--v2p-layout-column-gap);\n}\n:root[data-v2p-preview] {\n  --v2p-rightbar-toggle-display: flex;\n}\n:root[data-v2p-preview] body {\n  min-width: 450px;\n}\n:root[data-v2p-preview] #Wrapper .content {\n  gap: 0;\n  min-width: 450px;\n}\n:root[data-v2p-preview] #Wrapper #Main {\n  margin: auto;\n}\n:root[data-v2p-preview] #Wrapper #Rightbar {\n  position: fixed;\n  z-index: var(--zidx-rightbar);\n  top: var(--v2p-layout-column-gap);\n  right: 10px;\n  overflow-y: auto;\n  display: none;\n  max-height: calc(100vh - 2 * var(--v2p-layout-column-gap));\n  margin: 0;\n  padding: 10px;\n  border: 1px solid var(--v2p-color-border);\n  border-radius: var(--v2p-box-radius);\n  background-color: var(--v2p-color-bg-content);\n  box-shadow: var(--v2p-widget-shadow);\n}\n:root[data-v2p-preview] #Wrapper #Rightbar.v2p-layout-rightbar-visible {\n  display: block;\n}\n:root[data-v2p-preview] #Wrapper #Rightbar.v2p-layout-rightbar-visible .box {\n  background-color: var(--v2p-color-background);\n  box-shadow: none;\n}\n:root[data-v2p-preview] #Wrapper #Rightbar .v2p-tool-box {\n  border: 1px solid var(--v2p-color-border);\n}\n\n:root[data-v2p-preview="1"] #Top,\n:root[data-v2p-preview="1"] #Bottom {\n  display: none;\n}\n\n@media (width < 900px) {\n  :root[data-v2p-page=topic] {\n    --v2p-rightbar-toggle-display: flex;\n  }\n  :root[data-v2p-page=topic] #Wrapper .content {\n    gap: 0;\n  }\n  :root[data-v2p-page=topic] #Wrapper #Main {\n    margin: auto;\n  }\n  :root[data-v2p-page=topic] #Wrapper #Rightbar {\n    position: fixed;\n    z-index: var(--zidx-rightbar);\n    top: var(--v2p-layout-column-gap);\n    right: 10px;\n    overflow-y: auto;\n    display: none;\n    max-height: calc(100vh - 2 * var(--v2p-layout-column-gap));\n    margin: 0;\n    padding: 10px;\n    border: 1px solid var(--v2p-color-border);\n    border-radius: var(--v2p-box-radius);\n    background-color: var(--v2p-color-bg-content);\n    box-shadow: var(--v2p-widget-shadow);\n  }\n  :root[data-v2p-page=topic] #Wrapper #Rightbar.v2p-layout-rightbar-visible {\n    display: block;\n  }\n  :root[data-v2p-page=topic] #Wrapper #Rightbar.v2p-layout-rightbar-visible .box {\n    background-color: var(--v2p-color-background);\n    box-shadow: none;\n  }\n  :root[data-v2p-page=topic] #Wrapper #Rightbar .v2p-tool-box {\n    border: 1px solid var(--v2p-color-border);\n  }\n}\nbody #search-container {\n  height: 30px;\n  margin: 0 30px;\n  border: none;\n  border-radius: var(--v2p-input-radius);\n  background-color: var(--v2p-color-bg-search);\n}\nbody #search-container::before {\n  top: 0;\n  left: 4px;\n  opacity: 0.6;\n  background-size: 14px 14px;\n  filter: none;\n}\nbody #search-container.active {\n  background-color: var(--v2p-color-bg-search-active);\n}\nbody #search-container #search {\n  font-size: 14px;\n  font-weight: 500;\n}\nbody #search-container #search-result {\n  z-index: var(--zidx-search);\n  top: 42px;\n  border: 1px solid var(--box-border-color);\n  font-size: 14px;\n  color: var(--v2p-color-font-secondary);\n  background: var(--v2p-color-bg-widget);\n  backdrop-filter: blur(16px);\n  box-shadow: var(--v2p-widget-shadow);\n}\nbody #search-container #search-result .fade {\n  color: var(--v2p-color-font-secondary);\n}\nbody #search-container #search-result .search-item {\n  border-radius: var(--v2p-button-radius);\n  font-weight: bold;\n  color: var(--v2p-color-foreground);\n}\nbody #search-container #search-result .search-item.active {\n  color: var(--v2p-color-foreground);\n}\nbody #search-container #search-result .search-item.active.v2p-no-active {\n  background-color: transparent;\n}\nbody .box {\n  border: none;\n  border-radius: var(--box-border-radius);\n  color: var(--box-foreground-color);\n  background-color: var(--v2p-color-bg-content);\n  box-shadow: var(--v2p-box-shadow);\n}\nbody .box .header {\n  font-weight: 500;\n}\nbody .box .header > h1 {\n  font-size: 22px;\n  font-weight: bold;\n}\nbody .box .header .gray {\n  color: var(--color-gray);\n}\nbody .button {\n  --button-hover-shadow:\n    0 1.8px 0 var(--button-border-color), 0 1.8px 0 var(--button-background-color);\n}\nbody .button.normal, body .button.super, body .button.special {\n  cursor: pointer;\n  user-select: none;\n  position: relative;\n  display: inline-flex;\n  gap: 5px;\n  align-items: center;\n  height: 28px;\n  padding: 0 12px;\n  border: 1px solid var(--v2p-color-button-border);\n  border-radius: var(--v2p-button-radius);\n  font-family: inherit;\n  font-size: 14px;\n  font-weight: 500;\n  line-height: 28px;\n  color: var(--v2p-color-button-foreground);\n  text-shadow: none;\n  white-space: nowrap;\n  background: var(--v2p-color-button-background);\n  outline: none;\n  box-shadow: 0 1.8px 0 var(--box-background-hover-color), 0 1.8px 0 var(--button-background-color);\n  transition: color 0.25s, background-color 0.25s, box-shadow 0.25s;\n}\nbody .button.normal.special, body .button.super.special, body .button.special.special {\n  border-color: var(--v2p-color-button-special-border);\n  color: var(--v2p-color-button-special-foreground);\n  background: var(--v2p-color-button-special-background);\n}\nbody .button.normal.v2p-btn-small, body .button.super.v2p-btn-small, body .button.special.v2p-btn-small {\n  height: 24px;\n  padding: 0 10px;\n  border-radius: var(--v2p-button-radius);\n  font-size: 12px;\n}\nbody .button.normal.v2p-btn-large, body .button.super.v2p-btn-large, body .button.special.v2p-btn-large {\n  height: 32px;\n  padding: 0 14px;\n  border-radius: var(--v2p-box-radius);\n  font-size: 16px;\n}\nbody .button.normal:is(:hover:enabled, :active:enabled), body .button.super:is(:hover:enabled, :active:enabled), body .button.special:is(:hover:enabled, :active:enabled) {\n  border: 1px solid var(--v2p-color-button-border);\n  font-weight: 500;\n  color: var(--v2p-color-button-foreground-hover);\n  text-shadow: none;\n  background: var(--v2p-color-button-background-hover);\n  box-shadow: var(--button-hover-shadow);\n}\nbody .button.normal:is(:hover:enabled, :active:enabled).special, body .button.super:is(:hover:enabled, :active:enabled).special, body .button.special:is(:hover:enabled, :active:enabled).special {\n  border-color: var(--v2p-color-button-special-border);\n  color: var(--v2p-color-button-special-foreground-hover);\n  background: var(--v2p-color-button-special-background);\n}\nbody .button.normal:is(.hover_now, .disable_now), body .button.super:is(.hover_now, .disable_now), body .button.special:is(.hover_now, .disable_now) {\n  border: 1px solid var(--v2p-color-button-border);\n  color: var(--v2p-color-button-foreground) !important;\n  text-shadow: none !important;\n  background: var(--button-background-color) !important;\n  box-shadow: 0 1.8px 0 var(--box-background-hover-color) !important, 0 1.8px 0 var(--button-background-color) !important;\n}\nbody .button.normal:is(.hover_now, .disable_now).special, body .button.super:is(.hover_now, .disable_now).special, body .button.special:is(.hover_now, .disable_now).special {\n  border-color: var(--v2p-color-button-special-border);\n}\nbody .button.normal:is(.disable_now, :disabled), body .button.super:is(.disable_now, :disabled), body .button.special:is(.disable_now, :disabled) {\n  pointer-events: none;\n  cursor: default;\n  font-weight: 500;\n  color: var(--v2p-color-button-foreground);\n  text-shadow: none;\n  opacity: 0.8;\n  background: var(--button-background-color);\n  box-shadow: 0 1.8px 0 var(--box-background-hover-color), 0 1.8px 0 var(--button-background-color);\n}\nbody .button.normal kbd, body .button.super kbd, body .button.special kbd {\n  position: relative;\n  right: -4px;\n  padding: 0 3px;\n  border: 1px solid var(--button-border-color);\n  border-radius: var(--v2p-button-radius);\n  font-family: inherit;\n  font-size: 90%;\n  line-height: initial;\n}\nbody .button.special {\n  --button-hover-shadow:\n    0 1.8px 0 var(--v2p-color-accent-200), 0 1.8px 0 var(--v2p-color-accent-100);\n  box-shadow: var(--button-hover-shadow);\n}\nbody .button.special:hover, body .button.special:hover:enabled {\n  color: var(--v2p-color-accent-600);\n  box-shadow: var(--button-hover-shadow);\n}\nbody .button a {\n  color: inherit;\n  text-decoration: none;\n}\nbody .badge {\n  user-select: none;\n  padding: 2px 5px;\n  border: 1px solid var(--v2p-color-accent-400);\n  font-weight: bold;\n}\nbody .badge:first-child {\n  border: 1px solid var(--v2p-color-accent-400);\n  border-top-left-radius: var(--v2p-button-radius);\n  border-bottom-left-radius: var(--v2p-button-radius);\n}\nbody .badge:last-child {\n  border: 1px solid var(--v2p-color-accent-400);\n  border-top-right-radius: var(--v2p-button-radius);\n  border-bottom-right-radius: var(--v2p-button-radius);\n}\nbody .badge.op {\n  color: var(--v2p-color-accent-500);\n  background-color: var(--v2p-color-accent-50);\n}\nbody .badge.mod {\n  color: var(--v2p-color-bg-content);\n  background-color: var(--v2p-color-accent-400);\n}\nbody .badge.you {\n  border: 1px solid var(--v2p-color-orange-400);\n  color: var(--v2p-color-orange-400);\n  background-color: var(--v2p-color-orange-50);\n}\nbody .badge.mini {\n  height: 1.2em;\n  padding: 0 3px;\n  font-size: 12px;\n  font-weight: normal;\n  line-height: 1;\n}\nbody a.node:is(:active, :link, :visited) {\n  padding: 5px 6px;\n  border-radius: var(--v2p-button-radius);\n  font-size: 13px;\n  color: var(--v2p-color-font-secondary);\n  background-color: var(--v2p-color-bg-block);\n}\nbody a.node:is(:active, :link, :visited):hover {\n  color: var(--v2p-color-font-tertiary);\n  background-color: var(--v2p-color-button-background-hover);\n}\nbody .outdated {\n  border-color: var(--v2p-color-border);\n  border-bottom: none;\n  font-size: 12px;\n}\nbody :is(.page_normal, .page_current):is(:link, :visited) {\n  user-select: none;\n  padding: 6px 9px;\n  border: none;\n  border-radius: var(--v2p-button-radius);\n  font-size: 14px;\n}\nbody .page_normal:is(:link, :visited) {\n  font-weight: 500;\n  background-color: var(--v2p-color-bg-content);\n  box-shadow: 0 2px 2px var(--box-background-hover-color);\n  transition: transform 0.25s;\n}\nbody .page_normal:is(:link, :visited):hover {\n  transform: scale(1.1) translateY(-2px);\n}\nbody .page_current:is(:link, :visited) {\n  pointer-events: none;\n  font-weight: bold;\n  background-color: var(--box-background-hover-color);\n  box-shadow: none;\n}\nbody .page_input {\n  display: none;\n}\nbody .dock_area {\n  margin: 12px 0;\n  background: var(--v2p-color-bg-block);\n}\nbody .member-activity-bar {\n  background-color: var(--v2p-color-divider);\n}\nbody .member-activity-bar .member-activity-start {\n  background-color: var(--v2p-color-accent-200);\n}\nbody .member-activity-bar .member-activity-fourth {\n  background-color: var(--v2p-color-accent-400);\n}\nbody .member-activity-bar .member-activity-half {\n  background-color: var(--v2p-color-accent-500);\n}\nbody .member-activity-bar .member-activity-almost {\n  background-color: var(--v2p-color-accent-600);\n}\nbody .member-activity-bar .member-activity-done {\n  background-color: var(--v2p-color-orange-400);\n}\nbody .online {\n  user-select: none;\n  padding: 6px 8px;\n  border-radius: var(--v2p-button-radius);\n  font-size: 13px;\n  color: var(--v2p-color-bg-content);\n  background: var(--v2p-color-accent-400);\n}\nbody #topic_supplement {\n  resize: none;\n  overflow: hidden;\n  height: unset;\n  min-height: 550px !important;\n  max-height: 800px !important;\n  border: 1px solid var(--button-border-color);\n  border-radius: var(--v2p-input-radius);\n  font-size: 15px;\n  color: currentColor;\n  background-color: var(--v2p-color-bg-input);\n  transition: opacity 0.25s;\n  overflow-y: auto;\n}\nbody #topic_supplement::placeholder {\n  font-size: 15px;\n  color: var(--v2p-color-font-tertiary);\n}\nbody #topic_supplement:is(:focus, :focus-within) {\n  border-color: var(--button-border-hover-color);\n  background-color: transparent;\n  outline: none;\n  box-shadow: none;\n}\nbody .item_hot_topic_title {\n  --offset: 2.4px;\n  overflow: hidden;\n  display: -webkit-box;\n  -webkit-box-orient: vertical;\n  -webkit-line-clamp: 2;\n  line-height: 1.4;\n  position: relative;\n  padding: var(--offset) 0;\n  text-shadow: none;\n}\nbody .item_hot_topic_title > a:hover {\n  text-underline-offset: var(--offset);\n}\nbody form textarea#topic_title {\n  resize: none;\n  overflow: hidden;\n  height: unset;\n  min-height: 75px !important;\n  max-height: 800px !important;\n  border: 1px solid var(--button-border-color);\n  border-radius: var(--v2p-input-radius);\n  font-size: 15px;\n  color: currentColor;\n  background-color: var(--v2p-color-bg-input);\n  transition: opacity 0.25s;\n}\nbody form textarea#topic_title::placeholder {\n  font-size: 15px;\n  color: var(--v2p-color-font-tertiary);\n}\nbody form textarea#topic_title:is(:focus, :focus-within) {\n  border-color: var(--button-border-hover-color);\n  background-color: transparent;\n  outline: none;\n  box-shadow: none;\n}\nbody form #topic_title {\n  resize: none;\n  overflow: hidden;\n  height: unset;\n  min-height: 30px !important;\n  max-height: 800px !important;\n  border: 1px solid var(--button-border-color);\n  border-radius: var(--v2p-input-radius);\n  font-size: 15px;\n  color: currentColor;\n  background-color: var(--v2p-color-bg-input);\n  transition: opacity 0.25s;\n}\nbody form #topic_title::placeholder {\n  font-size: 15px;\n  color: var(--v2p-color-font-tertiary);\n}\nbody form #topic_title:is(:focus, :focus-within) {\n  border-color: var(--button-border-hover-color);\n  background-color: transparent;\n  outline: none;\n  box-shadow: none;\n}\nbody form #topic_content {\n  resize: none;\n  overflow: hidden;\n  height: unset;\n  min-height: 120px !important;\n  max-height: 800px !important;\n  border: 1px solid var(--button-border-color);\n  border-radius: var(--v2p-input-radius);\n  font-size: 15px;\n  color: currentColor;\n  background-color: var(--v2p-color-bg-input);\n  transition: opacity 0.25s;\n}\nbody form #topic_content::placeholder {\n  font-size: 15px;\n  color: var(--v2p-color-font-tertiary);\n}\nbody form #topic_content:is(:focus, :focus-within) {\n  border-color: var(--button-border-hover-color);\n  background-color: transparent;\n  outline: none;\n  box-shadow: none;\n}\nbody form[action^="/notes"] .cell {\n  background-color: transparent !important;\n}\nbody #syntax-selector .radio-group {\n  padding: 3px;\n  border-radius: var(--v2p-box-radius);\n  background-color: var(--v2p-color-background);\n  box-shadow: 0 1px 2px var(--v2p-box-shadow) inset;\n}\nbody #syntax-selector .radio-group > input[type=radio]:checked + label {\n  border-radius: var(--v2p-button-radius);\n  color: var(--v2p-color-accent-600);\n  background-color: var(--v2p-color-accent-100);\n  box-shadow: 1px 1px 2px var(--v2p-box-shadow);\n}\nbody #syntax-selector .radio-group > input[type=radio] + label {\n  cursor: pointer;\n  font-size: 13px;\n}\nbody #syntax-selector label {\n  color: var(--v2p-color-foreground);\n}\nbody .snow {\n  color: var(--v2p-color-font-quaternary);\n}\nbody .orange-dot {\n  background: var(--v2p-color-orange-400);\n}\nbody .alt {\n  border: 1px solid var(--button-border-color);\n  background-color: var(--v2p-color-bg-input);\n}\nbody a.btn_hero {\n  border-color: var(--v2p-color-foreground);\n}\nbody a.btn_hero:hover {\n  background-color: var(--v2p-color-foreground);\n}\nbody .cell_ops {\n  background-color: transparent;\n}\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href*="v2ex.com/t"],\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href*="v2ex.com/t"][href^=http],\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href*="v2ex.co/t"],\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href*="v2ex.co/t"][href^=http],\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href^="/"] {\n  text-decoration: underline 1.5px;\n  text-underline-offset: 0.46ex;\n  color: var(--v2p-color-accent-500);\n  background-color: var(--v2p-color-accent-50);\n}\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href*="v2ex.com/t"]:hover,\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href*="v2ex.com/t"][href^=http]:hover,\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href*="v2ex.co/t"]:hover,\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href*="v2ex.co/t"][href^=http]:hover,\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href^="/"]:hover {\n  color: var(--v2p-color-accent-500);\n  background-color: var(--v2p-color-accent-50);\n}\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href^=http],\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href*="/email-protection"],\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href^="/member/"] {\n  text-decoration: underline 1.5px;\n  text-underline-offset: 0.46ex;\n  color: currentColor;\n  background-color: var(--v2p-color-bg-link);\n}\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href^=http]:hover,\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href*="/email-protection"]:hover,\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href^="/member/"]:hover {\n  color: currentColor;\n  background-color: var(--v2p-color-bg-link-hover);\n}\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href^=http]:has(> .embedded_image),\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href*="/email-protection"]:has(> .embedded_image),\nbody :is(.topic_content,\n.reply_content,\n.v2p-topic-preview-content,\n.v2p-topic-preview-addons,\n.v2p-reply-preview,\n.markdown_body) a[href^="/member/"]:has(> .embedded_image) {\n  background-color: transparent;\n}\nbody .CodeMirror {\n  color: currentColor;\n  background-color: var(--v2p-color-bg-input);\n}\nbody .CodeMirror.CodeMirror-focused {\n  background-color: var(--v2p-color-bg-content);\n}\nbody .CodeMirror .CodeMirror-gutters {\n  padding-right: 5px;\n  border-right: 1px solid var(--v2p-color-border-darker);\n  background-color: var(--v2p-color-bg-input);\n}\nbody .CodeMirror .CodeMirror-linenumber {\n  color: var(--v2p-color-font-quaternary);\n}\nbody .CodeMirror .CodeMirror-cursors {\n  background-color: var(--v2p-color-foreground);\n}\nbody .cm-s-one-dark {\n  background-color: var(--v2p-color-bg-input);\n}\nbody #workspace {\n  overflow: hidden;\n  border: 1px solid var(--button-border-color);\n  border-radius: 8px;\n}\nbody .select2-container {\n  width: 200px !important;\n}\nbody .select2-container .select2-selection {\n  height: 33px !important;\n  border: 1px solid var(--v2p-color-border);\n  border-radius: var(--v2p-input-radius) !important;\n  background-color: var(--v2p-color-bg-content);\n}\nbody .select2-container .select2-selection .select2-selection__rendered,\nbody .select2-container .select2-selection .select2-selection__placeholder {\n  display: inline-flex;\n  align-items: center;\n  height: 100%;\n  color: var(--v2p-color-foreground);\n}\nbody .select2-container .select2-dropdown {\n  border: 1px solid var(--box-border-color);\n  border-radius: var(--v2p-popup-radius);\n  font-size: 14px;\n  background: var(--v2p-color-bg-widget);\n  backdrop-filter: blur(16px);\n  box-shadow: var(--v2p-widget-shadow);\n  transform: translateY(5px);\n}\nbody .select2-container .select2-dropdown .select2-search {\n  padding: 5px;\n}\nbody .select2-container .select2-dropdown .select2-search .select2-search__field {\n  padding: 6px 4px;\n  border: 1px solid var(--v2p-color-border);\n  border-radius: var(--v2p-input-radius);\n  background-color: transparent;\n}\nbody .select2-container .select2-dropdown .select2-search .select2-search__field:focus-visible {\n  border-color: var(--v2p-color-font-quaternary);\n  outline: none;\n}\nbody .select2-container .select2-dropdown .select2-results > .select2-results__options {\n  padding: 5px;\n}\nbody .select2-container .select2-dropdown .select2-container--default .select2-results__option--selected {\n  color: currentColor;\n  background-color: var(--v2p-color-accent-100);\n}\nbody .select2-container .select2-results__option {\n  border-radius: var(--v2p-popup-radius);\n}\nbody .select2-container .select2-results__option--highlighted.select2-results__option--selectable {\n  color: currentColor;\n  background-color: var(--v2p-color-button-background-hover);\n}\nbody .select2-container .select2-results__option--selected {\n  color: currentColor !important;\n  background-color: var(--v2p-color-accent-100) !important;\n}\nbody .problem {\n  border-color: var(--v2p-color-orange-400);\n  border-bottom: none;\n  color: currentColor;\n  color: var(--v2p-color-orange-400);\n  background-color: var(--v2p-color-orange-50);\n}\nbody .markdown_body table {\n  border-top: 1px solid var(--v2p-color-border-darker);\n  box-shadow: none;\n}\nbody .markdown_body table tr th,\nbody .markdown_body table tr td {\n  border: 1px solid var(--v2p-color-border-darker);\n}\nbody .markdown_body table tr:nth-child(2n) {\n  background-color: var(--box-background-alt-color);\n}\nbody .markdown_body blockquote {\n  margin-inline: 0;\n  padding: 0 1em;\n  border-left: 3px solid var(--v2p-color-border);\n  color: var(--v2p-color-font-tertiary);\n}\nbody .markdown_body pre,\nbody .markdown_body pre > .hljs {\n  line-height: 1.5;\n  color: var(--v2p-color-foreground);\n  background-color: var(--v2p-color-bg-block);\n}\nbody .social_label:is(:link, :visited, :active) {\n  border-radius: var(--box-border-radius);\n  background-color: var(--v2p-color-button-background);\n  box-shadow: none;\n}\nbody .social_label:is(:link, :visited, :active):hover {\n  background-color: var(--v2p-color-button-background-hover);\n}\nbody .green {\n  color: var(--v2p-color-accent-500);\n}\nbody .message {\n  border: none;\n  color: var(--v2p-color-orange-400);\n  background-color: var(--v2p-color-orange-50);\n}\nbody .balance_area,\nbody a.balance_area:is(:link, :visited) {\n  display: inline-flex;\n  gap: 3px;\n  align-items: center;\n  font-weight: 600;\n  color: var(--v2p-color-foreground);\n  text-shadow: none;\n  background: var(--v2p-color-button-background);\n}\nbody .balance_area:hover,\nbody a.balance_area:is(:link, :visited):hover {\n  background: var(--v2p-color-button-background-hover);\n}\nbody :is(.subtle) {\n  border-left: 3px solid var(--v2p-color-accent-200);\n  background-color: var(--v2p-color-bg-subtle);\n}\nbody :is(.subtle) .topic_content {\n  font-size: 15px;\n}\nbody .onoffswitch label .frame::before {\n  color: #fff;\n  background-color: var(--v2p-color-accent-400);\n}\nbody .onoffswitch label .frame::after {\n  color: var(--v2p-color-font-secondary);\n  background-color: var(--v2p-color-bg-search);\n}\nbody select {\n  padding: 6px 8px;\n  border: 1px solid var(--v2p-color-border);\n  border-radius: var(--v2p-input-radius);\n  color: var(--v2p-color-foreground);\n  background-color: var(--v2p-color-background);\n  cursor: pointer;\n  border-radius: var(--v2p-input-radius);\n  background-color: var(--v2p-color-bg-content);\n}\nbody select:hover {\n  border-color: var(--v2p-color-input-border-focus);\n}\nbody select:focus {\n  border-color: var(--v2p-color-border);\n}\nbody .ml,\nbody .mle,\nbody .mll,\nbody .sl,\nbody .sll,\nbody .sls {\n  padding: 7px 10.5px;\n  border-color: var(--v2p-color-input-border);\n  border-radius: var(--v2p-input-radius);\n  color: var(--v2p-color-foreground);\n  background-color: var(--v2p-color-bg-content);\n}\nbody .ml::placeholder,\nbody .mle::placeholder,\nbody .mll::placeholder,\nbody .sl::placeholder,\nbody .sll::placeholder,\nbody .sls::placeholder {\n  color: var(--v2p-color-font-tertiary);\n}\nbody .ml:focus,\nbody .mle:focus,\nbody .mll:focus,\nbody .sl:focus,\nbody .sll:focus,\nbody .sls:focus {\n  border-color: var(--v2p-color-input-border-focus);\n}\nbody input,\nbody select,\nbody textarea {\n  color: var(--v2p-color-foreground);\n}\nbody .onoffswitch {\n  width: 90px;\n  min-width: 90px;\n  max-width: 90px;\n}\n\n.box .tag::before {\n  color: var(--v2p-color-font-secondary);\n}\n.box .tag:link, .box .tag:visited {\n  border-radius: var(--v2p-button-radius);\n  font-size: 12px;\n  color: var(--v2p-color-font-secondary);\n  background-color: var(--v2p-color-main-100);\n}\n.box .tag > li {\n  opacity: 0.6;\n}\n\n#Top .content {\n  height: 100%;\n}\n#Top .site-nav {\n  height: 100%;\n  padding: 0;\n}\n#Top .tools {\n  display: flex;\n  gap: 8px 14px;\n  align-items: center;\n  justify-content: flex-end;\n  font-size: 14px;\n  font-weight: 400;\n}\n#Top .tools .top {\n  height: 26px;\n  padding: 0 6px;\n  border-radius: var(--v2p-button-radius);\n  line-height: 26px;\n  color: var(--v2p-color-button-foreground);\n  white-space: nowrap;\n}\n#Top .tools .top:hover {\n  color: var(--v2p-color-foreground);\n}\n#Top .tools .top:not(.v2p-hover-btn):hover {\n  background-color: var(--v2p-color-button-background-hover);\n}\n#Top .tools * {\n  margin-left: 0;\n}\n\n#Main .box {\n  overflow: auto;\n}\n#Main .box:not(:has(.cell[id^=r_])) {\n  padding: 0 var(--v2p-spacing-box);\n}\n#Main .box.node-header > .cell {\n  margin: 0 calc(var(--v2p-spacing-box) * -1);\n}\n#Main .box .cell:not([id^=r_]) {\n  padding: var(--v2p-tp-item-x) var(--v2p-tp-item-y);\n}\n#Main .box .cell {\n  background-image: none !important;\n}\n#Main .box .cell_ops {\n  padding: 15px 5px;\n}\n#Main .box:has(form[action="/write"]) .cell:nth-child(1), #Main .box:has(form[action="/write"]) .cell:nth-child(2) {\n  border: none;\n}\n#Main .box:has(form[action="/write"]) .cell:has(#syntax-selector) {\n  padding: 8px 0 !important;\n}\n#Main .box:has(form[action="/write"]) .cell:has(#syntax-selector) .tab-alt-container {\n  gap: 0 8px;\n}\n#Main .box:has(form[action="/write"]) .cell:has(#syntax-selector) .tab-alt {\n  padding: 4px 2px;\n  border-bottom-width: 2px;\n  transition: none;\n}\n#Main .box:has(form[action="/write"]) .cell:has(#syntax-selector) .tab-alt:not(.active):hover {\n  border-color: transparent;\n}\n#Main .box:has(form[action="/write"]) .cell#preview {\n  padding: 2px 5px;\n}\n#Main .topic_buttons {\n  display: flex;\n  flex-wrap: wrap;\n  column-gap: 5px;\n  align-items: center;\n  padding: 8px 0;\n  background: none;\n}\n#Main .topic_buttons .topic_stats {\n  float: none;\n  flex: 1;\n  order: 99;\n  margin-left: 10px;\n  padding: 0 !important;\n  font-size: 12px;\n  text-shadow: none;\n  white-space: nowrap;\n}\n#Main .topic_buttons .topic_thanked {\n  font-size: 12px;\n}\n#Main .topic_buttons a.tb:link {\n  display: flex;\n  flex-direction: row-reverse;\n  column-gap: 5px;\n  align-items: center;\n  padding: 5px;\n  border-radius: var(--v2p-button-radius);\n  text-shadow: none;\n  white-space: nowrap;\n  background: none;\n}\n#Main .topic_buttons a.tb:link:not(.v2p-hover-btn) {\n  color: var(--v2p-color-font-secondary);\n}\n#Main .topic_buttons a.tb:link:hover:not(.v2p-hover-btn) {\n  color: currentColor;\n  background: var(--v2p-color-bg-block);\n}\n#Main .vote:link {\n  border-color: var(--v2p-color-border-darker);\n  border-radius: var(--v2p-button-radius);\n  color: var(--v2p-color-font-tertiary);\n}\n#Main .vote:link:hover {\n  box-shadow: 0 2px 2px var(--v2p-color-main-200);\n}\n#Main .cell .topic-link {\n  color: var(--v2p-color-foreground);\n  text-decoration: none;\n}\n#Main .cell .topic-link:visited {\n  color: var(--v2p-color-link-visited);\n}\n#Main .cell .topic_info {\n  pointer-events: none;\n  user-select: none;\n  position: relative;\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n}\n#Main .cell .topic_info::after {\n  content: "";\n  position: absolute;\n  z-index: 1;\n  inset: 0 0 -6px;\n  background-color: var(--v2p-color-bg-content);\n}\n#Main .cell .topic_info .votes,\n#Main .cell .topic_info .node,\n#Main .cell .topic_info .badges,\n#Main .cell .topic_info strong:first-of-type,\n#Main .cell .topic_info span:first-of-type,\n#Main .cell .topic_info .v2p-topic-actions {\n  pointer-events: auto;\n  position: relative;\n  z-index: 2;\n}\n#Main .cell .topic_info a[href^="/member"] {\n  font-weight: 500;\n  color: var(--v2p-color-font-tertiary);\n  background-color: transparent;\n}\n#Main .cell .count_livid {\n  user-select: none;\n  display: inline-block;\n  padding: 5px 10px;\n  border-radius: var(--v2p-button-radius);\n  font-size: 12px;\n  font-weight: 400;\n  white-space: nowrap;\n  margin-right: 0;\n  color: var(--v2p-color-button-foreground);\n  background-color: var(--v2p-color-bg-block);\n}\n#Main .cell .count_orange {\n  user-select: none;\n  display: inline-block;\n  padding: 5px 10px;\n  border-radius: var(--v2p-button-radius);\n  font-size: 12px;\n  font-weight: 400;\n  white-space: nowrap;\n  font-weight: bold;\n  color: var(--v2p-color-badge);\n  background-color: var(--v2p-color-orange-400);\n}\n#Main .cell .item_title .topic-link {\n  font-size: 15px;\n  font-weight: 500;\n}\n#Main .cell.item tr > td:nth-child(2) {\n  width: 30px;\n}\n#Main .box:has(#Tabs) .cell.item {\n  padding: 15px 10px;\n}\n#Main .reply-threads-c > .cell[id^=r_] {\n  padding: 15px 10px;\n}\n#Main .cell[id^=r_] {\n  --bg-reply: var(--v2p-color-bg-content);\n}\n#Main .cell[id^=r_] .ago {\n  color: var(--v2p-color-font-quaternary);\n}\n#Main .cell[id^=r_] .no {\n  color: var(--v2p-color-cell-num);\n  background-color: transparent;\n}\n#Main #Tabs {\n  user-select: none;\n  position: sticky;\n  z-index: var(--zidx-tabs);\n  top: 0;\n  display: flex;\n  flex-wrap: wrap;\n  gap: 4px 3px;\n  align-items: center;\n  padding: var(--v2p-tp-tabs-pd);\n  border-bottom: 1px solid var(--box-border-color);\n  background-color: var(--v2p-color-bg-content);\n}\n#Main #Tabs .tab_current {\n  margin-right: 0;\n}\n#Main #Tabs .tab {\n  margin: 0;\n}\n#Main #Tabs .tab.v2p-hover-btn::before {\n  inset: 0;\n}\n#Main #SecondaryTabs {\n  padding: 10px;\n  border-radius: var(--v2p-box-radius);\n  background-color: var(--v2p-color-bg-tabs);\n}\n#Main #SecondaryTabs a {\n  color: var(--v2p-color-tabs);\n}\n#Main .topic_content {\n  font-size: 15px;\n  line-height: 1.6;\n}\n#Main .topic_content a[href^="/member"] {\n  position: relative;\n  bottom: 1px;\n  font-size: 13px;\n}\n#Main .topic_content,\n#Main .reply_content {\n  color: currentColor;\n}\n#Main .topic_content a[href^="/member"],\n#Main .reply_content a[href^="/member"] {\n  color: var(--v2p-color-font-tertiary);\n  text-decoration: underline;\n  text-underline-offset: 0.4ex;\n  background-color: transparent;\n}\n#Main .thank_area {\n  font-size: 12px;\n}\n#Main .tab {\n  user-select: none;\n  border-radius: var(--v2p-button-radius);\n  color: var(--v2p-color-foreground);\n  background-color: transparent;\n}\n#Main .tab:not(.v2p-hover-btn):hover {\n  background-color: var(--v2p-color-bg-block);\n}\n#Main .tab_current {\n  user-select: none;\n  border-radius: var(--v2p-button-radius);\n  color: var(--v2p-color-bg-content);\n  background-color: var(--v2p-color-foreground);\n}\n#Main #reply-box.reply-box-sticky {\n  z-index: var(--zidx-reply-box);\n  bottom: 20px;\n  overflow: visible;\n  margin: 0 -10px;\n  padding: 0 22px;\n  border: none;\n  border-radius: var(--box-border-radius);\n  outline: 2px solid var(--v2p-color-border);\n}\n#Main #reply-box .flex-one-row:last-of-type {\n  flex-direction: row-reverse;\n  gap: 10px;\n  justify-content: flex-start;\n}\n#Main #reply-box .flex-one-row:last-of-type .gray {\n  margin-right: auto;\n}\n#Main #reply-box > .cell {\n  font-size: 12px;\n}\n#Main #reply-box > .cell.flex-one-row {\n  min-height: 45px;\n  padding: 0 10px;\n  border: none;\n}\n#Main #reply-box > .cell.flex-row-end {\n  padding: 12px 10px;\n  border: none;\n}\n#Main #reply-box > .cell:has(form) {\n  padding-top: 0;\n}\n#Main #no-comments-yet {\n  border-color: var(--color-gray);\n  color: var(--color-gray);\n}\n#Main #notifications .cell[id^=n]:hover .node {\n  opacity: 1;\n}\n#Main #notifications .cell[id^=n] .node {\n  opacity: 0;\n}\n#Main #notifications .cell[id^=n] .payload {\n  color: var(--v2p-color-foreground);\n  background-color: var(--v2p-color-bg-block);\n}\n#Main #notifications .cell[id^=n] .payload:has(.embedded_video_wrapper) {\n  min-width: 50%;\n}\n#Main #notifications .cell[id^=n] .topic-link:visited {\n  color: var(--v2p-color-font-quaternary);\n}\n#Main .cell_tabs .cell_tab_current {\n  border-color: var(--v2p-color-foreground);\n  font-weight: bold;\n}\n#Main .cell_tabs .cell_tab {\n  color: var(--v2p-color-foreground);\n}\n#Main .cell_tabs .cell_tab:hover {\n  border-color: var(--v2p-color-border-darker);\n}\n#Main .settings.block .block-stat {\n  padding: var(--v2p-spacing-box);\n  background-color: transparent;\n}\n#Main .settings.privacy .privacy-settings-form > div:nth-of-type(2n) {\n  background-color: transparent;\n}\n\n#Rightbar .cell:has(.light-toggle) {\n  font-size: 13px;\n}\n#Rightbar .box .item_node {\n  border-color: var(--v2p-color-border);\n  border-radius: var(--v2p-button-radius);\n  font-size: 12px;\n  color: var(--v2p-color-font-secondary);\n}\n#Rightbar .box .item_node:hover {\n  box-shadow: var(--v2p-box-shadow);\n}\n#Rightbar a.dark:is(:link, :active, :visited, :hover) {\n  color: var(--v2p-color-font-tertiary);\n}\n#Rightbar a.dark:is(:link, :active, :visited, :hover):hover {\n  color: var(--v2p-color-font-secondary);\n}\n\n#Bottom {\n  position: sticky;\n  top: 100%;\n}\n#Bottom a.dark {\n  font-size: 13px;\n  font-weight: 400;\n}\n#Bottom a.dark:is(:link, :active, :visited, :hover) {\n  color: var(--v2p-color-font-tertiary);\n}\n\n.wwads-cn {\n  border: none !important;\n  box-shadow: none !important;\n}\n\n.box:has(a[href^="/advertise"]) {\n  overflow: hidden;\n  border: none !important;\n  box-shadow: none !important;\n}\n.box:has(a[href^="/advertise"]) .sidebar_compliance {\n  background-color: var(--v2p-color-bg-block);\n}\n\n/* V2EX Polish c8f1b70; Copyright (c) 2023-present LeoKu and contributors.\n * MIT; see licenses/v2ex-polish-MIT.txt. Font overrides removed as requested.\n */\nbody {\n  position: relative;\n}\nbody.v2p-modal-open {\n  overflow: hidden;\n}\nbody.v2p-img-preview-enabled .embedded_image {\n  cursor: zoom-in;\n}\nbody.v2p-img-preview-enabled .embedded_image.v2p-emoji-img {\n  cursor: default;\n}\nbody .button.v2p-prev-btn, body .button.v2p-next-btn {\n  padding: 0 15px;\n}\nbody .button.v2p-btn-loading {\n  pointer-events: none;\n}\nbody #Top a:has(#Logo.v2p-logo) {\n  display: inline-flex;\n  align-items: center;\n}\nbody #Logo.v2p-logo {\n  flex-shrink: 0;\n  width: unset;\n  height: 25px;\n  padding: 0 8px;\n  background-image: none !important;\n}\n\n.v2p-hover-btn {\n  cursor: pointer;\n  user-select: none;\n  position: relative;\n  z-index: 1;\n  margin: 0;\n  text-decoration: none;\n  white-space: nowrap;\n  background: none;\n  background-color: transparent;\n  transition: color 0.2s;\n}\n.v2p-hover-btn::before {\n  content: "";\n  position: absolute;\n  z-index: -1;\n  inset: 0 -5px;\n  transform: scale(0.65);\n  border-radius: var(--v2p-button-radius);\n  opacity: 0;\n  background-color: var(--v2p-color-bg-hover-btn);\n  transition: background-color 0.15s, color 0.15s, transform 0.15s, opacity 0.15s;\n}\n.v2p-hover-btn:hover {\n  text-decoration: none;\n}\n.v2p-hover-btn:hover::before {\n  transform: scale(1);\n  opacity: 1;\n}\n\n.v2p-hover-btn-disabled {\n  pointer-events: none;\n  opacity: 0.8;\n}\n\n.v2p-icon-heart {\n  display: inline-flex;\n  width: 16px;\n  height: 16px;\n  color: var(--v2p-color-heart);\n}\n.v2p-icon-heart svg {\n  fill: var(--v2p-color-heart-fill);\n}\n\n#Main .cell[id^=r] .v2p-auto-hide {\n  overflow: hidden;\n  display: inline-flex;\n  width: 0;\n}\n#Main .cell[id^=r]:has(.v2p-topic-reply-ref) .v2p-member-ref {\n  display: none;\n}\n#Main #reply-box .v2p-reply-preview {\n  font-size: 15px;\n  line-height: 1.6;\n}\n#Main .box .v2p-home-filter-hidden {\n  display: none;\n}\n#Main .box .v2p-home-filter-revealed {\n  opacity: 0.35;\n  transition: opacity 0.15s;\n}\n#Main .box .v2p-home-filter-revealed:hover {\n  opacity: 1;\n}\n#Main .box .v2p-filter-counter.cell {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 4px 10px;\n  font-size: 13px;\n  color: var(--v2p-color-font-secondary);\n  background-color: var(--v2p-color-bg-subtle);\n}\n#Main .box .v2p-filter-counter.cell .v2p-filter-show {\n  cursor: pointer;\n  color: var(--v2p-color-accent-500);\n}\n#Main .box .v2p-filter-counter.cell .v2p-filter-show:hover {\n  text-decoration: underline;\n}\n\n#Main .cell:hover .v2p-topic-preview-btn,\n#Main .cell:hover .v2p-topic-ignore-btn,\n#Rightbar .cell:hover .v2p-topic-preview-btn,\n#Rightbar .cell:hover .v2p-topic-ignore-btn {\n  visibility: visible;\n}\n\n.v2p-checkin-mission-panel {\n  padding: 12px 16px;\n  border-top: 1px solid var(--v2p-color-divider);\n  font-size: 13px;\n  color: var(--v2p-color-foreground);\n  background-color: var(--v2p-color-bg-content);\n}\n.v2p-checkin-mission-panel__content {\n  display: flex;\n  gap: 10px;\n  align-items: flex-start;\n}\n.v2p-checkin-mission-panel__mark {\n  display: inline-flex;\n  flex: 0 0 22px;\n  align-items: center;\n  justify-content: center;\n  height: 22px;\n  border-radius: 999px;\n  font-size: 13px;\n  font-weight: 700;\n  color: var(--v2p-color-accent-700);\n  background-color: var(--v2p-color-accent-100);\n}\n.v2p-checkin-mission-panel__copy {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  gap: 2px;\n  min-width: 0;\n}\n.v2p-checkin-mission-panel__title {\n  line-height: 22px;\n}\n.v2p-checkin-mission-panel__description {\n  margin: 0;\n  line-height: 1.55;\n  color: var(--v2p-color-font-secondary);\n}\n.v2p-checkin-mission-panel__detail {\n  font-size: 12px;\n  color: var(--v2p-color-font-tertiary);\n}\n.v2p-checkin-mission-panel__actions {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 6px;\n  margin-top: 10px;\n  margin-left: 32px;\n}\n.v2p-checkin-mission-panel__button {\n  cursor: pointer;\n  padding: 3px 9px;\n  border: 1px solid var(--v2p-color-border);\n  border-radius: var(--v2p-button-radius);\n  font-size: 12px;\n  line-height: 20px;\n  color: var(--v2p-color-font-secondary);\n  text-decoration: none;\n  background-color: var(--v2p-color-bg-content);\n}\n.v2p-checkin-mission-panel__button:hover {\n  color: var(--v2p-color-foreground);\n  text-decoration: none;\n  background-color: var(--v2p-color-bg-hover-btn);\n}\n.v2p-checkin-mission-panel__button:focus-visible {\n  outline: 2px solid var(--v2p-color-accent-500);\n  outline-offset: 2px;\n}\n.v2p-checkin-mission-panel__button:disabled {\n  cursor: default;\n  opacity: 0.65;\n}\n.v2p-checkin-mission-panel__button[data-action=retry]:disabled {\n  cursor: wait;\n}\n.v2p-checkin-mission-panel__button--primary {\n  border-color: var(--v2p-color-accent-300);\n  color: var(--v2p-color-accent-700);\n  background-color: var(--v2p-color-accent-50);\n}\n.v2p-checkin-mission-panel--success {\n  background-color: var(--v2p-color-accent-50);\n}\n.v2p-checkin-mission-panel--waiting .v2p-checkin-mission-panel__mark {\n  color: var(--v2p-color-orange-400);\n  background-color: var(--v2p-color-orange-100);\n}\n.v2p-checkin-mission-panel--error {\n  background-color: var(--v2p-color-orange-50);\n}\n.v2p-checkin-mission-panel--error .v2p-checkin-mission-panel__mark {\n  color: var(--v2p-color-error);\n  background-color: var(--v2p-color-bg-content);\n}\n.v2p-checkin-mission-panel--muted .v2p-checkin-mission-panel__mark {\n  color: var(--v2p-color-font-tertiary);\n  background-color: var(--v2p-color-bg-block);\n}\n\n#Rightbar .v2p-info-row {\n  display: block;\n  font-size: 12px;\n  color: var(--v2p-color-accent-500);\n  text-align: center;\n}\n#Rightbar .v2p-info-row:hover {\n  text-decoration: none;\n  background-color: var(--v2p-color-accent-50);\n}\n#Rightbar .v2p-info-row.v2p-info-row-muted {\n  color: var(--v2p-color-font-secondary);\n}\n#Rightbar .v2p-info-row.v2p-info-row-muted:hover {\n  background-color: var(--v2p-color-bg-block);\n}\n#Rightbar .v2p-topic-preview-btn {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  height: 20px;\n  font-size: 12px;\n  backdrop-filter: blur(8px);\n  box-shadow: 0 0 0 3px var(--v2p-color-bg-content);\n}\n.v2p-tool-box {\n  position: sticky;\n  z-index: var(--zidx-tools-card);\n  top: var(--v2p-layout-row-gap);\n}\n.v2p-tool-box .v2p-tools {\n  display: grid;\n  grid-auto-rows: auto;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 8px 15px;\n  align-items: center;\n  justify-content: center;\n  font-size: 12px;\n  color: var(--v2p-color-font-secondary);\n}\n\n.v2p-tool {\n  display: inline-flex;\n  gap: 0 5px;\n  align-items: center;\n  padding: 3px 0;\n}\n.v2p-tool:hover {\n  color: var(--v2p-color-button-foreground-hover);\n}\n.v2p-tool .v2p-tool-icon {\n  width: 16px;\n  height: 16px;\n}\n\n#Rightbar .v2p-hot-filter-hidden {\n  display: none;\n}\n#Rightbar .v2p-hot-filter-revealed {\n  opacity: 0.35;\n  transition: opacity 0.15s;\n}\n#Rightbar .v2p-hot-filter-revealed:hover {\n  opacity: 1;\n}\n#Rightbar .v2p-hot-filter-counter {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 6px 10px;\n  font-size: 12px;\n  color: var(--v2p-color-font-tertiary);\n}\n#Rightbar .v2p-hot-filter-counter .v2p-filter-show {\n  cursor: pointer;\n  color: var(--v2p-color-accent-500);\n}\n#Rightbar .v2p-hot-filter-counter .v2p-filter-show:hover {\n  text-decoration: underline;\n}\n\n.v2p-toggle-rightbar-btn {\n  cursor: pointer;\n  position: fixed;\n  z-index: 9999;\n  top: 50%;\n  right: 0;\n  transform: translateY(-50%);\n  display: var(--v2p-rightbar-toggle-display, none);\n  align-items: center;\n  justify-content: center;\n  width: 24px;\n  height: 40px;\n  border-radius: var(--v2p-button-radius) 0 0 var(--v2p-button-radius);\n  background: var(--v2p-color-bg-content);\n  box-shadow: var(--v2p-widget-shadow);\n}\n\n.v2p-toggle-rightbar-icon {\n  width: 16px;\n  height: 16px;\n}\n\n.v2p-topic-actions {\n  display: inline-flex;\n  gap: 2px 10px;\n}\n\n.v2p-topic-preview-btn {\n  cursor: pointer;\n  border: 1px solid var(--v2p-color-border-darker);\n  border-radius: var(--v2p-button-radius);\n  font-size: 13px;\n  color: var(--v2p-color-button-foreground);\n  visibility: hidden;\n  background-color: var(--v2p-color-button-background);\n  outline: none;\n  transition: color 0.25s;\n}\n.v2p-topic-preview-btn:is(:hover, :focus) {\n  color: var(--v2p-color-button-foreground-hover);\n  background-color: var(--v2p-color-button-background-hover);\n}\n.v2p-topic-preview-btn:active {\n  transform: scale(0.95);\n  box-shadow: inset 0 0 3px 1px var(--v2p-color-border-darker);\n  transition: all 0.25s;\n}\n\n.v2p-topic-ignore-btn {\n  cursor: pointer;\n  margin-left: 8px;\n  visibility: hidden;\n}\n\n.v2p-topic-preview {\n  font-size: 15px;\n  line-height: 1.6;\n  padding: var(--v2p-tp-preview-pd);\n}\n.v2p-tpr-loading {\n  --tpr-h: 30px;\n  --tpr-h-p: 22px;\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  padding: 25px;\n}\n.v2p-tpr-loading .v2p-tpr {\n  border-radius: var(--v2p-button-radius);\n  background-color: var(--v2p-color-bg-tpr);\n}\n.v2p-tpr-loading .v2p-tpr-info {\n  display: flex;\n  gap: 15px;\n  align-items: center;\n}\n.v2p-tpr-info-avatar {\n  width: var(--tpr-h);\n  height: var(--tpr-h);\n}\n\n.v2p-tpr-info-text {\n  width: 50%;\n  height: var(--tpr-h);\n}\n\n.v2p-tpr-loading .v2p-tpr-content {\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  padding: 15px 0 20px;\n}\n.v2p-tpr-loading .v2p-tpr-content .v2p-tpr-content-p {\n  height: var(--tpr-h-p);\n}\n.v2p-tpr-loading .v2p-tpr-cmt {\n  display: flex;\n  gap: 15px;\n  padding-top: 15px;\n  border-top: 1px solid var(--v2p-color-border);\n}\n.v2p-tpr-loading .v2p-tpr-cmt .v2p-tpr-cmt-avatar {\n  width: 50px;\n  height: 50px;\n}\n.v2p-tpr-loading .v2p-tpr-cmt .v2p-tpr-cmt-right {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  gap: 10px;\n}\n.v2p-tpr-loading .v2p-tpr-cmt .v2p-tpr-cmt-right .v2p-tpr-cmt-header {\n  width: 50%;\n  height: var(--tpr-h);\n}\n.v2p-tpr-loading .v2p-tpr-cmt .v2p-tpr-cmt-right .v2p-tpr-cmt-p {\n  height: var(--tpr-h-p);\n}\n\n.v2p-tp-info-bar {\n  display: flex;\n  gap: 10px;\n  align-items: center;\n  margin-bottom: 10px;\n}\n\n.v2p-tp-info,\n.v2p-tp-read {\n  overflow: hidden;\n  display: inline-flex;\n  gap: 20px;\n  align-items: center;\n  padding: 5px 10px;\n  border-radius: var(--v2p-button-radius);\n  font-size: 13px;\n  background-color: var(--v2p-color-button-background);\n}\n\n.v2p-tp-read {\n  cursor: pointer;\n  user-select: none;\n  gap: 4px;\n}\n.v2p-tp-read:hover {\n  background-color: var(--v2p-color-button-background-hover);\n}\n\n.v2p-tp-read-icon {\n  width: 16px;\n  height: 16px;\n}\n\n.v2p-tp-member {\n  display: inline-flex;\n  gap: 5px;\n  align-items: center;\n  font-weight: bold;\n}\n\n.v2p-tp-avatar {\n  width: 20px;\n  height: 20px;\n  border-radius: var(--v2p-box-radius);\n  background-color: var(--v2p-color-bg-avatar);\n}\n\n.v2p-topic-preview-addons {\n  margin-top: 30px;\n}\n\n#Main.v2p-topic-preview > .box {\n  border: 1px solid var(--v2p-color-border);\n}\n\na.v2p-topic-preview-title-link:hover {\n  text-decoration: underline 1.5px;\n  text-underline-offset: 0.46ex;\n}\n\n.v2p-dot {\n  margin: 0 8px;\n  font-size: 15px;\n  font-weight: 800;\n}\n\n.v2p-paging {\n  background: none !important;\n}\n.v2p-paging.cell {\n  border-bottom: none;\n}\n\n.v2p-modal-mask {\n  position: fixed;\n  z-index: var(--zidx-modal-mask);\n  inset: 0;\n  overflow: hidden;\n  overflow-y: auto;\n  padding: min(2vh, 60px);\n  background-color: var(--v2p-color-mask);\n}\n\n.v2p-popup {\n  border: 1px solid var(--box-border-color);\n  border-radius: var(--v2p-popup-radius);\n  font-size: 14px;\n  background: var(--v2p-color-bg-widget);\n  backdrop-filter: blur(16px);\n  box-shadow: var(--v2p-widget-shadow);\n  position: absolute;\n  z-index: var(--zidx-popup);\n  top: 0;\n  left: 0;\n}\n\n.v2p-popup-content {\n  overflow-y: auto;\n  width: max-content;\n}\n\n.v2p-toast {\n  position: fixed;\n  z-index: var(--zidx-toast);\n  top: 50px;\n  left: 50%;\n  transform: translateX(-50%);\n  padding: 10px 15px;\n  border-radius: var(--v2p-popup-radius);\n  font-size: 14px;\n  color: var(--v2p-color-background);\n  background: var(--v2p-color-foreground);\n  box-shadow: var(--v2p-toast-shadow);\n}\n\n.v2p-modal-main {\n  position: relative;\n  overflow: hidden;\n  display: flex;\n  flex-direction: column;\n  box-sizing: border-box;\n  width: clamp(450px, 100%, 800px);\n  height: 100%;\n  margin: 0 auto;\n  border-radius: var(--box-border-radius);\n  background-color: var(--v2p-color-bg-content);\n  outline: none;\n}\n.v2p-modal-header {\n  display: flex;\n  gap: 5px 15px;\n  align-items: center;\n  padding: 15px;\n  border-bottom: 1px solid var(--box-border-color);\n  background-color: var(--v2p-color-bg-content);\n}\n\n.v2p-modal-footer {\n  display: flex;\n  gap: 5px 15px;\n  align-items: center;\n  justify-content: flex-end;\n  padding: 15px;\n  border-top: 1px solid var(--box-border-color);\n  background-color: var(--v2p-color-bg-content);\n}\n\n.v2p-modal-title {\n  overflow: hidden;\n  padding: 2px 0;\n  font-size: 16px;\n  font-weight: bold;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.v2p-modal-actions {\n  display: flex;\n  gap: 0 10px;\n  align-items: center;\n  margin-left: auto;\n}\n\n.v2p-modal-content {\n  position: relative;\n  overflow-y: auto;\n  overscroll-behavior-y: contain;\n  flex: 1;\n  outline: none;\n}\n.v2p-modal-content #Main.v2p-topic-preview > .box {\n  border: none;\n  box-shadow: none;\n}\n\n.v2p-modal-comments {\n  position: absolute;\n  inset: 0;\n  overflow-y: auto;\n  padding: 0 20px;\n  visibility: hidden;\n}\n.v2p-modal-comments.v2p-tab-content-active {\n  z-index: 20;\n  visibility: visible;\n}\n\n.v2p-modal-comment-tabs {\n  display: flex;\n  gap: 4px;\n  align-items: center;\n  padding: 4px 5px;\n  border-radius: var(--v2p-button-radius);\n  font-size: 14px;\n  font-weight: normal;\n  background-color: var(--button-background-color);\n}\n.v2p-modal-comment-tabs > [data-tab-key] {\n  cursor: pointer;\n  padding: 4px 5px;\n  border-radius: var(--v2p-button-radius);\n}\n.v2p-modal-comment-tabs > [data-tab-key]:hover {\n  background-color: var(--v2p-color-button-background-hover);\n}\n.v2p-modal-comment-tabs > [data-tab-key].v2p-tab-active {\n  color: var(--v2p-color-foreground);\n  background-color: var(--v2p-color-accent-100);\n}\n\n.v2p-no-pat {\n  padding: 30px 20px;\n  font-size: 15px;\n  text-align: center;\n}\n.v2p-no-pat .v2p-no-pat-title {\n  font-size: 16px;\n  font-weight: bold;\n}\n.v2p-no-pat .v2p-no-pat-desc {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  margin-top: 15px;\n}\n.v2p-no-pat .v2p-no-pat-block {\n  display: inline-flex;\n  align-items: center;\n  margin: 0 5px;\n  padding: 2px 10px;\n  border-radius: var(--v2p-box-radius);\n  background-color: var(--v2p-color-bg-block);\n}\n.v2p-no-pat .v2p-no-pat-steps {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 20px;\n  max-width: 800px;\n  margin-top: 20px;\n  padding: 20px;\n  border-radius: var(--v2p-box-radius);\n  background-color: var(--v2p-color-bg-block);\n}\n.v2p-no-pat .v2p-no-pat-step {\n  flex: 1;\n}\n.v2p-no-pat .v2p-no-pat-img {\n  width: 100%;\n  border-radius: var(--v2p-box-radius);\n  box-shadow: var(--v2p-widget-shadow);\n}\n.v2p-no-pat .v2p-icon-logo {\n  width: 15px;\n  height: 15px;\n}\n\n.v2p-blocked-reply:not(.v2p-blocked-revealed) > table,\n.v2p-blocked-reply-empty:not(.v2p-blocked-revealed),\n.v2p-ignored-reply:not(.v2p-ignored-revealed) > table {\n  display: none;\n}\n\n.v2p-ignored-reply.v2p-ignored-revealed > .v2p-ignored-placeholder {\n  display: none;\n}\n\n.v2p-ignored-placeholder {\n  padding: 8px 10px;\n  font-size: 12px;\n  color: var(--v2p-color-font-tertiary);\n  text-align: center;\n}\n.v2p-ignored-placeholder .v2p-ignored-toggle {\n  cursor: pointer;\n  color: var(--v2p-color-accent-500);\n}\n.v2p-ignored-placeholder .v2p-ignored-toggle:focus-visible {\n  outline: 2px solid var(--v2p-color-accent-500);\n  outline-offset: 2px;\n}\n\n.v2p-blocked-notice {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 6px;\n  align-items: center;\n  justify-content: center;\n  padding: 6px 10px;\n  font-size: 12px;\n  color: var(--v2p-color-font-tertiary);\n  background-color: var(--v2p-color-bg-subtle);\n}\n.v2p-blocked-notice .v2p-blocked-toggle {\n  cursor: pointer;\n  color: var(--v2p-color-accent-500);\n}\n.v2p-blocked-notice .v2p-blocked-toggle:focus-visible {\n  outline: 2px solid var(--v2p-color-accent-500);\n  outline-offset: 2px;\n}\n\n.v2p-likes-box {\n  user-select: none;\n  position: relative;\n  top: 3px;\n  display: inline-flex;\n  column-gap: 5px;\n  align-items: center;\n}\n.v2p-likes-box.v2p-thanked {\n  font-weight: bold;\n  color: var(--v2p-color-heart);\n  opacity: 0.8;\n}\n.v2p-likes-box.v2p-thanked .v2p-icon-heart svg {\n  fill: var(--v2p-color-heart);\n}\n\n@supports not selector(:has(*)) {\n  #Main .cell[id^=r] > table:hover .v2p-controls {\n    opacity: 1;\n  }\n}\n@supports selector(:has(*)) {\n  #Main .cell[id^=r]:not(:has(.cell:hover)) > table:hover .v2p-auto-hide {\n    width: auto;\n  }\n  #Main .cell[id^=r]:not(:has(.cell:hover)) > table:hover .v2p-controls {\n    opacity: 1;\n  }\n}\n.v2p-controls {\n  display: inline-flex;\n  column-gap: 15px;\n  align-items: center;\n  margin-right: 15px;\n  font-size: 12px;\n  opacity: 0;\n}\n.v2p-controls > a {\n  text-decoration: none;\n}\n.v2p-control {\n  position: relative;\n  z-index: var(--zidx-popup);\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  width: 16px;\n  height: 16px;\n  padding: 4px 0;\n  color: var(--v2p-color-font-tertiary);\n}\n.v2p-control::after {\n  pointer-events: none;\n  z-index: var(--zidx-tip);\n  overflow: hidden;\n  width: max-content;\n  min-width: 30px;\n  padding: 2px 5px;\n  border-radius: var(--v2p-popup-radius);\n  font-size: 12px;\n  color: var(--v2p-color-foreground);\n  text-align: center;\n  white-space: nowrap;\n  background-color: var(--v2p-color-bg-tooltip);\n  box-shadow: var(--v2p-widget-shadow);\n  position: absolute;\n  z-index: var(--zidx-tip);\n  top: -8px;\n  transform: translateY(-100%);\n  opacity: 0;\n  background-color: var(--v2p-color-bg-tooltip);\n}\n.v2p-control:hover {\n  color: var(--v2p-color-font-secondary);\n}\n.v2p-control.v2p-thanked {\n  cursor: default;\n  color: var(--v2p-color-heart);\n}\n.v2p-control.v2p-thank-pending, .v2p-control.v2p-ignore-pending {\n  cursor: wait;\n  opacity: 0.6;\n}\n.v2p-control:focus-visible {\n  border-radius: 2px;\n  outline: 2px solid var(--v2p-color-heart);\n  outline-offset: 2px;\n}\n.v2p-control:hover::after {\n  opacity: 1;\n}\n.v2p-control.v2p-control-hide::after {\n  content: "\u9690\u85CF\u56DE\u590D";\n}\n\n.v2p-control.v2p-control-thank::after {\n  content: "\u611F\u8C22\u56DE\u590D";\n}\n.v2p-control.v2p-control-thank.v2p-thanked::after {\n  content: "\u5DF2\u611F\u8C22";\n}\n\n.v2p-control.v2p-control-reply::after {\n  content: "\u56DE\u590D";\n}\n\n@media (hover: none) {\n  .v2p-controls {\n    opacity: 1;\n  }\n}\n.topic_buttons .v2p-tb.v2p-hover-btn {\n  color: var(--v2p-color-font-secondary);\n}\n.topic_buttons .v2p-tb.v2p-hover-btn::after {\n  display: none;\n}\n.topic_buttons .v2p-tb.v2p-hover-btn:hover {\n  color: currentColor;\n}\n\n.v2p-tb-icon {\n  width: 15px;\n  height: 15px;\n}\n\n.v2p-emoji-container {\n  overflow-y: auto;\n  max-height: 285px;\n  padding: 15px 18px;\n  color: var(--v2p-color-font-secondary);\n}\n\n.v2p-member-card {\n  --v2p-card-spacing: 10px;\n  max-width: 320px;\n  max-height: 420px;\n  padding: 12px;\n  font-size: 13px;\n  text-align: left;\n}\n.v2p-member-card .v2p-info {\n  display: flex;\n  gap: 15px;\n}\n.v2p-member-card .v2p-info-right {\n  padding: 2px 0;\n}\n.v2p-member-card .v2p-avatar-box {\n  overflow: hidden;\n  display: inline-block;\n  width: 73px;\n  height: 73px;\n  border-radius: var(--v2p-box-radius);\n  background-color: var(--button-background-hover-color);\n}\n.v2p-member-card .v2p-avatar {\n  width: 100%;\n  height: 100%;\n}\n.v2p-member-card .v2p-username {\n  font-size: 16px;\n  font-weight: bold;\n}\n.v2p-member-card .v2p-no {\n  margin: 5px 0;\n}\n.v2p-member-card .v2p-no,\n.v2p-member-card .v2p-created-date {\n  width: 160px;\n  height: 16px;\n}\n.v2p-member-card .v2p-loading {\n  border-radius: var(--v2p-button-radius);\n  background-color: var(--button-background-hover-color);\n}\n.v2p-member-card .v2p-bio {\n  overflow: hidden;\n  display: -webkit-box;\n  -webkit-box-orient: vertical;\n  -webkit-line-clamp: 3;\n  line-height: 1.4;\n  padding-top: var(--v2p-card-spacing);\n}\n\n.v2p-member-card-actions {\n  display: flex;\n  gap: 6px;\n  align-items: center;\n  padding: var(--v2p-card-spacing) 0 0;\n}\n\n.v2p-member-topics {\n  margin-top: var(--v2p-card-spacing);\n  padding-top: var(--v2p-card-spacing);\n  border-top: 1px solid var(--box-border-color);\n}\n\n.v2p-member-topics-header {\n  margin-bottom: 8px;\n  font-size: 12px;\n  font-weight: 500;\n  color: var(--v2p-color-font-secondary);\n}\n\n.v2p-member-topics-list {\n  display: flex;\n  flex-direction: column;\n  gap: 4px;\n}\n\n.v2p-member-topic-item-row {\n  display: flex;\n  gap: 4px;\n  align-items: center;\n}\n.v2p-member-topic-item-row .v2p-topic-preview-btn {\n  max-width: 0;\n  height: 19px;\n  max-height: 0;\n  padding: 0 4px;\n  font-size: 12px;\n  visibility: hidden;\n}\n.v2p-member-topic-item-row:hover .v2p-topic-preview-btn {\n  max-width: unset;\n  max-height: unset;\n  visibility: visible;\n}\n\n.v2p-member-topic-item {\n  overflow: hidden;\n  flex: 1;\n  min-width: 0;\n  padding-left: 2px;\n  border-radius: var(--v2p-button-radius);\n  font-size: 13px;\n  line-height: 1.5;\n  color: var(--v2p-color-font-primary);\n  text-decoration: none;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n.v2p-member-topic-item::before {\n  content: "\u25B8";\n  margin-right: 4px;\n  color: var(--v2p-color-font-tertiary);\n}\n.v2p-member-topic-item:hover {\n  text-decoration: none;\n  background-color: var(--v2p-color-bg-link-hover);\n}\n\n.v2p-reply-tags {\n  cursor: pointer;\n  display: inline-flex;\n  margin: 0 0 2px;\n  padding: 0 3px;\n  border-radius: var(--v2p-button-radius);\n  font-size: 12px;\n  background-color: var(--button-background-hover-color);\n}\n\n.v2p-reply-tags-inline {\n  overflow: hidden;\n  max-width: 300px;\n  margin: 0 5px 0 0;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.v2p-emoticons-box {\n  font-size: 15px;\n}\n\n.v2p-emoji-group ~ .v2p-emoji-group {\n  margin-top: 10px;\n}\n\n.v2p-emoji-title {\n  margin: 0 0 10px;\n  font-size: 14px;\n  text-align: left;\n}\n\n.v2p-emoji-list {\n  display: grid;\n  grid-template-columns: repeat(8, 1fr);\n  gap: 5px;\n  font-size: 20px;\n}\n\n.v2p-emoji {\n  cursor: pointer;\n  height: 20px;\n  padding: 3px;\n  border-radius: var(--v2p-button-radius);\n  line-height: 20px;\n}\n.v2p-emoji:hover {\n  background-color: var(--box-background-hover-color);\n}\n.v2p-emoji > img {\n  height: 100%;\n}\n\n.v2p-decode {\n  cursor: copy;\n  position: relative;\n  padding: 2px 4px;\n  font-size: 13px;\n  color: var(--v2p-color-orange-400);\n  text-decoration: none;\n  background-color: var(--v2p-color-orange-50);\n}\n.v2p-decode::after {\n  pointer-events: none;\n  z-index: var(--zidx-tip);\n  overflow: hidden;\n  width: max-content;\n  min-width: 30px;\n  padding: 2px 5px;\n  border-radius: var(--v2p-popup-radius);\n  font-size: 12px;\n  color: var(--v2p-color-foreground);\n  text-align: center;\n  white-space: nowrap;\n  background-color: var(--v2p-color-bg-tooltip);\n  box-shadow: var(--v2p-widget-shadow);\n  content: attr(data-title);\n  position: absolute;\n  top: -8px;\n  left: 50%;\n  transform: translate(-50%, -100%);\n  opacity: 0;\n  background-color: var(--v2p-color-bg-tooltip);\n}\n.v2p-decode:hover {\n  color: var(--v2p-color-orange-400);\n}\n.v2p-decode:hover::after {\n  opacity: 1;\n}\n\n.v2p-reply-content {\n  position: relative;\n}\n.v2p-reply-content .v2p-expand-btn.normal.button {\n  position: absolute;\n  z-index: var(--zidx-expand-btn);\n  bottom: 5px;\n  left: 50%;\n  transform: translateX(-50%);\n  font-size: 12px;\n  font-weight: 400;\n}\n.v2p-reply-content.v2p-collapsed {\n  overflow: hidden;\n  max-height: 250px;\n  padding-bottom: 0;\n}\n.v2p-reply-content.v2p-collapsed::before {\n  pointer-events: none;\n  content: "";\n  position: absolute;\n  z-index: var(--zidx-expand-mask);\n  right: 0;\n  bottom: 0;\n  left: 0;\n  height: 130px;\n  background: linear-gradient(to top, var(--bg-reply) 10px, transparent);\n}\n.v2p-reply-content.v2p-collapsed .reply_content a,\n.v2p-reply-content.v2p-collapsed .reply_content .embedded_video {\n  pointer-events: none;\n}\n.v2p-reply-content.v2p-collapsed .v2p-expand-btn.normal.button {\n  bottom: 10px;\n  transform: translateX(-50%);\n}\n.v2p-reply-content:not(.v2p-collapsed) {\n  overflow: auto;\n  max-height: none;\n  padding-bottom: 40px;\n}\n\n.cell[id^=r] .cell[id^=r] .v2p-reply-content .v2p-expand-btn.normal.button {\n  color: var(--v2p-color-button-foreground);\n  background: var(--v2p-color-button-background-hover);\n  box-shadow: var(--button-hover-shadow);\n}\n\n.v2p-empty-content {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  padding-top: 20px;\n  font-size: 14px;\n  color: var(--v2p-color-font-secondary);\n}\n.v2p-empty-content .v2p-text-emoji {\n  font-size: 20px;\n}\n\n.v2p-topic-reply-ref {\n  margin: 0 -10px 15px;\n  padding: 5px 10px;\n  border-radius: var(--v2p-box-radius);\n  font-size: 13px;\n  color: var(--v2p-color-font-tertiary);\n  background-color: var(--v2p-color-bg-block);\n}\n\n.v2p-topic-reply-box {\n  margin-top: 50px;\n  padding: 30px 0;\n  border-top: 1px solid var(--v2p-color-divider);\n  font-size: 14px;\n  line-height: 1.55;\n  color: var(--v2p-color-font-secondary);\n}\n.v2p-topic-reply ~ .v2p-topic-reply {\n  margin-top: 15px;\n}\n.v2p-topic-reply-member {\n  display: inline;\n  font-weight: bold;\n  color: var(--v2p-color-main-700);\n}\n\n.v2p-topic-reply-avatar {\n  position: relative;\n  top: 2px;\n  overflow: hidden;\n  width: 15px;\n  height: 15px;\n  margin-right: 5px;\n  border-radius: var(--v2p-box-radius);\n  object-fit: cover;\n  background-color: var(--v2p-color-bg-avatar);\n}\n\n.v2p-topic-reply-content {\n  display: inline;\n}\n\n.v2p-topic-reply-tip {\n  margin-top: 20px;\n  font-size: 13px;\n  color: var(--v2p-color-font-quaternary);\n  text-align: center;\n}\n\n.v2p-reply-wrap {\n  resize: none;\n  overflow: hidden;\n  height: unset;\n  min-height: 140px !important;\n  max-height: 800px !important;\n  border: 1px solid var(--button-border-color);\n  border-radius: var(--v2p-input-radius);\n  font-size: 15px;\n  color: currentColor;\n  background-color: var(--v2p-color-bg-input);\n  transition: opacity 0.25s;\n}\n.v2p-reply-wrap::placeholder {\n  font-size: 15px;\n  color: var(--v2p-color-font-tertiary);\n}\n.v2p-reply-wrap:is(:focus, :focus-within) {\n  border-color: var(--button-border-hover-color);\n  background-color: transparent;\n  outline: none;\n  box-shadow: none;\n}\n.v2p-reply-wrap #reply_content {\n  border: none;\n  background-color: transparent;\n}\n.v2p-reply-wrap #reply_content::placeholder {\n  font-size: 14px;\n  color: var(--v2p-color-font-tertiary);\n}\n.v2p-reply-wrap #reply_content:focus {\n  background-color: var(--v2p-color-bg-content);\n  outline: none;\n}\n\n.v2p-reply-upload-bar {\n  cursor: pointer;\n  padding: 6px 10px;\n  border-top: 1px dashed var(--v2p-color-border-darker);\n  font-size: 12px;\n  color: var(--v2p-color-font-tertiary);\n  background-color: var(--v2p-color-bg-input);\n}\n\n.v2p-reply-upload-bar-disabled {\n  pointer-events: none;\n}\n\n.v2p-footer {\n  position: relative;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 35px 10px 20px;\n  border-top: 1px solid var(--v2p-color-divider);\n  font-size: 12px;\n  color: var(--v2p-color-font-tertiary);\n}\n.v2p-footer a:hover {\n  text-decoration: none;\n}\n\n.v2p-footer-logo {\n  --logo-size: 16px;\n  position: absolute;\n  top: calc(-1 * (var(--logo-size) + 5px) / 2);\n  left: 50%;\n  transform: translateX(-50%);\n  display: inline-flex;\n  box-sizing: border-box;\n  padding: 3px 25px;\n  background-color: var(--v2p-color-bg-footer);\n}\n.v2p-footer-logo svg {\n  width: var(--logo-size);\n}\n\n.v2p-footer-text {\n  display: inline-flex;\n  align-items: center;\n  justify-content: flex-start;\n  width: 240px;\n  color: var(--v2p-color-font-secondary);\n}\n\n.v2p-footer-links {\n  display: inline-flex;\n  gap: 0 8px;\n  align-items: center;\n}\n\n.v2p-footer-link {\n  padding: 4px 5px;\n  color: currentColor;\n}\n\n.v2p-footer-brand {\n  display: inline-flex;\n  gap: 0 15px;\n  align-items: center;\n  justify-content: flex-end;\n  width: 240px;\n}\n.v2p-footer-brand .v2p-github-ref {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  width: 20px;\n  height: 20px;\n  padding: 2px 0;\n}\n\n.v2p-color-mode-toggle {\n  width: 22px;\n  height: 22px;\n  opacity: 0.8;\n}\n.v2p-color-mode-toggle:hover {\n  opacity: 1;\n}\n\n.v2p-reply-tabs {\n  display: flex;\n  gap: 0 6px;\n  align-items: center;\n  font-size: 14px;\n}\n.v2p-reply-tabs .v2p-reply-tab {\n  cursor: pointer;\n  padding: 2px 3px;\n}\n.v2p-reply-tabs .v2p-reply-tab.active {\n  text-decoration: underline;\n  text-decoration-color: var(--v2p-color-font-tertiary);\n  text-decoration-thickness: 2px;\n  text-underline-offset: 4px;\n}\n\n.v2p-select-dropdown {\n  display: flex;\n  flex-direction: column;\n  gap: 1px;\n  padding: 5px;\n  border-radius: var(--v2p-popup-radius);\n  font-size: 12px;\n  text-align: left;\n}\n.v2p-select-item {\n  cursor: pointer;\n  padding: 5px 10px;\n  border-radius: var(--v2p-button-radius);\n  white-space: nowrap;\n}\n.v2p-select-item:hover {\n  background-color: var(--v2p-color-button-background-hover);\n}\n.v2p-select-item.v2p-select-item-active {\n  background-color: var(--v2p-color-accent-50);\n}\n\n.v2p-select-divider {\n  pointer-events: none;\n  height: 1px;\n  margin: 5px 0;\n  background-color: var(--v2p-color-border);\n}\n\n.v2p-preview-retry,\n.v2p-topic-preview-retry,\na.v2p-preview-retry,\na.v2p-topic-preview-retry,\na:link.v2p-preview-retry,\na:link.v2p-topic-preview-retry {\n  text-decoration: underline 1px;\n  text-underline-offset: var(--v2p-underline-offset);\n  cursor: pointer;\n}\n\n.v2p-indent .v2p-member-ref {\n  display: none;\n}\n\n.v2p-member-ref + br {\n  display: none;\n}\n.v2p-member-ref + br + b {\n  display: none;\n}\n.v2p-member-ref.v2p-member-ref-show {\n  display: inline !important;\n}\n\n.v2p-layout-toggle {\n  display: inline-block;\n  width: 18px;\n  height: 18px;\n  padding: 4px 2px;\n  color: var(--v2p-color-font-tertiary);\n}\n\n.v2p-content-layout.v2p-content-layout.content {\n  --v2p-content-width: 2000px;\n}\n.v2p-content-layout.v2p-content-layout.content #Main.v2p-horizontal-layout {\n  display: flex;\n  flex-wrap: wrap;\n  gap: var(--v2p-layout-column-gap);\n  max-width: unset;\n}\n.v2p-left-side {\n  flex: 1;\n  min-width: 0;\n}\n.v2p-left-side > .v2p-left-group {\n  position: sticky;\n  z-index: var(--zidx-reply-box);\n  top: 0;\n  display: flex;\n  flex-direction: column;\n  max-height: calc(100vh - var(--v2p-nav-height) - var(--v2p-layout-row-gap));\n}\n.v2p-left-side > .v2p-left-group .sep,\n.v2p-left-side > .v2p-left-group .sep20,\n.v2p-left-side > .v2p-left-group > #topic-tip-box {\n  flex-shrink: 0;\n}\n.v2p-left-side > .v2p-left-group > .box:has(.topic_buttons) {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n}\n.v2p-left-side > .v2p-left-group > .box:has(.topic_buttons) > .header {\n  flex-shrink: 0;\n}\n.v2p-left-side .v2p-left-side-content {\n  overflow: auto;\n  flex: 1;\n  margin-right: calc(var(--v2p-spacing-box) * -1);\n  padding-right: var(--v2p-spacing-box);\n  border-bottom: 1px solid var(--box-border-color);\n}\n\n.v2p-right-side {\n  flex: 1;\n  min-width: 0;\n}\n\n.v2p-register-days {\n  display: inline-flex;\n  align-items: center;\n  margin-left: 2px;\n  padding: 0 2px;\n  border-radius: var(--v2p-button-radius);\n  color: var(--v2p-color-orange-400);\n  background-color: var(--v2p-color-orange-100);\n}\n.v2p-register-days.v2p-register-days-large {\n  display: inline-flex;\n  margin-left: 10px;\n  padding: 2px 5px;\n  border-radius: var(--v2p-button-radius);\n  font-size: 16px;\n  line-height: 1.4;\n}\n\n.v2p-topics-hot-loading {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 50px 0;\n  color: currentColor;\n}\n.v2p-topics-hot-loading .v2p-icon-loading {\n  width: 40px;\n}\n\n.v2p-topics-hot-empty {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  min-height: 84px;\n  margin: 12px 10px 10px;\n  padding: 18px 16px;\n  border: 1px dashed var(--v2p-color-divider);\n  border-radius: var(--v2p-input-radius);\n  font-size: 13px;\n  line-height: 1.6;\n  color: var(--v2p-color-font-tertiary);\n  text-align: center;\n  background-color: var(--v2p-color-bg-subtle);\n}\n\n.v2p-topics-hot-header {\n  display: flex;\n  align-items: center;\n}\n\n.v2p-topics-hot-picker {\n  cursor: pointer;\n  display: inline-flex;\n  gap: 4px;\n  align-items: center;\n  margin-left: auto;\n  padding: 1px 6px;\n  border-radius: var(--v2p-button-radius);\n  font-size: 13px;\n  background-color: var(--v2p-color-button-background);\n}\n.v2p-topics-hot-picker:hover {\n  background-color: var(--v2p-color-button-background-hover);\n}\n.v2p-topics-hot-icon {\n  position: relative;\n  top: -2px;\n  width: 1em;\n  height: 1em;\n}\n\n.v2p-tag-block {\n  margin-bottom: 10px;\n}\n\n@supports (filter: blur(6px)) {\n  .v2p-hide-account {\n    opacity: 0.5;\n    filter: blur(6px);\n  }\n}\n@supports not (filter: blur(6px)) {\n  .v2p-hide-account {\n    opacity: 0;\n  }\n}\n\n@supports (filter: blur(6px)) {\n  .v2p-hide-balance {\n    opacity: 0.5;\n    filter: blur(6px);\n  }\n  .v2p-hide-balance:hover {\n    opacity: 1;\n    filter: none;\n  }\n}\n@supports not (filter: blur(6px)) {\n  .v2p-hide-balance {\n    opacity: 0;\n  }\n  .v2p-hide-balance:hover {\n    opacity: 1;\n  }\n}\n\n.v2p-member-name {\n  display: flex;\n  align-items: center;\n}\n\n.v2p-settings-header.page-content-header {\n  gap: 10px;\n}\n.v2p-settings-header.page-content-header .v2p-settings-icon {\n  width: 40px;\n  height: 40px;\n  margin: 0;\n}\n.v2p-settings-header.page-content-header .v2p-settings-title {\n  padding: 0;\n  white-space: nowrap;\n}\n.v2p-settings-header.page-content-header .v2p-settings-actions {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  justify-content: flex-end;\n}\n\n.v2p-link-preview-btn {\n  cursor: pointer;\n  user-select: none;\n  display: inline-flex;\n  height: 100%;\n  margin-left: 5px;\n  padding: 0 5px;\n  border-radius: var(--v2p-button-radius);\n  font-size: 12px;\n  color: var(--v2p-color-bg-content);\n  background-color: var(--v2p-color-accent-500);\n}\n.v2p-link-preview-btn:hover {\n  background-color: var(--v2p-color-accent-600);\n}\n\n#node_sidebar.v2p-node-sidebar-flamewar {\n  border: 1px solid var(--v2p-color-orange-400);\n  border-radius: var(--v2p-box-radius);\n  background-color: var(--v2p-color-orange-50);\n}\n\n.v2p-topic-preview-frame {\n  width: 100%;\n  height: 100%;\n  border: none;\n}\n\n.v2p-topic-preview-wrapper {\n  overflow: hidden;\n  width: 100%;\n  height: 100%;\n}\n\n.v2p-sync-dialog-main.v2p-modal-main {\n  height: auto;\n}\n.v2p-sync-dialog-main.v2p-modal-main .v2p-modal-content {\n  padding: var(--v2p-spacing-box);\n}\n.v2p-sync-dialog-message {\n  margin: 0 0 var(--v2p-spacing-cell);\n  font-size: 15px;\n  font-weight: 500;\n  line-height: 1.6;\n  color: var(--v2p-color-foreground);\n}\n\n.v2p-sync-dialog-message-sub {\n  margin: 0 0 calc(var(--v2p-spacing-cell) * 0.75);\n  padding: calc(var(--v2p-spacing-cell) * 0.75) var(--v2p-spacing-cell);\n  border-radius: var(--v2p-input-radius);\n  font-size: 14px;\n  line-height: 1.6;\n  color: var(--v2p-color-font-secondary);\n  background-color: var(--v2p-color-bg-input);\n}\n.v2p-sync-dialog-message-sub strong {\n  font-weight: 600;\n  color: var(--v2p-color-foreground);\n}\n\n.v2p-sync-dialog-message-question {\n  margin: calc(var(--v2p-spacing-cell) * 1.25) 0 var(--v2p-spacing-cell);\n  font-size: 15px;\n  font-weight: 500;\n  line-height: 1.6;\n  color: var(--v2p-color-foreground);\n}\n\n.v2p-sync-dialog-message-tip {\n  margin: calc(var(--v2p-spacing-cell) * 0.5) 0 0;\n  padding: calc(var(--v2p-spacing-cell) * 0.5) var(--v2p-spacing-cell);\n  border-radius: var(--v2p-input-radius);\n  font-size: 13px;\n  line-height: 1.5;\n  color: var(--v2p-color-font-tertiary);\n  background-color: var(--v2p-color-bg-subtle);\n}\n\n.v2p-modal-footer .v2p-sync-skip-btn,\n.v2p-modal-footer .v2p-sync-confirm-btn {\n  height: 32px;\n  padding: 0 16px;\n  font-size: 14px;\n}\n.v2p-modal-footer .v2p-sync-confirm-btn {\n  font-weight: 600;\n}\n\n/* V2EX Polish c8f1b70; Copyright (c) 2023-present LeoKu and contributors.\n * MIT; see licenses/v2ex-polish-MIT.txt. Font overrides removed as requested.\n */\nbody.v2p-theme-minimalist,\n.v2p-theme-minimalist,\n:root[data-v2p-theme=minimalist],\n:root[data-v2p-theme=minimalist] body {\n  --v2p-color-accent-50: oklch(97.9% 0.021 166.113deg);\n  --v2p-color-accent-100: oklch(95% 0.052 163.051deg);\n  --v2p-color-accent-200: oklch(90.5% 0.093 164.15deg);\n  --v2p-color-accent-300: oklch(84.5% 0.143 164.978deg);\n  --v2p-color-accent-400: oklch(76.5% 0.177 163.223deg);\n  --v2p-color-accent-500: oklch(69.6% 0.17 162.48deg);\n  --v2p-color-accent-600: oklch(59.6% 0.145 163.225deg);\n  --v2p-color-accent-700: oklch(50.8% 0.118 165.612deg);\n  --v2p-color-orange-50: #fff7ed;\n  --v2p-color-orange-100: #ffedd5;\n  --v2p-color-orange-400: #fb923c;\n  --v2p-color-background: oklch(97.6% 0.005 253deg);\n  --v2p-color-foreground: oklch(28.2% 0.091 267.935deg);\n  --v2p-color-selection-foreground: currentColor;\n  --v2p-color-selection-background: oklch(93.2% 0.032 255.585deg);\n  --v2p-color-selection-background-img: var(--v2p-color-selection-background);\n  --v2p-color-font-secondary: oklch(from var(--v2p-color-foreground) l c h / 80%);\n  --v2p-color-font-tertiary: oklch(from var(--v2p-color-foreground) l c h / 68%);\n  --v2p-color-font-quaternary: oklch(from var(--v2p-color-foreground) l c h / 57%);\n  --v2p-color-button-background: var(--v2p-color-background);\n  --v2p-color-button-foreground: var(--v2p-color-foreground);\n  --v2p-color-button-background-hover: oklch(from var(--v2p-color-foreground) l c h / 10%);\n  --v2p-color-button-foreground-hover: var(--v2p-color-foreground);\n  --v2p-color-button-special-background: var(--v2p-color-accent-50);\n  --v2p-color-button-special-foreground: var(--v2p-color-accent-700);\n  --v2p-color-button-special-border: var(--v2p-color-accent-600);\n  --v2p-color-bg-content: #fff;\n  --v2p-color-bg-footer: var(--v2p-color-background);\n  --v2p-color-bg-hover-btn: rgb(152 147 165 / 10%);\n  --v2p-color-bg-subtle: oklch(from var(--v2p-color-foreground) l c h / 2%);\n  --v2p-color-bg-input: var(--v2p-color-background);\n  --v2p-color-bg-search: var(--v2p-color-bg-content);\n  --v2p-color-bg-search-active: var(--v2p-color-bg-search);\n  --v2p-color-bg-widget: var(--v2p-color-bg-content);\n  --v2p-color-bg-reply: var(--v2p-color-background);\n  --v2p-color-bg-tooltip: var(--v2p-color-background);\n  --v2p-color-bg-tabs: var(--v2p-color-background);\n  --v2p-color-bg-tpr: var(--v2p-color-background);\n  --v2p-color-bg-avatar: var(--v2p-color-background);\n  --v2p-color-bg-block: var(--v2p-color-background);\n  --v2p-color-bg-block-darker: var(--v2p-color-background);\n  --v2p-color-bg-link: transparent;\n  --v2p-color-bg-link-hover: var(--v2p-color-background);\n  --v2p-color-tabs: var(--v2p-color-foreground);\n  --v2p-color-heart: #ef4444;\n  --v2p-color-heart-fill: #fee2e2;\n  --v2p-color-mask: rgb(0 0 0 / 25%);\n  --v2p-color-divider: lab(30.7907% 22.35 -63.8417 / 20%);\n  --v2p-color-border: var(--v2p-color-divider);\n  --v2p-color-input-border: var(--v2p-color-border);\n  --v2p-color-border-darker: lab(30.7907% 22.35 -63.8417 / 30%);\n  --v2p-color-link-visited: var(--v2p-color-font-secondary);\n  --v2p-color-error: #ef4444;\n  --v2p-color-bg-error: #fee2e2;\n  --v2p-color-cell-num: var(--v2p-color-font-secondary);\n  --v2p-box-radius: 0;\n  --v2p-input-radius: 4px;\n  --v2p-button-radius: var(--v2p-input-radius);\n  --v2p-popup-radius: var(--v2p-input-radius);\n  --v2p-box-shadow: none;\n  --v2p-widget-shadow: 0 2px 8px -2px lab(30.7907% 22.35 -63.8417 / 12%);\n  --v2p-toast-shadow: 0 4px 12px -2px lab(30.7907% 22.35 -63.8417 / 15%);\n  --link-color: var(--v2p-color-foreground);\n  --box-background-alt-color: var(--v2p-color-bg-block);\n  --box-background-hover-color: var(--v2p-color-bg-link-hover);\n  --button-hover-color: var(--v2p-color-button-background-hover);\n  --button-border-color: var(--v2p-color-border);\n  --button-border-hover-color: var(--v2p-color-border-darker);\n  position: relative;\n  visibility: visible;\n}\nbody.v2p-theme-minimalist .v2p-modal-mask,\n.v2p-theme-minimalist .v2p-modal-mask,\n:root[data-v2p-theme=minimalist] .v2p-modal-mask,\n:root[data-v2p-theme=minimalist] body .v2p-modal-mask {\n  background-color: oklch(from var(--v2p-color-bg-content) l c h/60%);\n  background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(30, 64, 175, 0.03) 2px, rgba(30, 64, 175, 0.03) 4px);\n}\nbody.v2p-theme-minimalist #Top,\n.v2p-theme-minimalist #Top,\n:root[data-v2p-theme=minimalist] #Top,\n:root[data-v2p-theme=minimalist] body #Top {\n  background-color: var(--v2p-color-background);\n}\nbody.v2p-theme-minimalist #Wrapper #Main > .box:has(.topic_buttons),\nbody.v2p-theme-minimalist #Wrapper #Main .v2p-left-group .box:has(.topic_buttons),\n.v2p-theme-minimalist #Wrapper #Main > .box:has(.topic_buttons),\n.v2p-theme-minimalist #Wrapper #Main .v2p-left-group .box:has(.topic_buttons),\n:root[data-v2p-theme=minimalist] #Wrapper #Main > .box:has(.topic_buttons),\n:root[data-v2p-theme=minimalist] #Wrapper #Main .v2p-left-group .box:has(.topic_buttons),\n:root[data-v2p-theme=minimalist] body #Wrapper #Main > .box:has(.topic_buttons),\n:root[data-v2p-theme=minimalist] body #Wrapper #Main .v2p-left-group .box:has(.topic_buttons) {\n  border-bottom: 1px solid var(--v2p-color-border) !important;\n}\nbody.v2p-theme-minimalist #Wrapper #Main #SecondaryTabs,\n.v2p-theme-minimalist #Wrapper #Main #SecondaryTabs,\n:root[data-v2p-theme=minimalist] #Wrapper #Main #SecondaryTabs,\n:root[data-v2p-theme=minimalist] body #Wrapper #Main #SecondaryTabs {\n  border-radius: 0;\n}\nbody.v2p-theme-minimalist #Wrapper .box,\n.v2p-theme-minimalist #Wrapper .box,\n:root[data-v2p-theme=minimalist] #Wrapper .box,\n:root[data-v2p-theme=minimalist] body #Wrapper .box {\n  border: 1px solid var(--v2p-color-border);\n}\nbody.v2p-theme-minimalist #Rightbar > .box:has(.member-activity-bar),\n.v2p-theme-minimalist #Rightbar > .box:has(.member-activity-bar),\n:root[data-v2p-theme=minimalist] #Rightbar > .box:has(.member-activity-bar),\n:root[data-v2p-theme=minimalist] body #Rightbar > .box:has(.member-activity-bar) {\n  background-image: linear-gradient(to top, transparent 0%, transparent 50%, lab(30.7907% 22.35 -63.8417 / 0.08) 100%);\n}\nbody.v2p-theme-minimalist .fade,\n.v2p-theme-minimalist .fade,\n:root[data-v2p-theme=minimalist] .fade,\n:root[data-v2p-theme=minimalist] body .fade {\n  color: var(--v2p-color-font-secondary);\n}\nbody.v2p-theme-minimalist .button.special,\n.v2p-theme-minimalist .button.special,\n:root[data-v2p-theme=minimalist] .button.special,\n:root[data-v2p-theme=minimalist] body .button.special {\n  --button-hover-shadow:\n    0 1.8px 0 var(--v2p-color-accent-100), 0 1.8px 0 var(--v2p-color-accent-50);\n}\nbody.v2p-theme-minimalist .button.special:hover, body.v2p-theme-minimalist .button.special:hover:enabled,\n.v2p-theme-minimalist .button.special:hover,\n.v2p-theme-minimalist .button.special:hover:enabled,\n:root[data-v2p-theme=minimalist] .button.special:hover,\n:root[data-v2p-theme=minimalist] .button.special:hover:enabled,\n:root[data-v2p-theme=minimalist] body .button.special:hover,\n:root[data-v2p-theme=minimalist] body .button.special:hover:enabled {\n  --button-hover-shadow:\n    0 1.8px 0 var(--v2p-color-accent-500), 0 1.8px 0 var(--v2p-color-button-special-border);\n  text-shadow: none;\n}\nbody.v2p-theme-minimalist .badge.op,\n.v2p-theme-minimalist .badge.op,\n:root[data-v2p-theme=minimalist] .badge.op,\n:root[data-v2p-theme=minimalist] body .badge.op {\n  border: 1px solid var(--v2p-color-accent-100);\n  color: var(--v2p-color-accent-600);\n  background-color: var(--v2p-color-accent-100);\n}\nbody.v2p-theme-minimalist .badge.mod,\n.v2p-theme-minimalist .badge.mod,\n:root[data-v2p-theme=minimalist] .badge.mod,\n:root[data-v2p-theme=minimalist] body .badge.mod {\n  border: 1px solid var(--v2p-color-accent-600);\n  background-color: var(--v2p-color-accent-600);\n}\nbody.v2p-theme-minimalist .badge.pro,\n.v2p-theme-minimalist .badge.pro,\n:root[data-v2p-theme=minimalist] .badge.pro,\n:root[data-v2p-theme=minimalist] body .badge.pro {\n  border: 1px solid var(--v2p-color-foreground);\n  color: var(--v2p-color-bg-content);\n  background-color: var(--v2p-color-foreground);\n}\nbody.v2p-theme-minimalist .v2p-modal-main,\n.v2p-theme-minimalist .v2p-modal-main,\n:root[data-v2p-theme=minimalist] .v2p-modal-main,\n:root[data-v2p-theme=minimalist] body .v2p-modal-main {\n  border: 2px solid var(--v2p-color-border);\n}\nbody.v2p-theme-minimalist .v2p-modal-main .v2p-modal-header,\n.v2p-theme-minimalist .v2p-modal-main .v2p-modal-header,\n:root[data-v2p-theme=minimalist] .v2p-modal-main .v2p-modal-header,\n:root[data-v2p-theme=minimalist] body .v2p-modal-main .v2p-modal-header {\n  background-image: linear-gradient(to bottom, lab(30.7907% 22.35 -63.8417 / 0.03) 0%, transparent 100%);\n}\nbody.v2p-theme-minimalist .v2p-control::after,\n.v2p-theme-minimalist .v2p-control::after,\n:root[data-v2p-theme=minimalist] .v2p-control::after,\n:root[data-v2p-theme=minimalist] body .v2p-control::after {\n  background-color: var(--v2p-color-background);\n}\nbody.v2p-theme-minimalist .green,\n.v2p-theme-minimalist .green,\n:root[data-v2p-theme=minimalist] .green,\n:root[data-v2p-theme=minimalist] body .green {\n  color: var(--v2p-color-accent-500);\n}\nbody.v2p-theme-minimalist .onoffswitch label .frame::before,\n.v2p-theme-minimalist .onoffswitch label .frame::before,\n:root[data-v2p-theme=minimalist] .onoffswitch label .frame::before,\n:root[data-v2p-theme=minimalist] body .onoffswitch label .frame::before {\n  background-color: var(--v2p-color-accent-500);\n}\nbody.v2p-theme-minimalist .onoffswitch label .frame::after,\n.v2p-theme-minimalist .onoffswitch label .frame::after,\n:root[data-v2p-theme=minimalist] .onoffswitch label .frame::after,\n:root[data-v2p-theme=minimalist] body .onoffswitch label .frame::after {\n  background-color: var(--v2p-color-bg-search);\n}\nbody.v2p-theme-minimalist :is(.subtle),\n.v2p-theme-minimalist :is(.subtle),\n:root[data-v2p-theme=minimalist] :is(.subtle),\n:root[data-v2p-theme=minimalist] body :is(.subtle) {\n  border: none;\n  background-color: transparent;\n  background-image: linear-gradient(to right, lab(30.7907% 22.35 -63.8417 / 0.08) 0%, transparent 100%);\n}\n\n/* V2EX Polish c8f1b70; Copyright (c) 2023-present LeoKu and contributors.\n * MIT; see licenses/v2ex-polish-MIT.txt. Font overrides removed as requested.\n */\nbody.v2p-mobile,\n:root[data-v2p-mobile=true],\n:root[data-v2p-mobile=true] body {\n  --v2p-spacing-cell: 10px;\n}\nbody.v2p-mobile #site-header,\n:root[data-v2p-mobile=true] #site-header,\n:root[data-v2p-mobile=true] body #site-header {\n  border-color: var(--v2p-color-border);\n}\nbody.v2p-mobile #site-header #site-header-menu #menu-body,\n:root[data-v2p-mobile=true] #site-header #site-header-menu #menu-body,\n:root[data-v2p-mobile=true] body #site-header #site-header-menu #menu-body {\n  right: 5px;\n  border: 1px solid var(--v2p-color-border);\n  border-radius: 8px;\n}\nbody.v2p-mobile #Wrapper .content,\n:root[data-v2p-mobile=true] #Wrapper .content,\n:root[data-v2p-mobile=true] body #Wrapper .content {\n  display: block;\n  padding: 0;\n}\nbody.v2p-mobile #Wrapper .content .flex-one-row:first-of-type:not(.cell[id^=r_] .flex-one-row),\n:root[data-v2p-mobile=true] #Wrapper .content .flex-one-row:first-of-type:not(.cell[id^=r_] .flex-one-row),\n:root[data-v2p-mobile=true] body #Wrapper .content .flex-one-row:first-of-type:not(.cell[id^=r_] .flex-one-row) {\n  padding: 8px var(--v2p-spacing-cell) !important;\n}\nbody.v2p-mobile #Wrapper .content .header,\n:root[data-v2p-mobile=true] #Wrapper .content .header,\n:root[data-v2p-mobile=true] body #Wrapper .content .header {\n  padding: 10px var(--v2p-spacing-cell);\n}\nbody.v2p-mobile .box,\n:root[data-v2p-mobile=true] .box,\n:root[data-v2p-mobile=true] body .box {\n  border-radius: 0;\n}\nbody.v2p-mobile .box .cell:not([id^=r_]),\n:root[data-v2p-mobile=true] .box .cell:not([id^=r_]),\n:root[data-v2p-mobile=true] body .box .cell:not([id^=r_]) {\n  padding: var(--v2p-spacing-cell);\n}\nbody.v2p-mobile .box .cell .item,\n:root[data-v2p-mobile=true] .box .cell .item,\n:root[data-v2p-mobile=true] body .box .cell .item {\n  padding-right: 8px;\n}\nbody.v2p-mobile .box .cell .item .item_title,\n:root[data-v2p-mobile=true] .box .cell .item .item_title,\n:root[data-v2p-mobile=true] body .box .cell .item .item_title {\n  padding-top: 4px;\n}\nbody.v2p-mobile .box .cell .item .item_title .topic-link:hover,\n:root[data-v2p-mobile=true] .box .cell .item .item_title .topic-link:hover,\n:root[data-v2p-mobile=true] body .box .cell .item .item_title .topic-link:hover {\n  text-decoration: none;\n}\nbody.v2p-mobile .box .cell .item .count_livid,\n:root[data-v2p-mobile=true] .box .cell .item .count_livid,\n:root[data-v2p-mobile=true] body .box .cell .item .count_livid {\n  user-select: none;\n  display: inline-block;\n  padding: 5px 10px;\n  border-radius: var(--v2p-button-radius);\n  font-size: 12px;\n  font-weight: 400;\n  white-space: nowrap;\n  margin-right: 0;\n  color: var(--v2p-color-button-foreground);\n  background-color: var(--v2p-color-bg-block);\n}\n\n/* V2EX.REP; Copyright (c) 2023-2026 Pipecraft. MIT; see licenses/v2ex-rep-MIT.txt. */\na.icon_button {\n  opacity: 1 !important;\n  visibility: visible;\n  margin-right: 14px;\n}\n\na.icon_button:last-child {\n  margin-right: 0;\n}\n\na.icon_button svg {\n  vertical-align: text-top;\n}\n\nbody .v2p-controls {\n  opacity: 1;\n}\n\nbody .v2p-controls > a.icon_button {\n  margin-right: 0;\n}\n\nbody .v2p-controls div a {\n  margin-right: 15px;\n}\n\nbody .v2p-controls div a:last-child {\n  margin-right: 0;\n}\n\nbody .v2p-controls a[onclick^=replyOne] {\n  opacity: 1 !important;\n}\n\n.sticky_rightbar #Rightbar {\n  position: sticky;\n  top: 0;\n  max-height: 100vh;\n  overflow-y: auto;\n  overflow-x: hidden;\n  --sb-track-color: #00000000;\n  --sb-thumb-color: #33334480;\n  --sb-size: 2px;\n  scrollbar-color: rgba(0, 0, 0, 0) rgba(0, 0, 0, 0);\n  scrollbar-width: thin;\n}\n.sticky_rightbar #Rightbar:hover {\n  scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);\n}\n.sticky_rightbar #Rightbar::-webkit-scrollbar {\n  width: var(--sb-size);\n}\n.sticky_rightbar #Rightbar::-webkit-scrollbar-track {\n  background: rgba(0, 0, 0, 0);\n  border-radius: 10px;\n}\n.sticky_rightbar #Rightbar:hover::-webkit-scrollbar-track {\n  background: var(--sb-track-color);\n}\n.sticky_rightbar #Rightbar::-webkit-scrollbar-thumb {\n  background: rgba(0, 0, 0, 0);\n  border-radius: 10px;\n}\n.sticky_rightbar #Rightbar:hover::-webkit-scrollbar-thumb {\n  background: var(--sb-thumb-color);\n}\n.sticky_rightbar #Rightbar .v2p-tool-box {\n  position: unset;\n}\n\n.related_replies_container .box {\n  border-radius: 0 !important;\n}\n.related_replies_container .related_replies {\n  position: absolute;\n  overflow: visible !important;\n  padding: 0px !important;\n  z-index: 10000;\n  width: 100%;\n  -webkit-box-shadow: 0px 10px 39px 10px rgba(62, 66, 66, 0.22);\n  -moz-box-shadow: 0px 10px 39px 10px rgba(62, 66, 66, 0.22);\n  box-shadow: 0px 10px 39px 10px rgba(62, 66, 66, 0.22) !important;\n}\n.related_replies_container .related_replies_before::before {\n  content: "";\n  display: block;\n  width: 100%;\n  height: 10000px;\n  position: absolute;\n  margin-top: -10000px;\n  background-color: #333344;\n  opacity: 50%;\n}\n.related_replies_container .related_replies_after::after {\n  content: "";\n  display: block;\n  width: 100%;\n  height: 10000px;\n  position: absolute;\n  background-color: #333344;\n  opacity: 50%;\n}\n.related_replies_container.no_replies .related_replies_before::before,\n.related_replies_container.no_replies .related_replies_after::after {\n  display: none;\n}\n.related_replies_container .tabs {\n  position: sticky;\n  top: 0;\n  display: flex;\n  justify-content: center;\n  z-index: 10001;\n  padding: 10px !important;\n}\n.related_replies_container .tabs a {\n  cursor: pointer;\n}\n\na.no {\n  background-color: transparent !important;\n  color: #1484cd !important;\n  border: 1px solid #1484cd;\n  border-radius: 3px !important;\n  opacity: 1 !important;\n}\n\n.cited_floor_number {\n  color: #1484cd !important;\n  cursor: pointer;\n}\n\n.reply_content .cell.cited_reply {\n  scale: 0.85;\n  background-color: #f5f5f5;\n  border: 1px solid var(--box-border-color);\n  white-space: initial;\n}\n.reply_content .cell.cited_reply::after {\n  content: "";\n  display: block;\n  position: absolute;\n  left: 0;\n  bottom: 0;\n  width: 100%;\n  height: 100%;\n  opacity: 0.45;\n  background-color: var(--box-background-color);\n}\n.reply_content .cell.cited_reply:hover::after {\n  display: none;\n}\n.reply_content .cell.cited_reply .vr_wrapper {\n  max-height: 150px;\n  overflow: auto;\n  --sb-track-color: #00000000;\n  --sb-thumb-color: #33334480;\n  --sb-size: 2px;\n  scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);\n  scrollbar-width: thin;\n}\n.reply_content .cell.cited_reply .vr_wrapper::-webkit-scrollbar {\n  width: var(--sb-size);\n}\n.reply_content .cell.cited_reply .vr_wrapper::-webkit-scrollbar-track {\n  background: var(--sb-track-color);\n  border-radius: 10px;\n}\n.reply_content .cell.cited_reply .vr_wrapper::-webkit-scrollbar-thumb {\n  background: var(--sb-thumb-color);\n  border-radius: 10px;\n}\n\n[data-vr-opaticy-of-cited-replies="0"] .reply_content .cell.cited_reply::after {\n  display: none;\n}\n\n[data-vr-opaticy-of-cited-replies="1"] .reply_content .cell.cited_reply::after {\n  opacity: 0.2;\n}\n\n[data-vr-opaticy-of-cited-replies="3"] .reply_content .cell.cited_reply::after {\n  opacity: 0.6;\n}\n\n.v2p-indent .cell.cited_reply,\n.v2p-indent .reply_content + .reply_content,\n.v2p-indent .reply_content + .reply_content + .v2p-expand-btn,\n.v2p-indent .v2p-collapsed:has(.reply_content + .reply_content)::before,\n.comment .comment .cell.cited_reply {\n  display: none !important;\n}\n\n#top_replies .cell .vr_wrapper {\n  position: relative;\n  max-height: 150px;\n  overflow: hidden;\n}\n#top_replies .cell .vr_wrapper::after {\n  content: "";\n  display: block;\n  position: absolute;\n  bottom: 0;\n  width: 100%;\n  height: 5px;\n  opacity: 0.8;\n  background-color: var(--box-background-color);\n}\n\n#top_replies td > .flex-one-row {\n  column-gap: 4px;\n}\n#top_replies td > .flex-one-row > .flex-one-row:first-child {\n  flex: 1 1 100%;\n  flex-wrap: wrap;\n  min-width: 0;\n  row-gap: 2px;\n}\n#top_replies td > .flex-one-row > .flex-one-row:last-child {\n  align-self: baseline;\n  margin-left: auto;\n}\n#top_replies td > .flex-one-row > .flex-one-row:last-child a.no {\n  word-break: keep-all;\n}\n#top_replies td > .flex-one-row strong {\n  flex: 1 1 100%;\n  min-width: 0;\n  overflow-wrap: anywhere;\n}\n#top_replies td > .flex-one-row .ago {\n  line-height: 110%;\n}\n\n.sticky_paging {\n  position: sticky;\n  bottom: 0;\n  background-color: var(--box-background-color) !important;\n  border-top: 1px solid var(--box-border-color);\n  z-index: 90;\n}\n\n.reply-box-sticky {\n  z-index: 91;\n}\n\n.Night .reply_content .cell.cited_reply {\n  background-color: #1d1f21;\n}\n\n.vr_upload_image {\n  cursor: pointer;\n}\n\n.vr_upload_image.vr_button_disabled,\n.vr_upload_image.vr_button_disabled:hover {\n  cursor: default;\n  text-decoration: none;\n  color: var(--color-fade);\n}\n\n.sticky_topic_buttons .topic_buttons,\n.sticky_topic_buttons .topic_buttons_mobile {\n  position: sticky;\n  bottom: 0;\n  background-color: var(--box-background-color) !important;\n  border-top: 1px solid var(--box-border-color);\n}\n.sticky_topic_buttons .header + .cell {\n  border-bottom: none;\n}';
 
   // src/styles.css
-  var styles_default = '[hidden] {\n  display: none !important;\n}\n\n.item_title:has(+ .vx-preview-visible) {\n  display: inline;\n}\n\n.v2p-topic-preview-btn.vx-preview-visible {\n  margin-inline-start: 8px;\n  padding: 1px 6px;\n  visibility: visible;\n}\n\n.thank_area.v2p-controls {\n  display: inline-flex;\n}\n\n.thank_area.v2p-controls > a {\n  visibility: inherit;\n}\n\n.vx-page-start {\n  display: block;\n  height: 0;\n  scroll-margin-top: 12px;\n}\n\n.reply-group .v2p-reply-content {\n  --bg-reply: var(--box-background-alt-color);\n}\n\n.vx-member-popup .v2p-member-topic-item-row:not(:hover, :focus-within) .v2p-topic-preview-btn {\n  display: none;\n}\n\n.vx-member-popup .v2p-member-topic-item-row:focus-within .v2p-topic-preview-btn {\n  max-width: none;\n  max-height: none;\n  visibility: visible;\n}\n\n#vx-settings-dialog {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n\n#vx-settings-dialog .v2p-modal-main {\n  width: 100%;\n  max-width: 780px;\n  height: auto;\n  max-height: 100%;\n}\n\n#vx-settings-dialog .v2p-modal-content {\n  min-height: 0;\n  padding: 14px;\n}\n\n#vx-settings-dialog fieldset {\n  min-inline-size: 0;\n  margin: 0 0 12px;\n  padding: 10px 12px 12px;\n  border: 1px solid var(--box-border-color);\n  border-radius: var(--box-border-radius);\n}\n\n#vx-settings-dialog legend {\n  padding-inline: 4px;\n  font-weight: 600;\n}\n\n.vx-settings-grid {\n  display: grid;\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n  gap: 12px 20px;\n}\n\n.vx-settings-option label {\n  display: flex;\n  gap: 8px;\n  align-items: center;\n  justify-content: space-between;\n  font-weight: 600;\n}\n\n.vx-settings-option input {\n  flex: 0 0 auto;\n  margin: 0;\n}\n\n.vx-settings-option input[type="number"] {\n  width: 4ch;\n}\n\n.vx-settings-option:has(input[type="text"]) {\n  grid-column: 1 / -1;\n}\n\n.vx-settings-option:has(input[type="text"]) label {\n  flex-wrap: wrap;\n}\n\n.vx-settings-option input[type="text"] {\n  width: min(100%, 26ch);\n  box-sizing: border-box;\n}\n\n#vx-settings-dialog p {\n  margin: 4px 0 0;\n  line-height: 1.45;\n}\n\n#vx-settings-dialog .vx-settings-notice {\n  margin: 0 0 12px;\n}\n\n.vx-settings-backup-actions {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 8px;\n  margin-top: 8px;\n}\n\n#vx-settings-dialog .v2p-modal-header,\n#vx-settings-dialog .v2p-modal-footer {\n  flex-shrink: 0;\n}\n\n#vx-settings-dialog .v2p-modal-footer [role="status"] {\n  min-width: 0;\n  margin: 0 auto 0 0;\n}\n\n#vx-settings-dialog .v2p-modal-footer button {\n  flex: none;\n}\n\n@media (max-width: 620px) {\n  .vx-settings-grid {\n    grid-template-columns: 1fr;\n  }\n\n  #vx-settings-dialog .v2p-modal-header {\n    flex-wrap: wrap;\n  }\n}\n\n.vx-tag-editor-dialog {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n\n.vx-tag-editor-dialog .v2p-modal-main {\n  width: min(100%, 800px);\n  height: auto;\n  max-height: 100%;\n}\n\n.vx-tag-editor-dialog .v2p-tag-input-wrapper {\n  padding: 20px;\n}\n\n.v2p-tag-input-wrapper textarea {\n  display: block;\n  box-sizing: border-box;\n  width: 100%;\n  margin-top: 8px;\n}\n\n.v2p-tag-input-wrapper [role="alert"]:empty {\n  display: none;\n}\n\n.vx-settings-tag-manager {\n  margin-top: 14px;\n}\n\n.vx-settings-tag-manager summary {\n  cursor: pointer;\n  font-weight: 600;\n}\n\n.vx-tag-manager > label {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 8px;\n  align-items: center;\n  margin-block: 10px;\n}\n\n.vx-tag-manager input {\n  min-width: 0;\n  max-width: 100%;\n}\n\n.vx-tag-list {\n  margin: 10px 0;\n  padding: 0;\n  list-style: none;\n  overflow-wrap: anywhere;\n}\n\n.vx-tag-list .cell {\n  display: flex;\n  gap: 12px;\n  align-items: center;\n  justify-content: space-between;\n  padding-inline: 0;\n}\n';
+  var styles_default = '[hidden] {\n  display: none !important;\n}\n\n.item_title:has(+ .vx-preview-visible) {\n  display: inline;\n}\n\n.v2p-topic-preview-btn.vx-preview-visible {\n  margin-inline-start: 8px;\n  padding: 1px 6px;\n  visibility: visible;\n}\n\n.thank_area.v2p-controls {\n  display: inline-flex;\n}\n\n.thank_area.v2p-controls > a {\n  visibility: inherit;\n}\n\n.vx-page-start {\n  display: block;\n  height: 0;\n  scroll-margin-top: 12px;\n}\n\n.reply-group .v2p-reply-content {\n  --bg-reply: var(--box-background-alt-color);\n}\n\n.vx-member-popup .v2p-member-topic-item-row:not(:hover, :focus-within) .v2p-topic-preview-btn {\n  display: none;\n}\n\n.vx-member-popup .v2p-member-topic-item-row:focus-within .v2p-topic-preview-btn {\n  max-width: none;\n  max-height: none;\n  visibility: visible;\n}\n\n#vx-settings-dialog {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n\n#vx-settings-dialog .v2p-modal-main {\n  width: 100%;\n  max-width: 780px;\n  height: auto;\n  max-height: 100%;\n}\n\n#vx-settings-dialog .v2p-modal-content {\n  min-height: 0;\n  padding: 14px;\n}\n\n#vx-settings-dialog fieldset {\n  min-inline-size: 0;\n  margin: 0 0 12px;\n  padding: 10px 12px 12px;\n  border: 1px solid var(--box-border-color);\n  border-radius: var(--box-border-radius);\n}\n\n#vx-settings-dialog legend {\n  padding-inline: 4px;\n  font-weight: 600;\n}\n\n.vx-settings-grid {\n  display: grid;\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n  gap: 12px 20px;\n}\n\n.vx-settings-option label {\n  display: flex;\n  gap: 8px;\n  align-items: center;\n  justify-content: space-between;\n  font-weight: 600;\n}\n\n.vx-settings-option input {\n  flex: 0 0 auto;\n  margin: 0;\n}\n\n.vx-settings-option select {\n  min-width: 0;\n  max-width: 100%;\n}\n\n.vx-settings-option input[type="number"] {\n  width: 4ch;\n}\n\n.vx-settings-option:has(input[type="text"]) {\n  grid-column: 1 / -1;\n}\n\n.vx-settings-option:has(input[type="text"]) label {\n  flex-wrap: wrap;\n}\n\n.vx-settings-option input[type="text"] {\n  width: min(100%, 26ch);\n  box-sizing: border-box;\n}\n\n#vx-settings-dialog p {\n  margin: 4px 0 0;\n  line-height: 1.45;\n}\n\n#vx-settings-dialog .vx-settings-notice {\n  margin: 0 0 12px;\n}\n\n.vx-settings-backup-actions {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 8px;\n  margin-top: 8px;\n}\n\n#vx-settings-dialog .v2p-modal-header,\n#vx-settings-dialog .v2p-modal-footer {\n  flex-shrink: 0;\n}\n\n#vx-settings-dialog .v2p-modal-footer [role="status"] {\n  min-width: 0;\n  margin: 0 auto 0 0;\n}\n\n#vx-settings-dialog .v2p-modal-footer button {\n  flex: none;\n}\n\n@media (max-width: 620px) {\n  .vx-settings-grid {\n    grid-template-columns: 1fr;\n  }\n\n  #vx-settings-dialog .v2p-modal-header {\n    flex-wrap: wrap;\n  }\n}\n\n.vx-tag-editor-dialog {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n\n.vx-tag-editor-dialog .v2p-modal-main {\n  width: min(100%, 800px);\n  height: auto;\n  max-height: 100%;\n}\n\n.vx-tag-editor-dialog .v2p-tag-input-wrapper {\n  padding: 20px;\n}\n\n.v2p-tag-input-wrapper :is(textarea, input),\n.vx-tag-manager input[type="search"],\n.vx-settings-option select {\n  box-sizing: border-box;\n  min-width: 0;\n  width: 100%;\n  padding: 7px 9px;\n  border: 1px solid var(--box-border-color);\n  border-radius: var(--v2p-input-radius);\n  color: var(--v2p-color-font-primary);\n  font: inherit;\n  background: var(--v2p-color-bg-input);\n}\n\n.vx-settings-option select {\n  width: auto;\n  flex-shrink: 1;\n}\n\n.v2p-tag-input-wrapper :is(textarea, input):focus-visible,\n.vx-tag-manager input[type="search"]:focus-visible,\n.vx-settings-option select:focus-visible {\n  outline: 2px solid var(--v2p-color-font-tertiary);\n  outline-offset: 1px;\n}\n\n.v2p-tag-input-wrapper [role="alert"]:empty {\n  display: none;\n}\n\n.vx-settings-tag-manager {\n  margin: 0 0 12px;\n  padding: 12px;\n  border: 1px solid var(--box-border-color);\n  border-radius: var(--box-border-radius);\n}\n\n.vx-settings-tag-manager summary {\n  cursor: pointer;\n  font-weight: 600;\n}\n\n.vx-tag-toolbar,\n.vx-tag-entry,\n.vx-tag-actions,\n.vx-tag-field {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 8px;\n  align-items: center;\n}\n\n.vx-tag-toolbar {\n  justify-content: space-between;\n  margin-block: 10px;\n}\n\n.vx-tag-toolbar label {\n  display: grid;\n  flex: 1 1 18em;\n  min-width: 0;\n  gap: 4px;\n}\n\n#vx-settings-dialog .vx-tag-capacity,\n#vx-settings-dialog .vx-storage-help {\n  margin-block: 8px;\n  color: var(--v2p-color-font-secondary);\n}\n\n.vx-tag-count,\n.vx-tag-chips li {\n  padding: 3px 8px;\n  border-radius: 12px;\n  background: var(--button-background-hover-color);\n}\n\n.vx-tag-editor:not(:empty) {\n  margin-top: 10px;\n  padding: 12px;\n  border: 1px solid var(--box-border-color);\n  border-radius: var(--box-border-radius);\n  background: var(--box-background-alt-color);\n}\n\n.vx-tag-editor h3 {\n  margin: 0;\n  overflow-wrap: anywhere;\n}\n\n.vx-tag-editor > .vx-tag-actions {\n  justify-content: flex-end;\n  margin-top: 12px;\n}\n\n.vx-tag-fields {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));\n  gap: 8px;\n  max-height: 240px;\n  overflow-y: auto;\n}\n\n.vx-tag-fields:not(:empty) {\n  padding: 2px;\n}\n\n.vx-tag-field {\n  flex-wrap: nowrap;\n}\n\n.vx-tag-field textarea {\n  resize: none;\n}\n\n.vx-tag-entry {\n  align-items: flex-start;\n  margin-top: 8px;\n}\n\n.vx-tag-entry textarea {\n  flex: 1 1 16em;\n  resize: vertical;\n}\n\n.vx-tag-list {\n  display: grid;\n  gap: 8px;\n  margin: 12px 0;\n  padding: 0;\n  list-style: none;\n  overflow-wrap: anywhere;\n}\n\n.vx-tag-row,\n.vx-tag-empty {\n  padding: 10px;\n  border: 1px solid var(--box-border-color);\n  border-radius: var(--box-border-radius);\n  background: var(--box-background-color);\n}\n\n.vx-tag-row {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 12px;\n  align-items: center;\n  justify-content: space-between;\n}\n\n.vx-tag-member {\n  flex: 1 1 14em;\n  min-width: 0;\n}\n\n.vx-tag-profile {\n  font-weight: 600;\n  text-decoration: underline;\n  text-underline-offset: 0.16em;\n}\n\n.vx-tag-chips {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 5px;\n  margin: 6px 0 0;\n  padding: 0;\n  list-style: none;\n}\n\n.vx-tag-chips li {\n  box-sizing: border-box;\n  max-width: 100%;\n  font-size: 12px;\n}\n\n.vx-tag-actions .vx-tag-delete.normal.button {\n  color: color-mix(in srgb, var(--v2p-color-error) 70%, var(--v2p-color-font-primary));\n}\n\n.vx-tag-actions .vx-tag-delete.normal.button:hover {\n  border-color: var(--v2p-color-error);\n}\n\n.vx-tags {\n  min-width: 0;\n  max-width: min(300px, 100%);\n  gap: 3px;\n}\n\n.vx-tags-text {\n  overflow: hidden;\n  min-width: 0;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.vx-upload-record {\n  display: flex;\n  gap: 12px;\n  align-items: center;\n}\n\n.vx-upload-record-preview {\n  display: flex;\n  flex: 0 0 min(112px, 32%);\n  height: 80px;\n  overflow: hidden;\n  border: 1px solid var(--box-border-color);\n  border-radius: var(--box-border-radius);\n  background: var(--box-background-alt-color);\n}\n\n.vx-upload-record-preview img {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n}\n\n.vx-upload-record-details {\n  min-width: 0;\n  overflow-wrap: anywhere;\n}\n';
 
   // src/i18n.js
   var messages = {
+    sourceTopic: [
+      "Source topic",
+      "\u6765\u6E90\u4E3B\u9898",
+      "\u5143\u306E\u30C8\u30D4\u30C3\u30AF",
+      "\uC6D0\uBCF8 \uC8FC\uC81C"
+    ],
+    addTag: [
+      "Add tags",
+      "\u6DFB\u52A0\u6807\u7B7E",
+      "\u30BF\u30B0\u3092\u8FFD\u52A0",
+      "\uD0DC\uADF8 \uCD94\uAC00"
+    ],
+    tagEntry: [
+      "Enter tags separated by commas or line breaks",
+      "\u8F93\u5165\u6807\u7B7E\uFF0C\u53EF\u7528\u9017\u53F7\u6216\u6362\u884C\u5206\u9694",
+      "\u30BF\u30B0\u3092\u30AB\u30F3\u30DE\u307E\u305F\u306F\u6539\u884C\u3067\u533A\u5207\u3063\u3066\u5165\u529B",
+      "\uD0DC\uADF8\uB97C \uC27C\uD45C \uB610\uB294 \uC904\uBC14\uAFC8\uC73C\uB85C \uAD6C\uBD84\uD574 \uC785\uB825"
+    ],
+    editableTag: ["Tag {0}", "\u7B2C {0} \u4E2A\u6807\u7B7E", "\u30BF\u30B0 {0}", "\uD0DC\uADF8 {0}"],
+    removeTag: [
+      "Remove tag {0}",
+      "\u79FB\u9664\u7B2C {0} \u4E2A\u6807\u7B7E",
+      "\u30BF\u30B0 {0} \u3092\u524A\u9664",
+      "\uD0DC\uADF8 {0} \uC81C\uAC70"
+    ],
+    remove: ["Remove", "\u79FB\u9664", "\u524A\u9664", "\uC81C\uAC70"],
+    tagUsage: [
+      "{0} of {1} tags",
+      "{0} / {1} \u4E2A\u6807\u7B7E",
+      "\u30BF\u30B0 {0} / {1} \u500B",
+      "\uD0DC\uADF8 {0} / {1}\uAC1C"
+    ],
+    language: [
+      "Interface language",
+      "\u754C\u9762\u8BED\u8A00",
+      "\u8868\u793A\u8A00\u8A9E",
+      "\uC778\uD130\uD398\uC774\uC2A4 \uC5B8\uC5B4"
+    ],
+    languageHelp: [
+      "Applies to V2EX Lite after saving and refreshing.",
+      "\u4FDD\u5B58\u5E76\u5237\u65B0\u540E\u5E94\u7528\u5230 V2EX Lite \u754C\u9762\u3002",
+      "\u4FDD\u5B58\u3057\u3066\u518D\u8AAD\u307F\u8FBC\u307F\u3059\u308B\u3068\u3001V2EX Lite \u306E\u8868\u793A\u306B\u53CD\u6620\u3055\u308C\u307E\u3059\u3002",
+      "\uC800\uC7A5 \uD6C4 \uC0C8\uB85C\uACE0\uCE68\uD558\uBA74 V2EX Lite \uD654\uBA74\uC5D0 \uC801\uC6A9\uB429\uB2C8\uB2E4."
+    ],
+    followSite: [
+      "Follow V2EX",
+      "\u8DDF\u968F V2EX",
+      "V2EX \u306B\u5408\u308F\u305B\u308B",
+      "V2EX \uC124\uC815 \uB530\uB974\uAE30"
+    ],
+    storage: [
+      "Data storage",
+      "\u6570\u636E\u5B58\u50A8",
+      "\u30C7\u30FC\u30BF\u306E\u4FDD\u5B58",
+      "\uB370\uC774\uD130 \uC800\uC7A5"
+    ],
+    storageHelp: [
+      "Settings and member tags are saved in the userscript manager on this browser profile. Tags are private to this profile and stored by username. The script does not sync this data across devices or save it to your V2EX account.",
+      "\u811A\u672C\u914D\u7F6E\u548C\u7528\u6237\u6807\u7B7E\u4FDD\u5B58\u5728\u5F53\u524D\u6D4F\u89C8\u5668\u914D\u7F6E\u6587\u4EF6\u7684\u811A\u672C\u7BA1\u7406\u5668\u4E2D\u3002\u6807\u7B7E\u6309\u7528\u6237\u540D\u4FDD\u5B58\uFF0C\u4EC5\u5728\u672C\u5730\u663E\u793A\u3002\u811A\u672C\u4E0D\u4F1A\u8DE8\u8BBE\u5907\u540C\u6B65\uFF0C\u4E5F\u4E0D\u4F1A\u5C06\u8FD9\u4E9B\u6570\u636E\u5199\u5165 V2EX \u8D26\u53F7\u3002",
+      "\u8A2D\u5B9A\u3068\u30E6\u30FC\u30B6\u30FC\u30BF\u30B0\u306F\u3001\u3053\u306E\u30D6\u30E9\u30A6\u30B6\u30FC\u30D7\u30ED\u30D5\u30A1\u30A4\u30EB\u306E\u30E6\u30FC\u30B6\u30FC\u30B9\u30AF\u30EA\u30D7\u30C8\u7BA1\u7406\u30C4\u30FC\u30EB\u306B\u4FDD\u5B58\u3055\u308C\u307E\u3059\u3002\u30BF\u30B0\u306F\u30E6\u30FC\u30B6\u30FC\u540D\u3054\u3068\u306B\u30ED\u30FC\u30AB\u30EB\u306B\u4FDD\u5B58\u3055\u308C\u3001\u30C7\u30D0\u30A4\u30B9\u9593\u3084 V2EX \u30A2\u30AB\u30A6\u30F3\u30C8\u306B\u306F\u540C\u671F\u3055\u308C\u307E\u305B\u3093\u3002",
+      "\uC124\uC815\uACFC \uC0AC\uC6A9\uC790 \uD0DC\uADF8\uB294 \uD604\uC7AC \uBE0C\uB77C\uC6B0\uC800 \uD504\uB85C\uD544\uC758 \uC0AC\uC6A9\uC790 \uC2A4\uD06C\uB9BD\uD2B8 \uAD00\uB9AC\uC790\uC5D0 \uC800\uC7A5\uB429\uB2C8\uB2E4. \uD0DC\uADF8\uB294 \uC0AC\uC6A9\uC790 \uC774\uB984\uBCC4\uB85C \uC774 \uD504\uB85C\uD544\uC5D0\uB9CC \uC800\uC7A5\uB418\uBA70 \uAE30\uAE30 \uAC04 \uB610\uB294 V2EX \uACC4\uC815\uC5D0 \uB3D9\uAE30\uD654\uB418\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    ],
+    tagCapacity: [
+      "Up to {0} tags per member, {1} characters per tag. The total number of members is limited by local storage. Each backup import accepts up to {2} members.",
+      "\u6BCF\u4F4D\u7528\u6237\u6700\u591A {0} \u4E2A\u6807\u7B7E\uFF0C\u6BCF\u4E2A\u6807\u7B7E\u6700\u591A {1} \u4E2A\u5B57\u7B26\u3002\u53EF\u6807\u8BB0\u7684\u7528\u6237\u603B\u6570\u53D6\u51B3\u4E8E\u811A\u672C\u7BA1\u7406\u5668\u7684\u672C\u5730\u5B58\u50A8\u5BB9\u91CF\u3002\u5355\u4EFD\u5907\u4EFD\u6700\u591A\u5BFC\u5165 {2} \u4F4D\u7528\u6237\u3002",
+      "\u30E6\u30FC\u30B6\u30FC\u3054\u3068\u306B\u6700\u5927 {0} \u500B\u3001\u30BF\u30B0\u3054\u3068\u306B\u6700\u5927 {1} \u6587\u5B57\u3067\u3059\u3002\u767B\u9332\u3067\u304D\u308B\u30E6\u30FC\u30B6\u30FC\u7DCF\u6570\u306F\u30ED\u30FC\u30AB\u30EB\u30B9\u30C8\u30EC\u30FC\u30B8\u306E\u5BB9\u91CF\u306B\u3088\u308A\u307E\u3059\u30021 \u3064\u306E\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u304B\u3089\u6700\u5927 {2} \u4EBA\u3092\u30A4\u30F3\u30DD\u30FC\u30C8\u3067\u304D\u307E\u3059\u3002",
+      "\uC0AC\uC6A9\uC790\uB2F9 \uD0DC\uADF8\uB294 \uCD5C\uB300 {0}\uAC1C, \uD0DC\uADF8\uB2F9 \uAE00\uC790\uB294 \uCD5C\uB300 {1}\uC790\uC785\uB2C8\uB2E4. \uD0DC\uADF8\uB97C \uB2EC \uC218 \uC788\uB294 \uC0AC\uC6A9\uC790 \uC218\uB294 \uB85C\uCEEC \uC800\uC7A5 \uACF5\uAC04\uC5D0 \uB530\uB77C \uB2EC\uB77C\uC9D1\uB2C8\uB2E4. \uBC31\uC5C5 \uD30C\uC77C \uD558\uB098\uB2F9 \uCD5C\uB300 {2}\uBA85\uC758 \uD0DC\uADF8\uB97C \uAC00\uC838\uC62C \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+    ],
+    taggedCount: [
+      "{0} tagged members",
+      "\u5DF2\u6807\u8BB0 {0} \u4F4D\u7528\u6237",
+      "\u30BF\u30B0\u4ED8\u304D\u30E6\u30FC\u30B6\u30FC {0} \u4EBA",
+      "\uD0DC\uADF8\uAC00 \uC788\uB294 \uC0AC\uC6A9\uC790 {0}\uBA85"
+    ],
+    deleteTags: ["Delete", "\u5220\u9664", "\u524A\u9664", "\uC0AD\uC81C"],
+    deleteTagsFor: [
+      "Delete tags for {0}",
+      "\u5220\u9664 {0} \u7684\u6807\u7B7E",
+      "{0} \u306E\u30BF\u30B0\u3092\u524A\u9664",
+      "{0}\uB2D8\uC758 \uD0DC\uADF8 \uC0AD\uC81C"
+    ],
+    confirmDeleteTags: [
+      "Delete all tags for {0}?",
+      "\u5220\u9664 {0} \u7684\u5168\u90E8\u6807\u7B7E\u5417\uFF1F",
+      "{0} \u306E\u30BF\u30B0\u3092\u3059\u3079\u3066\u524A\u9664\u3057\u307E\u3059\u304B\uFF1F",
+      "{0}\uB2D8\uC758 \uD0DC\uADF8\uB97C \uBAA8\uB450 \uC0AD\uC81C\uD560\uAE4C\uC694?"
+    ],
+    tagsDeleted: [
+      "Deleted tags for {0}.",
+      "\u5DF2\u5220\u9664 {0} \u7684\u6807\u7B7E\u3002",
+      "{0} \u306E\u30BF\u30B0\u3092\u524A\u9664\u3057\u307E\u3057\u305F\u3002",
+      "{0}\uB2D8\uC758 \uD0DC\uADF8\uB97C \uC0AD\uC81C\uD588\uC2B5\uB2C8\uB2E4."
+    ],
+    tagDeleteFailed: [
+      "Could not delete tags for {0}. Check the userscript manager\u2019s storage and try again.",
+      "\u672A\u80FD\u5220\u9664 {0} \u7684\u6807\u7B7E\uFF0C\u8BF7\u68C0\u67E5\u811A\u672C\u7BA1\u7406\u5668\u7684\u5B58\u50A8\u8BBE\u7F6E\u540E\u91CD\u8BD5\u3002",
+      "{0} \u306E\u30BF\u30B0\u3092\u524A\u9664\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u30E6\u30FC\u30B6\u30FC\u30B9\u30AF\u30EA\u30D7\u30C8\u7BA1\u7406\u30C4\u30FC\u30EB\u306E\u30B9\u30C8\u30EC\u30FC\u30B8\u8A2D\u5B9A\u3092\u78BA\u8A8D\u3057\u3066\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+      "{0}\uB2D8\uC758 \uD0DC\uADF8\uB97C \uC0AD\uC81C\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uC0AC\uC6A9\uC790 \uC2A4\uD06C\uB9BD\uD2B8 \uAD00\uB9AC\uC790\uC758 \uC800\uC7A5 \uC124\uC815\uC744 \uD655\uC778\uD55C \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694."
+    ],
     memberTimeout: [
       "Member profile timed out. Try again later.",
       "\u52A0\u8F7D\u8D85\u65F6\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5\u3002",
@@ -434,10 +533,10 @@ SOFTWARE.
       "\uBC31\uC5C5\uC5D0\uC11C \uC0AC\uC6A9\uC790 \uD0DC\uADF8\uB97C \uCC3E\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
     ],
     backupTooMany: [
-      "A backup can contain up to 20,000 members.",
-      "\u5907\u4EFD\u4E2D\u7684\u7528\u6237\u6570\u4E0D\u80FD\u8D85\u8FC7 20,000\u3002",
-      "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u306E\u30E6\u30FC\u30B6\u30FC\u6570\u306F\u6700\u5927 20,000 \u4EBA\u3067\u3059\u3002",
-      "\uBC31\uC5C5\uC5D0 \uCD5C\uB300 20,000\uBA85\uC758 \uC0AC\uC6A9\uC790\uB97C \uD3EC\uD568\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+      "A backup can contain up to {0} members.",
+      "\u5907\u4EFD\u4E2D\u7684\u7528\u6237\u6570\u4E0D\u80FD\u8D85\u8FC7 {0}\u3002",
+      "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u306E\u30E6\u30FC\u30B6\u30FC\u6570\u306F\u6700\u5927 {0} \u4EBA\u3067\u3059\u3002",
+      "\uBC31\uC5C5\uC5D0 \uCD5C\uB300 {0}\uBA85\uC758 \uC0AC\uC6A9\uC790\uB97C \uD3EC\uD568\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
     ],
     invalidJSON: [
       "Invalid JSON format.",
@@ -605,12 +704,6 @@ SOFTWARE.
     ],
     edit: ["Edit", "\u7F16\u8F91", "\u7DE8\u96C6", "\uD3B8\uC9D1"],
     cancel: ["Cancel", "\u53D6\u6D88", "\u30AD\u30E3\u30F3\u30BB\u30EB", "\uCDE8\uC18C"],
-    clearTags: [
-      "Clear the field and save to remove all tags for this member.",
-      "\u6E05\u7A7A\u5E76\u4FDD\u5B58\u53EF\u79FB\u9664\u6B64\u7528\u6237\u7684\u5168\u90E8\u6807\u7B7E\u3002",
-      "\u7A7A\u6B04\u3067\u4FDD\u5B58\u3059\u308B\u3068\u3001\u3053\u306E\u30E6\u30FC\u30B6\u30FC\u306E\u30BF\u30B0\u3092\u3059\u3079\u3066\u524A\u9664\u3057\u307E\u3059\u3002",
-      "\uC785\uB825\uB780\uC744 \uBE44\uC6B4 \uB4A4 \uC800\uC7A5\uD558\uBA74 \uC774 \uC0AC\uC6A9\uC790\uC758 \uD0DC\uADF8\uAC00 \uBAA8\uB450 \uC81C\uAC70\uB429\uB2C8\uB2E4."
-    ],
     tagsSaved: [
       "Tags saved for {0}.",
       "\u5DF2\u4FDD\u5B58 {0} \u7684\u6807\u7B7E\u3002",
@@ -618,28 +711,28 @@ SOFTWARE.
       "{0}\uB2D8\uC758 \uD0DC\uADF8\uB97C \uC800\uC7A5\uD588\uC2B5\uB2C8\uB2E4."
     ],
     tagInstructions: [
-      "Separate tags with commas. Up to 20 tags.",
-      "\u591A\u4E2A\u6807\u7B7E\u4EE5\u9017\u53F7\u5206\u9694\uFF0C\u6700\u591A 20 \u4E2A\u3002",
-      "\u30BF\u30B0\u306F\u30AB\u30F3\u30DE\u3067\u533A\u5207\u308A\u307E\u3059\u3002\u6700\u5927 20 \u500B\u3067\u3059\u3002",
-      "\uD0DC\uADF8\uB294 \uC27C\uD45C\uB85C \uAD6C\uBD84\uD569\uB2C8\uB2E4. \uCD5C\uB300 20\uAC1C\uC785\uB2C8\uB2E4."
+      "Separate new tags with commas or line breaks. Up to {0} tags per member.",
+      "\u65B0\u589E\u591A\u4E2A\u6807\u7B7E\u65F6\u53EF\u7528\u9017\u53F7\u6216\u6362\u884C\u5206\u9694\uFF0C\u6BCF\u4F4D\u7528\u6237\u6700\u591A {0} \u4E2A\u3002",
+      "\u65B0\u3057\u3044\u30BF\u30B0\u306F\u30AB\u30F3\u30DE\u307E\u305F\u306F\u6539\u884C\u3067\u533A\u5207\u308A\u307E\u3059\u3002\u30E6\u30FC\u30B6\u30FC\u3054\u3068\u306B\u6700\u5927 {0} \u500B\u3067\u3059\u3002",
+      "\uC0C8 \uD0DC\uADF8\uB294 \uC27C\uD45C \uB610\uB294 \uC904\uBC14\uAFC8\uC73C\uB85C \uAD6C\uBD84\uD558\uC138\uC694. \uC0AC\uC6A9\uC790\uB2F9 \uCD5C\uB300 {0}\uAC1C\uC785\uB2C8\uB2E4."
     ],
     saveTags: [
       "Save tags",
-      "\u786E\u8BA4\u8BBE\u7F6E",
+      "\u4FDD\u5B58\u6807\u7B7E",
       "\u30BF\u30B0\u3092\u4FDD\u5B58",
       "\uD0DC\uADF8 \uC800\uC7A5"
     ],
     tagLimit: [
-      "Each member can have up to 20 tags.",
-      "\u6BCF\u4E2A\u7528\u6237\u6700\u591A\u8BBE\u7F6E 20 \u4E2A\u6807\u7B7E\u3002",
-      "\u30E6\u30FC\u30B6\u30FC\u3054\u3068\u306B\u6700\u5927 20 \u500B\u306E\u30BF\u30B0\u3092\u8A2D\u5B9A\u3067\u304D\u307E\u3059\u3002",
-      "\uC0AC\uC6A9\uC790\uB2F9 \uD0DC\uADF8\uB97C \uCD5C\uB300 20\uAC1C \uC124\uC815\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+      "Each member can have up to {0} tags.",
+      "\u6BCF\u4F4D\u7528\u6237\u6700\u591A\u8BBE\u7F6E {0} \u4E2A\u6807\u7B7E\u3002",
+      "\u30E6\u30FC\u30B6\u30FC\u3054\u3068\u306B\u6700\u5927 {0} \u500B\u306E\u30BF\u30B0\u3092\u8A2D\u5B9A\u3067\u304D\u307E\u3059\u3002",
+      "\uC0AC\uC6A9\uC790\uB2F9 \uD0DC\uADF8\uB97C \uCD5C\uB300 {0}\uAC1C \uC124\uC815\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
     ],
     tagFormat: [
-      "Invalid tag. Each tag can have up to 80 characters.",
-      "\u6807\u7B7E\u683C\u5F0F\u4E0D\u6B63\u786E\uFF0C\u5355\u4E2A\u6807\u7B7E\u6700\u591A 80 \u4E2A\u5B57\u7B26\u3002",
-      "\u30BF\u30B0\u306E\u5F62\u5F0F\u304C\u7121\u52B9\u3067\u3059\u3002\u30BF\u30B0\u306F 80 \u6587\u5B57\u4EE5\u4E0B\u306B\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
-      "\uD0DC\uADF8 \uD615\uC2DD\uC774 \uC798\uBABB\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uD0DC\uADF8\uB294 \uCD5C\uB300 80\uC790\uC785\uB2C8\uB2E4."
+      "Invalid tag. Each tag can have up to {0} characters.",
+      "\u6807\u7B7E\u683C\u5F0F\u6709\u8BEF\uFF0C\u6BCF\u4E2A\u6807\u7B7E\u6700\u591A {0} \u4E2A\u5B57\u7B26\u3002",
+      "\u30BF\u30B0\u306E\u5F62\u5F0F\u304C\u7121\u52B9\u3067\u3059\u3002\u30BF\u30B0\u306F {0} \u6587\u5B57\u4EE5\u4E0B\u306B\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+      "\uD0DC\uADF8 \uD615\uC2DD\uC774 \uC798\uBABB\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uAC01 \uD0DC\uADF8\uB294 \uCD5C\uB300 {0}\uC790\uC785\uB2C8\uB2E4."
     ],
     badUsername: [
       "Invalid username.",
@@ -950,6 +1043,17 @@ SOFTWARE.
       "\uC81C\uCD9C\uD558\uAE30 \uC804\uC5D0 \uC5C5\uB85C\uB4DC\uB97C \uAE30\uB2E4\uB9AC\uAC70\uB098 \uC644\uB8CC\uB418\uC9C0 \uC54A\uC740 \uC790\uB9AC \uD45C\uC2DC\uC790\uB97C \uC0AD\uC81C\uD558\uC138\uC694."
     ]
   };
+  var DEFAULT_LANGUAGE = "zh";
+  var LANGUAGE_NAMES = Object.freeze({
+    zh: "\u7B80\u4F53\u4E2D\u6587",
+    en: "English",
+    ja: "\u65E5\u672C\u8A9E",
+    ko: "\uD55C\uAD6D\uC5B4"
+  });
+  var preference = DEFAULT_LANGUAGE;
+  function setLanguage(language) {
+    preference = language;
+  }
   function siteLocale(doc = globalThis.document) {
     const cookie = /(?:^|;\s*)V2EX_LANG=([^;]*)/i.exec(doc?.cookie ?? "")?.[1];
     const locale = (cookie ?? doc?.documentElement.lang ?? "").toLowerCase();
@@ -958,9 +1062,11 @@ SOFTWARE.
     if (/^ko(?:kr|[-_]|$)/.test(locale)) return "ko";
     return "zh";
   }
+  function interfaceLanguage() {
+    return preference === "site" ? siteLocale() : preference;
+  }
   function t(key, ...args) {
-    const locale = siteLocale();
-    const index = { en: 0, zh: 1, ja: 2, ko: 3 }[locale];
+    const index = { en: 0, zh: 1, ja: 2, ko: 3 }[interfaceLanguage()];
     return messages[key][index].replace(/\{(\d+)\}/g, (_, i) => args[Number(i)] ?? "");
   }
 
@@ -3026,7 +3132,9 @@ SOFTWARE.
   // src/storage.js
   var PREFIX = "v2ex-lite:";
   var DEFAULT_IMGUR_CLIENT_ID = "3107b9ef8b316f3";
+  var TAG_LIMITS = Object.freeze({ perMember: 20, length: 80, importMembers: 2e4 });
   var DEFAULTS = Object.freeze({
+    language: DEFAULT_LANGUAGE,
     privacy: false,
     newTab: true,
     preview: true,
@@ -3044,6 +3152,9 @@ SOFTWARE.
   function normalizeOptions(input = {}) {
     const output = { ...DEFAULTS };
     if (!input || typeof input !== "object") return output;
+    if (typeof input.language === "string" && (input.language === "site" || Object.hasOwn(LANGUAGE_NAMES, input.language))) {
+      output.language = input.language;
+    }
     for (const key of Object.keys(DEFAULTS)) {
       if (typeof DEFAULTS[key] === "boolean" && typeof input[key] === "boolean")
         output[key] = input[key];
@@ -3058,11 +3169,13 @@ SOFTWARE.
   }
   function normalizeTags(value) {
     const raw = typeof value === "string" ? value.split(/[,\uFF0C\n]/) : value;
-    if (!Array.isArray(raw) || raw.length > 20) throw new Error(t("tagLimit"));
+    if (!Array.isArray(raw) || raw.length > TAG_LIMITS.perMember)
+      throw new Error(t("tagLimit", TAG_LIMITS.perMember));
     const result = [];
     for (const item of raw) {
       const text = typeof item === "string" ? item.trim() : item?.name?.trim?.();
-      if (typeof text !== "string" || text.length > 80) throw new Error(t("tagFormat"));
+      if (typeof text !== "string" || text.length > TAG_LIMITS.length)
+        throw new Error(t("tagFormat", TAG_LIMITS.length));
       if (text && !result.includes(text)) result.push(text);
     }
     return result;
@@ -3076,7 +3189,8 @@ SOFTWARE.
     if (!source || typeof source !== "object" || Array.isArray(source))
       throw new Error(t("backupNoTags"));
     const entries = Object.entries(source);
-    if (entries.length > 2e4) throw new Error(t("backupTooMany"));
+    if (entries.length > TAG_LIMITS.importMembers)
+      throw new Error(t("backupTooMany", TAG_LIMITS.importMembers.toLocaleString("en")));
     const members = /* @__PURE__ */ Object.create(null);
     for (const [name, entry] of entries) {
       if (!validName.test(name)) throw new Error(`${t("badUsername")} ${name}`);
@@ -3237,27 +3351,93 @@ SOFTWARE.
   // src/members.js
   function createMembers(store, options, topics, currentAccount) {
     const registered = /* @__PURE__ */ new WeakSet(), byName = /* @__PURE__ */ new Map();
+    function updateTags(name, tags) {
+      store.setTags(name, tags);
+      draw(name);
+    }
     function createTagEditor(name, onSave, tags = store.getTags(name)) {
       const form = element("div", void 0, "v2p-tag-input-wrapper");
-      const label = element("label", `${t("tagInstructions")} ${t("clearTags")}`);
-      const input = element("textarea");
-      input.className = "sl";
-      input.rows = 4;
-      input.value = tags.join(", ");
-      label.append(input);
+      const toolbar = element("div", void 0, "vx-tag-toolbar");
+      const count = element("span", void 0, "vx-tag-count");
+      toolbar.append(element("strong", t("tags")), count);
+      const fields = element("div", void 0, "vx-tag-fields");
+      const hint = element("p", t("tagInstructions", TAG_LIMITS.perMember));
+      hint.id = `vx-tag-hint-${crypto.randomUUID()}`;
+      const input = element("textarea", void 0, "sl");
+      input.rows = 2;
+      input.placeholder = t("tagEntry");
+      input.setAttribute("aria-label", t("addTag"));
+      input.setAttribute("aria-describedby", hint.id);
+      const entry = element("div", void 0, "vx-tag-entry");
       const error = element("p");
       error.setAttribute("role", "alert");
-      form.append(label, error);
+      function syncLabels() {
+        count.textContent = t("tagUsage", fields.childElementCount, TAG_LIMITS.perMember);
+        [...fields.children].forEach((row, index) => {
+          row.firstElementChild.setAttribute("aria-label", t("editableTag", index + 1));
+          row.lastElementChild.setAttribute("aria-label", t("removeTag", index + 1));
+        });
+      }
+      function showTags(values) {
+        fields.replaceChildren();
+        for (const tag of values) {
+          const row = element("div", void 0, "vx-tag-field");
+          const field = element("textarea", void 0, "sl");
+          field.rows = 1;
+          field.value = tag;
+          field.maxLength = TAG_LIMITS.length;
+          row.append(
+            field,
+            button(t("remove"), () => {
+              const next = row.nextElementSibling ?? row.previousElementSibling;
+              row.remove();
+              syncLabels();
+              error.textContent = "";
+              (next?.firstElementChild ?? input).focus();
+            })
+          );
+          fields.append(row);
+        }
+        syncLabels();
+      }
+      function readTags() {
+        const values = [...fields.querySelectorAll("textarea")].map((field) => field.value.trim());
+        values.push(...input.value.split(/[,\uFF0C\n]/).map((tag) => tag.trim()));
+        return normalizeTags([...new Set(values.filter(Boolean))]);
+      }
+      const add = button(t("addTag"), () => {
+        try {
+          showTags(readTags());
+          input.value = "";
+          error.textContent = "";
+        } catch (cause) {
+          error.textContent = cause.message;
+        }
+        input.focus();
+      });
       const save = button(t("saveTags"), () => {
         try {
-          store.setTags(name, input.value);
+          updateTags(name, readTags());
         } catch (cause) {
           error.textContent = cause.message;
           return;
         }
-        draw(name);
         onSave();
       });
+      save.classList.add("special");
+      form.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" || event.isComposing || event.shiftKey) return;
+        if (event.target === input) {
+          event.preventDefault();
+          add.click();
+        } else if (event.target.matches?.(".vx-tag-field textarea")) {
+          event.preventDefault();
+        }
+      });
+      form.addEventListener("input", () => error.textContent = "");
+      showTags(tags);
+      entry.append(input, add);
+      form.append(toolbar, fields, hint, entry, error);
       return { form, input, save };
     }
     function edit(name) {
@@ -3277,7 +3457,8 @@ SOFTWARE.
         }
         const tags = store.getTags(name);
         group.replaceChildren();
-        if (tags.length) group.append(element("b", "#"), `\xA0${tags.join("\uFF0C")}`);
+        if (tags.length)
+          group.append(element("b", "#"), element("span", tags.join("\uFF0C"), "vx-tags-text"));
         group.title = tags.join("\uFF0C");
         group.hidden = !tags.length;
       }
@@ -3520,7 +3701,7 @@ SOFTWARE.
       });
       window.addEventListener("scroll", hide2, { passive: true });
     }
-    return { enhance, edit, createTagEditor };
+    return { enhance, edit, createTagEditor, updateTags };
   }
 
   // src/folding.js
@@ -3593,77 +3774,6 @@ SOFTWARE.
       if (!event.persisted) destroy();
     });
     return { enhance, destroy };
-  }
-
-  // src/preview.js
-  function createTopics(options, themeCSS = "") {
-    const seen = /* @__PURE__ */ new WeakSet();
-    return {
-      enhance(root) {
-        for (const link of matching(
-          root,
-          ".item_title a[href], a.topic-link[href], .item_hot_topic_title > a[href], a.v2p-member-topic-item[href]"
-        )) {
-          if (seen.has(link)) continue;
-          seen.add(link);
-          const url = new URL(link.href, location.href);
-          if (url.origin !== location.origin || !/^\/t\/\d+\/?$/.test(url.pathname)) continue;
-          if (options.newTab) {
-            link.target = "_blank";
-            link.rel = "noopener noreferrer";
-          }
-          if (!options.preview) continue;
-          const trigger = owned(
-            button(t("preview"), () => {
-              const dialog = modal(link.textContent);
-              const titleLink = element("a", link.textContent, "v2p-topic-preview-title-link");
-              titleLink.title = link.textContent;
-              titleLink.href = url.href;
-              titleLink.target = options.newTab ? "_blank" : "_self";
-              titleLink.rel = "noopener noreferrer";
-              dialog.title.replaceChildren(titleLink);
-              const original = element("a", t("openTopic"), "normal button special");
-              original.href = url.href;
-              original.target = options.newTab ? "_blank" : "_self";
-              original.rel = "noopener noreferrer";
-              dialog.actions.prepend(original);
-              const frame = element("iframe", void 0, "v2p-topic-preview-frame");
-              frame.title = link.textContent;
-              const previewURL = new URL(url.href);
-              previewURL.searchParams.set("v2p-preview", "1");
-              frame.src = previewURL.href;
-              const wrapper = element("div", void 0, "v2p-topic-preview-wrapper");
-              wrapper.append(frame);
-              dialog.content.append(wrapper);
-              frame.addEventListener("load", () => {
-                try {
-                  const doc = frame.contentDocument;
-                  if (!isV2EXPage(doc)) return;
-                  applyTheme(doc, true);
-                  const style = doc.createElement("style");
-                  style.textContent = themeCSS;
-                  doc.head.append(style);
-                  enhanceEmojis(doc);
-                  createReplyFolding(options.autoFold, doc).enhance(doc);
-                  syncOnce(doc);
-                } catch {
-                }
-              });
-            })
-          );
-          trigger.className = "v2p-topic-preview-btn";
-          const title = link.closest(".item_title");
-          if (title) {
-            trigger.classList.add("vx-preview-visible");
-            title.after(trigger);
-          } else if (link.parentElement.matches(".v2p-member-topic-item-row")) {
-            link.after(trigger);
-          } else if (link.parentElement.matches(".item_hot_topic_title")) {
-            link.parentElement.append(trigger);
-          }
-        }
-      }
-    };
   }
 
   // src/icons.js
@@ -3809,6 +3919,87 @@ SOFTWARE.
       heart.append(icon("heart"));
       image.replaceWith(heart);
     }
+  }
+
+  // src/preview.js
+  function createTopics(options, themeCSS = "") {
+    const seen = /* @__PURE__ */ new WeakSet();
+    return {
+      enhance(root) {
+        for (const link of matching(
+          root,
+          ".item_title a[href], a.topic-link[href], .item_hot_topic_title > a[href], a.v2p-member-topic-item[href]"
+        )) {
+          if (seen.has(link)) continue;
+          seen.add(link);
+          const url = new URL(link.href, location.href);
+          if (url.origin !== location.origin || !/^\/t\/\d+\/?$/.test(url.pathname)) continue;
+          if (options.newTab) {
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+          }
+          if (!options.preview) continue;
+          const trigger = owned(
+            button(t("preview"), () => {
+              const dialog = modal(link.textContent);
+              const titleLink = element("a", link.textContent, "v2p-topic-preview-title-link");
+              titleLink.title = link.textContent;
+              titleLink.href = url.href;
+              titleLink.target = options.newTab ? "_blank" : "_self";
+              titleLink.rel = "noopener noreferrer";
+              dialog.title.replaceChildren(titleLink);
+              const original = element("a", t("openTopic"), "normal button special");
+              original.href = url.href;
+              original.target = options.newTab ? "_blank" : "_self";
+              original.rel = "noopener noreferrer";
+              dialog.actions.prepend(original);
+              const frame = element("iframe", void 0, "v2p-topic-preview-frame");
+              frame.title = link.textContent;
+              const previewURL = new URL(url.href);
+              previewURL.searchParams.set("v2p-preview", "1");
+              frame.src = previewURL.href;
+              const wrapper = element("div", void 0, "v2p-topic-preview-wrapper");
+              wrapper.append(frame);
+              dialog.content.append(wrapper);
+              frame.addEventListener("load", () => {
+                try {
+                  const doc = frame.contentDocument;
+                  if (!isV2EXPage(doc)) return;
+                  applyTheme(doc, true);
+                  const style = doc.createElement("style");
+                  style.textContent = themeCSS;
+                  doc.head.append(style);
+                  enhanceEmojis(doc);
+                  const view = doc.defaultView;
+                  enhanceReplyActions(doc, view);
+                  const observer = new view.MutationObserver((records) => {
+                    for (const { target } of records) {
+                      const area = target.closest(".thank_area");
+                      if (area) enhanceReplyActions(area, view);
+                    }
+                  });
+                  observer.observe(doc.querySelector("#Main"), { childList: true, subtree: true });
+                  view.addEventListener("pagehide", () => observer.disconnect(), { once: true });
+                  createReplyFolding(options.autoFold, doc).enhance(doc);
+                  syncOnce(doc);
+                } catch {
+                }
+              });
+            })
+          );
+          trigger.className = "v2p-topic-preview-btn";
+          const title = link.closest(".item_title");
+          if (title) {
+            trigger.classList.add("vx-preview-visible");
+            title.after(trigger);
+          } else if (link.parentElement.matches(".v2p-member-topic-item-row")) {
+            link.after(trigger);
+          } else if (link.parentElement.matches(".item_hot_topic_title")) {
+            link.parentElement.append(trigger);
+          }
+        }
+      }
+    };
   }
 
   // src/pagination.js
@@ -4414,29 +4605,68 @@ SOFTWARE.
       });
     });
   }
+  function sourceTopicURL(value) {
+    const href = safeURL(value, location.href, true);
+    if (!href) return null;
+    const url = new URL(href);
+    if (!/(^|\.)v2ex\.com$/i.test(url.hostname) || !/^\/t\/\d+\/?$/.test(url.pathname)) return null;
+    return url.origin + url.pathname.replace(/\/$/, "");
+  }
   function openUploadHistory(store) {
     const dialog = modal(t("uploadHistory"));
     const content = element("div", void 0, "v2p-topic-preview");
     const records = store.uploads();
     if (!records.length) content.append(element("p", t("noUploads")));
     for (const record of records) {
-      const row = element("div", void 0, "cell");
-      row.append(element("p", `${record.createdAt} \xB7 ${record.fileName}`));
+      const row = element("div", void 0, "cell vx-upload-record");
+      const details = element("div", void 0, "vx-upload-record-details");
+      details.append(element("p", `${record.createdAt} \xB7 ${record.fileName}`));
       const url = safeURL(record.link, "https://i.imgur.com", true);
-      if (url && new URL(url).hostname === "i.imgur.com") {
+      if (url && new URL(url).origin === "https://i.imgur.com") {
         const link = element("a", url);
         link.href = url;
         link.target = "_blank";
         link.rel = "noopener noreferrer";
-        row.append(link);
+        const preview = link.cloneNode(false);
+        preview.className = "vx-upload-record-preview";
+        const image = element("img");
+        image.alt = record.fileName || t("preview");
+        image.setAttribute("loading", "lazy");
+        image.setAttribute("decoding", "async");
+        image.setAttribute("referrerpolicy", "no-referrer");
+        const thumbnail = new URL(url);
+        thumbnail.pathname = thumbnail.pathname.replace(
+          /^\/([a-z0-9]+)\.(jpe?g|png|gif|webp)$/i,
+          "/$1m.$2"
+        );
+        image.addEventListener("error", () => {
+          if (image.src === url) preview.remove();
+          else image.src = url;
+        });
+        image.src = thumbnail.href;
+        preview.append(image);
+        row.append(preview);
+        details.append(link);
       }
       if (/^[a-z0-9]+$/i.test(record.deleteHash ?? "")) {
         const link = element("a", t("deleteImage"));
         link.href = `https://imgur.com/delete/${record.deleteHash}`;
         link.target = "_blank";
         link.rel = "noopener noreferrer";
-        row.append(" \xB7 ", link);
+        details.append(" \xB7 ", link);
       }
+      const source = sourceTopicURL(record.sourceTopic?.url);
+      if (source) {
+        const context = element("p");
+        const title = record.sourceTopic.title;
+        const link = element("a", typeof title === "string" && title.trim() ? title : source);
+        link.href = source;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        context.append(element("strong", t("sourceTopic")), " ", link);
+        details.append(context);
+      }
+      row.append(details);
       content.append(row);
     }
     dialog.content.append(content);
@@ -4446,6 +4676,11 @@ SOFTWARE.
       'textarea#reply_content, #reply-box textarea, textarea[name="content"]'
     );
     if (!textarea || !options.upload) return;
+    const sourceURL = sourceTopicURL(location.href);
+    const sourceTopic = sourceURL ? {
+      title: document.querySelector("#Main .header h1")?.textContent.trim() || document.title.trim(),
+      url: sourceURL
+    } : null;
     const toolbar = owned(element("div", void 0, "vx-upload"));
     const input = element("input");
     input.type = "file";
@@ -4525,7 +4760,9 @@ ${marker}
               row.append(deletion);
             }
             try {
-              store.recordUpload({ ...result, fileName: file.name || t("pastedImage") });
+              const record = { ...result, fileName: file.name || t("pastedImage") };
+              if (sourceTopic) record.sourceTopic = sourceTopic;
+              store.recordUpload(record);
             } catch {
               row.append(` ${t("uploadRecordFailed")}`);
             }
@@ -4576,15 +4813,29 @@ ${marker}
 
   // src/tag-manager.js
   var pageSize = 50;
-  function createTagManager(store, createTagEditor) {
+  function createTagManager(store, { createTagEditor, updateTags }) {
     const root = element("div", void 0, "vx-tag-manager");
+    const capacity = element(
+      "p",
+      t(
+        "tagCapacity",
+        TAG_LIMITS.perMember,
+        TAG_LIMITS.length,
+        TAG_LIMITS.importMembers.toLocaleString("en")
+      ),
+      "vx-tag-capacity"
+    );
+    const toolbar = element("div", void 0, "vx-tag-toolbar");
     const label = element("label", t("searchTags"));
     const search = element("input");
     search.type = "search";
-    label.append(" ", search);
+    search.className = "sl";
+    label.append(search);
+    const count = element("span", void 0, "vx-tag-count");
+    toolbar.append(label, count);
     const status = element("p");
     status.setAttribute("role", "status");
-    const editor = element("div");
+    const editor = element("div", void 0, "vx-tag-editor");
     const list = element("ul", void 0, "vx-tag-list");
     const more = button(t("moreTags"), () => {
       const previousLimit = limit;
@@ -4592,8 +4843,26 @@ ${marker}
       render();
       list.children[previousLimit]?.querySelector("button")?.focus();
     });
-    let members = [], limit = pageSize;
-    root.append(label, status, editor, list, more);
+    let members = [], limit = pageSize, editing = null;
+    root.append(capacity, toolbar, status, editor, list, more);
+    function closeEditor() {
+      editor.replaceChildren();
+      editing = null;
+      search.focus();
+    }
+    function deleteTags(name) {
+      if (!window.confirm(t("confirmDeleteTags", name))) return;
+      try {
+        updateTags(name, []);
+      } catch {
+        status.textContent = t("tagDeleteFailed", name);
+        return;
+      }
+      if (editing === name) closeEditor();
+      status.textContent = t("tagsDeleted", name);
+      refresh();
+      search.focus();
+    }
     function render() {
       const query = search.value.trim().toLowerCase();
       const matching2 = members.filter(
@@ -4601,38 +4870,51 @@ ${marker}
       );
       list.replaceChildren();
       more.hidden = matching2.length <= limit;
-      if (!matching2.length) list.append(element("li", t("noMatchingTags")));
+      if (!matching2.length) list.append(element("li", t("noMatchingTags"), "vx-tag-empty"));
       for (const { name, tags } of matching2.slice(0, limit)) {
-        const row = element("li", void 0, "cell");
-        const text = element("div");
-        text.append(element("strong", name), element("p", tags.join(", ")));
+        const row = element("li", void 0, "vx-tag-row");
+        const text = element("div", void 0, "vx-tag-member");
+        const profile = element("a", name, "vx-tag-profile");
+        profile.href = `/member/${encodeURIComponent(name)}`;
+        profile.target = "_blank";
+        profile.rel = "noopener noreferrer";
+        const chips = element("ul", void 0, "vx-tag-chips");
+        for (const tag of tags) chips.append(element("li", tag));
+        text.append(profile, chips);
         const edit = button(t("edit"), () => {
+          if (editing === name) {
+            editor.querySelector(".vx-tag-entry textarea").focus();
+            return;
+          }
           status.textContent = "";
-          const finish = () => {
-            editor.replaceChildren();
-            search.focus();
-          };
           const { form, input, save } = createTagEditor(
             name,
             () => {
-              finish();
+              closeEditor();
               status.textContent = t("tagsSaved", name);
               refresh();
             },
             tags
           );
-          const actions = element("div", void 0, "vx-settings-backup-actions");
-          actions.append(save, button(t("cancel"), finish));
-          editor.replaceChildren(element("h3", t("editTags", name)), form, actions);
+          const actions2 = element("div", void 0, "vx-tag-actions");
+          actions2.append(button(t("cancel"), closeEditor), save);
+          editor.replaceChildren(element("h3", t("editTags", name)), form, actions2);
+          editing = name;
           input.focus();
         });
         edit.setAttribute("aria-label", t("editTags", name));
-        row.append(text, edit);
+        const remove = button(t("deleteTags"), () => deleteTags(name));
+        remove.classList.add("vx-tag-delete");
+        remove.setAttribute("aria-label", t("deleteTagsFor", name));
+        const actions = element("div", void 0, "vx-tag-actions");
+        actions.append(edit, remove);
+        row.append(text, actions);
         list.append(row);
       }
     }
     function refresh() {
       members = store.taggedMembers();
+      count.textContent = t("taggedCount", members.length);
       render();
     }
     search.addEventListener("input", () => {
@@ -4646,16 +4928,17 @@ ${marker}
   }
 
   // src/settings.js
-  function openSettings(store, signedIn = Boolean(currentUser()), createTagEditor) {
+  function openSettings(store, signedIn = Boolean(currentUser()), tagActions) {
     if (document.querySelector("#vx-settings-dialog")) return;
     const options = store.options();
     const dialog = modal(`V2EX Lite ${t("settings")}`, true);
     dialog.root.id = "vx-settings-dialog";
+    dialog.root.lang = interfaceLanguage();
     const form = element("form");
     form.id = "vx-settings-form";
     const fields = /* @__PURE__ */ new Map();
     const groups = {
-      browse: ["privacy", "newTab", "preview", "userCards", "tags"],
+      browse: ["language", "privacy", "newTab", "preview", "userCards", "tags"],
       discussion: ["hotReplies", "autoFold", "preloadPages", "autoCheckIn"],
       editor: ["emoji", "upload", "imgurClientId"]
     };
@@ -4668,11 +4951,22 @@ ${marker}
         const login = requiresLogin.has(key);
         const wrapper = element("div", void 0, "vx-settings-option");
         const caption = element("label", t(key));
-        const control = element("input");
+        const control = element(key === "language" ? "select" : "input");
         control.id = `vx-option-${key}`;
         control.name = key;
         control.disabled = login && !signedIn;
-        if (key === "preloadPages") {
+        if (key === "language") {
+          for (const [value, name] of [
+            ...Object.entries(LANGUAGE_NAMES),
+            ["site", t("followSite")]
+          ]) {
+            const option = element("option", name);
+            option.value = value;
+            if (value !== "site") option.lang = value;
+            control.append(option);
+          }
+          control.value = options.language;
+        } else if (key === "preloadPages") {
           Object.assign(control, { type: "number", min: "0", max: "5", step: "1", required: true });
           control.value = String(options[key]);
         } else if (key === "imgurClientId") {
@@ -4753,19 +5047,25 @@ ${marker}
       button(t("importBackup"), () => file.click()),
       file
     );
-    backup.append(element("legend", t("backup")), element("p", t("backupHelp")), buttons);
-    if (createTagEditor) {
+    backup.append(
+      element("legend", t("backup")),
+      element("strong", t("storage")),
+      element("p", t("storageHelp"), "vx-storage-help"),
+      element("p", t("backupHelp")),
+      buttons
+    );
+    if (tagActions) {
       const details = element("details", void 0, "vx-settings-tag-manager");
       details.append(element("summary", t("manageTags")));
       details.addEventListener("toggle", () => {
         if (!details.open) return;
         if (!manager) {
-          manager = createTagManager(store, createTagEditor);
+          manager = createTagManager(store, tagActions);
           details.append(manager.root);
         }
         manager.refresh();
       });
-      backup.append(details);
+      form.append(details);
     }
     form.append(backup);
     if (!signedIn) dialog.content.append(element("p", t("guestNotice"), "vx-settings-notice"));
@@ -4777,8 +5077,8 @@ ${marker}
       })
     );
   }
-  function installSettings(store, signedIn, createTagEditor) {
-    const open = () => openSettings(store, signedIn, createTagEditor);
+  function installSettings(store, signedIn, tagActions) {
+    const open = () => openSettings(store, signedIn, tagActions);
     GM_registerMenuCommand(`V2EX Lite ${t("settings")}`, open);
     const host = document.querySelector("#Bottom .content");
     if (!host) return;
@@ -4813,6 +5113,7 @@ ${marker}
       listen: GM_addValueChangeListener
     });
     const options = store.options();
+    setLanguage(options.language);
     const themeCSS = `${theme_default}
 ${styles_default}`;
     GM_addStyle(themeCSS);
@@ -4850,7 +5151,7 @@ ${styles_default}`;
     };
     enhance(document);
     const replies = initReplies({ options, getDocument, enhance });
-    installSettings(store, Boolean(name), members.createTagEditor);
+    installSettings(store, Boolean(name), members);
     if (name) {
       initUpload(options, store);
       initEmoji(options);

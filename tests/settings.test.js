@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { openSettings } from "../src/settings.js";
+import { setLanguage } from "../src/i18n.js";
 import { createStorage } from "../src/storage.js";
 import { dom, memoryAPI } from "./helpers.js";
 
@@ -9,8 +10,8 @@ test("settings expose Chinese labels and associated explanations for every optio
   const store = createStorage(memoryAPI());
   store.saveOptions({ preloadPages: 3, imgurClientId: "custom123", privacy: true });
   openSettings(store);
-  const controls = [...document.querySelectorAll("form input[name]")];
-  assert.equal(controls.length, 12);
+  const controls = [...document.querySelectorAll("form :is(input,select)[name]")];
+  assert.equal(controls.length, 13);
   assert.equal(document.querySelectorAll("fieldset legend").length, 4);
   assert.equal(
     document.querySelector(".v2p-modal-footer [type=submit]").form.id,
@@ -24,13 +25,20 @@ test("settings expose Chinese labels and associated explanations for every optio
   assert.equal(document.querySelector('[name="privacy"]').checked, true);
   assert.equal(document.querySelector('[name="preloadPages"]').value, "3");
   assert.equal(document.querySelector('[name="imgurClientId"]').value, "custom123");
+  const language = document.querySelector('[name="language"]');
+  assert.equal(language.value, "zh");
+  assert.deepEqual(
+    [...language.options].map((option) => option.value),
+    ["zh", "en", "ja", "ko", "site"],
+  );
+  assert.match(document.querySelector(".vx-storage-help").textContent, /\u672c\u5730/);
   assert.equal(document.querySelectorAll('[name*="font"]').length, 0);
   document.querySelector(".v2p-modal-close-btn").click();
 });
 
 test("guest settings retain saved preferences and show account dependencies", () => {
   dom('<html lang="zh-CN">');
-  document.cookie = "V2EX_LANG=enus";
+  setLanguage("en");
   const original = createStorage(memoryAPI()).options();
   let saved;
   openSettings(
@@ -55,11 +63,13 @@ test("guest settings retain saved preferences and show account dependencies", ()
     );
   }
   document.querySelector('[name="preloadPages"]').value = "1";
+  document.querySelector('[name="language"]').value = "ko";
   document
     .querySelector("form")
     .dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
-  assert.deepEqual(saved, { ...original, preloadPages: 1 });
+  assert.deepEqual(saved, { ...original, preloadPages: 1, language: "ko" });
   document.querySelector(".v2p-modal-close-btn").click();
+  setLanguage("zh");
 });
 
 test("invalid preload values cannot overwrite saved settings", () => {

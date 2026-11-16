@@ -3,6 +3,7 @@ import test from "node:test";
 import { createTopics } from "../src/preview.js";
 import { createMembers } from "../src/members.js";
 import { openSettings } from "../src/settings.js";
+import { setLanguage } from "../src/i18n.js";
 import { createStorage } from "../src/storage.js";
 import { dom, memoryAPI } from "./helpers.js";
 
@@ -24,6 +25,28 @@ test("Polish preview markup uses a same-origin iframe and removes it on close", 
   assert.equal(document.querySelector(".v2p-modal-title").textContent, "Preview title");
   assert.equal(document.querySelector("iframe").src, "https://www.v2ex.com/t/456?v2p-preview=1");
   assert.equal(document.querySelector(".v2p-modal-main").getAttribute("role"), "dialog");
+  const frame = document.querySelector("iframe");
+  const embedded = frame.contentDocument;
+  embedded.open();
+  embedded.write(`<div id="Top"></div><div id="Main"><div id="r_23" class="cell">
+    <div class="thank_area"><a onclick="ignoreReply(23, 1)">Hide</a><a onclick="thankReply(23)">Thank</a></div>
+    </div></div>`);
+  embedded.close();
+  frame.dispatchEvent(new Event("load"));
+  const area = embedded.querySelector(".thank_area");
+  assert.equal(area.querySelectorAll(".v2p-control > svg").length, 2);
+  assert.equal(
+    area.querySelector("a:has(.v2p-control-hide)").getAttribute("onclick"),
+    "ignoreReply(23, 1)",
+  );
+  assert.equal(
+    area.querySelector("a:has(.v2p-control-thank)").getAttribute("onclick"),
+    "thankReply(23)",
+  );
+  area.classList.add("thanked");
+  area.textContent = "Thanks sent";
+  await new Promise(setImmediate);
+  assert.ok(area.querySelector(".v2p-control-thank.v2p-thanked"));
   document.querySelector(".v2p-modal-close-btn").click();
   await new Promise(setImmediate);
   assert.equal(document.querySelector(".v2p-modal-mask"), null);
@@ -50,7 +73,7 @@ test("editing one member updates all visible instances without duplicate control
   members.edit("Alice");
   document.querySelector(".v2p-modal-content textarea").value = "backend, database";
   [...document.querySelectorAll(".v2p-modal-main button")]
-    .find((node) => node.textContent === "\u786e\u8ba4\u8bbe\u7f6e")
+    .find((node) => node.textContent === "\u4fdd\u5b58\u6807\u7b7e")
     .click();
   assert.deepEqual(store.getTags("alice"), ["backend", "database"]);
   assert.equal(document.querySelectorAll(".v2p-reply-tags:not([hidden])").length, 2);
@@ -80,16 +103,18 @@ test("tags retain the Polish header and inline reply positions", () => {
   assert.equal(document.querySelector("#r_1 .v2p-reply-tags b").textContent, "#");
 });
 
-test("settings search and edit saved tags without submitting the settings form", async () => {
+test("settings edit and delete saved tags without submitting the settings form", async () => {
   const { window } = dom('<div id="Main"><strong><a href="/member/Alice">Alice</a></strong></div>');
-  document.cookie = "V2EX_LANG=enus";
+  setLanguage("en");
   const api = memoryAPI();
   const store = createStorage(api);
-  store.import(`{"schema":1,"members":{"Alice":["Database"],"Bob":["UX"],"Former":[]}}`);
+  store.import(
+    `{"schema":1,"members":{"Alice":["Database","Research, Development"],"Bob":["UX"],"Former":[]}}`,
+  );
   for (let i = 0; i < 49; i++) store.setTags(`test-${i}`, ["example"]);
   const members = createMembers(store, { tags: true, userCards: false });
   members.enhance(document);
-  openSettings(store, false, members.createTagEditor);
+  openSettings(store, false, members);
   const details = document.querySelector(".vx-settings-tag-manager");
   assert.equal(details.querySelector("summary").textContent, "Manage member tags");
   assert.equal(details.querySelector("input"), null);
@@ -99,6 +124,8 @@ test("settings search and edit saved tags without submitting the settings form",
   });
   const list = details.querySelector(".vx-tag-list");
   const manager = details.querySelector(".vx-tag-manager");
+  assert.match(manager.textContent, /20 tags per member.*80 characters.*20,000 members/);
+  assert.match(manager.textContent, /51 tagged members/);
   assert.equal(list.children.length, 50);
   manager.lastElementChild.click();
   assert.equal(list.children.length, 51);
@@ -111,32 +138,55 @@ test("settings search and edit saved tags without submitting the settings form",
   query("DATABASE");
   assert.equal(list.children.length, 1);
   assert.match(list.textContent, /alice.*Database/);
+  const profile = list.querySelector(".vx-tag-profile");
+  assert.equal(profile.href, "https://www.v2ex.com/member/alice");
+  assert.equal(profile.target, "_blank");
   assert.equal(
     search.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Enter", cancelable: true })),
     false,
   );
   list.querySelector("button").click();
-  const input = details.querySelector("textarea");
+  const input = details.querySelector(".vx-tag-fields textarea");
+  const entry = details.querySelector(".vx-tag-entry textarea");
   assert.equal(input.value, "Database");
   const save = [...details.querySelectorAll("button")].find(
     (button) => button.textContent === "Save tags",
   );
-  input.value = "x".repeat(81);
+  entry.value = "x".repeat(81);
   save.click();
   assert.match(details.querySelector('[role="alert"]').textContent, /80 characters/);
-  assert.deepEqual(store.getTags("alice"), ["Database"]);
-  input.value = "Backend";
+  assert.deepEqual(store.getTags("alice"), ["Database", "Research, Development"]);
+  entry.value = "UI, Browser\nDatabase";
+  entry.dispatchEvent(
+    new window.KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }),
+  );
+  assert.deepEqual(
+    [...details.querySelectorAll(".vx-tag-fields textarea")].map((field) => field.value),
+    ["Database", "Research, Development", "UI", "Browser"],
+  );
+  const [first, , third] = details.querySelectorAll(".vx-tag-field");
+  first.querySelector("textarea").value = "Backend";
+  third.querySelector("button").click();
+  entry.value = "Pending";
   save.click();
   assert.match(document.querySelector("#Main .vx-tags").textContent, /Backend/);
   assert.match(details.querySelector('[role="status"]').textContent, /saved for alice/);
+  assert.deepEqual(store.getTags("alice"), [
+    "Backend",
+    "Research, Development",
+    "Browser",
+    "Pending",
+  ]);
   query("ALICE");
   assert.match(list.textContent, /alice.*Backend/);
-  list.querySelector("button").click();
-  details.querySelector("textarea").value = "";
-  [...details.querySelectorAll("button")]
-    .find((button) => button.textContent === "Save tags")
-    .click();
+  const remove = list.querySelector(".vx-tag-delete");
+  window.confirm = () => false;
+  remove.click();
+  assert.match(list.textContent, /alice.*Backend/);
+  window.confirm = (message) => message === "Delete all tags for alice?";
+  remove.click();
   assert.equal(list.textContent, "No matching member tags.");
+  assert.match(manager.textContent, /50 tagged members/);
   assert.equal(document.querySelector("#Main .vx-tags").hidden, true);
   assert.equal(store.import('{"schema":1,"members":{"Alice":["old"]}}'), 0);
   assert.equal(
@@ -145,4 +195,5 @@ test("settings search and edit saved tags without submitting the settings form",
   );
   document.querySelector(".v2p-modal-close-btn").click();
   window.close();
+  setLanguage("zh");
 });

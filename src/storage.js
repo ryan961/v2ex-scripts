@@ -1,7 +1,9 @@
-import { t } from "./i18n.js";
+import { DEFAULT_LANGUAGE, LANGUAGE_NAMES, t } from "./i18n.js";
 export const PREFIX = "v2ex-lite:";
 export const DEFAULT_IMGUR_CLIENT_ID = "3107b9ef8b316f3";
+export const TAG_LIMITS = Object.freeze({ perMember: 20, length: 80, importMembers: 20_000 });
 export const DEFAULTS = Object.freeze({
+  language: DEFAULT_LANGUAGE,
   privacy: false,
   newTab: true,
   preview: true,
@@ -21,6 +23,12 @@ const validName = /^[a-z0-9_-]{1,64}$/i;
 export function normalizeOptions(input = {}) {
   const output = { ...DEFAULTS };
   if (!input || typeof input !== "object") return output;
+  if (
+    typeof input.language === "string" &&
+    (input.language === "site" || Object.hasOwn(LANGUAGE_NAMES, input.language))
+  ) {
+    output.language = input.language;
+  }
   for (const key of Object.keys(DEFAULTS)) {
     if (typeof DEFAULTS[key] === "boolean" && typeof input[key] === "boolean")
       output[key] = input[key];
@@ -36,11 +44,13 @@ export function normalizeOptions(input = {}) {
 
 export function normalizeTags(value) {
   const raw = typeof value === "string" ? value.split(/[,\uFF0C\n]/) : value;
-  if (!Array.isArray(raw) || raw.length > 20) throw new Error(t("tagLimit"));
+  if (!Array.isArray(raw) || raw.length > TAG_LIMITS.perMember)
+    throw new Error(t("tagLimit", TAG_LIMITS.perMember));
   const result = [];
   for (const item of raw) {
     const text = typeof item === "string" ? item.trim() : item?.name?.trim?.();
-    if (typeof text !== "string" || text.length > 80) throw new Error(t("tagFormat"));
+    if (typeof text !== "string" || text.length > TAG_LIMITS.length)
+      throw new Error(t("tagFormat", TAG_LIMITS.length));
     if (text && !result.includes(text)) result.push(text);
   }
   return result;
@@ -55,7 +65,8 @@ export function parseImport(text) {
   if (!source || typeof source !== "object" || Array.isArray(source))
     throw new Error(t("backupNoTags"));
   const entries = Object.entries(source);
-  if (entries.length > 20_000) throw new Error(t("backupTooMany"));
+  if (entries.length > TAG_LIMITS.importMembers)
+    throw new Error(t("backupTooMany", TAG_LIMITS.importMembers.toLocaleString("en")));
   const members = Object.create(null);
   for (const [name, entry] of entries) {
     if (!validName.test(name)) throw new Error(`${t("badUsername")} ${name}`);

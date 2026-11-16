@@ -5,6 +5,7 @@ import { memoryAPI } from "./helpers.js";
 
 test("options reject invalid types and unknown fields", () => {
   const options = normalizeOptions({
+    language: ["ja"],
     theme: "broken",
     privacy: "yes",
     preloadPages: 99,
@@ -12,6 +13,8 @@ test("options reject invalid types and unknown fields", () => {
     injected: true,
   });
   assert.equal(options.theme, undefined);
+  assert.equal(options.language, "zh");
+  assert.equal(normalizeOptions({ language: "site" }).language, "site");
   assert.equal(options.privacy, false);
   assert.equal(options.preloadPages, 2);
   assert.equal(options.imgurClientId, "");

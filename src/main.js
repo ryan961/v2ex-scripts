@@ -3,6 +3,7 @@ import polishCSS from "./theme.scss";
 import integrationCSS from "./styles.css";
 import { enhanceEmojis, initEmoji } from "./emoji.js";
 import { createStorage } from "./storage.js";
+import { setLanguage } from "./i18n.js";
 import { createHTTP, currentUser, isV2EXPage } from "./dom.js";
 import { createMembers } from "./members.js";
 import { createTopics } from "./preview.js";
@@ -21,6 +22,7 @@ function start() {
     listen: GM_addValueChangeListener,
   });
   const options = store.options();
+  setLanguage(options.language);
   const themeCSS = `${polishCSS}\n${integrationCSS}`;
   GM_addStyle(themeCSS);
   applyTheme();
@@ -58,7 +60,7 @@ function start() {
   };
   enhance(document);
   const replies = initReplies({ options, getDocument, enhance });
-  installSettings(store, Boolean(name), members.createTagEditor);
+  installSettings(store, Boolean(name), members);
   if (name) {
     initUpload(options, store);
     initEmoji(options);
