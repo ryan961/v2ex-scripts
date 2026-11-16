@@ -148,5 +148,7 @@ test("post-list member tags paint above the topic metadata overlay", () => {
   const reply = window.getComputedStyle(document.querySelector(".reply .vx-tags"));
   assert.equal(list.pointerEvents, "auto");
   assert.equal(list.zIndex, "2");
+  assert.equal(list.marginInlineStart, "8px");
+  assert.equal(list.marginInlineEnd, "8px");
   assert.equal(list.lineHeight, reply.lineHeight);
 });

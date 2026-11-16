@@ -103,6 +103,30 @@ test("tags retain the Polish header and inline reply positions", () => {
   assert.equal(document.querySelector("#r_1 .v2p-reply-tags b").textContent, "#");
 });
 
+test("topic lists show one author tag when author and latest replier links repeat", () => {
+  dom(`<div id="Main">
+    <div class="cell item"><span class="topic_info">
+      <strong><a href="/member/burnsby">burnsby</a></strong><span>Today</span>
+      <strong><a href="/member/burnsby">burnsby</a></strong>
+    </span></div>
+    <div class="cell item"><span class="topic_info">
+      <strong><a href="/member/burnsby">burnsby</a></strong><span>Yesterday</span>
+      <strong><a href="/member/Alice">Alice</a></strong>
+    </span></div></div>`);
+  const store = createStorage(memoryAPI());
+  store.setTags("burnsby", ["Test"]);
+  store.setTags("Alice", ["Another member"]);
+  const members = createMembers(store, { tags: true, userCards: false });
+  members.enhance(document);
+  members.enhance(document);
+  for (const info of document.querySelectorAll(".topic_info")) {
+    members.enhance(info.querySelector("strong:last-of-type a"));
+    assert.equal(info.querySelectorAll(".vx-tags").length, 1);
+    assert.equal(info.querySelector("strong").nextElementSibling, info.querySelector(".vx-tags"));
+    assert.equal(info.querySelector(".vx-tags").title, "Test");
+  }
+});
+
 test("settings edit and delete saved tags without submitting the settings form", async () => {
   const { window } = dom('<div id="Main"><strong><a href="/member/Alice">Alice</a></strong></div>');
   setLanguage("en");

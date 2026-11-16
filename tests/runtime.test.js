@@ -54,6 +54,12 @@ test("bundled script initializes, enhances only new nodes, and settles without s
   assert.equal(window.document.activeElement, draft);
   assert.equal(draft.value, "Existing draft");
   const top = window.document.querySelector(".vx-back-to-top");
+  assert.equal(top.querySelector("svg").getAttribute("aria-hidden"), "true");
+  assert.equal(
+    top.getAttribute("aria-label"),
+    top.querySelector(".vx-page-action-hint").textContent,
+  );
+  assert.ok(window.document.querySelector(".vx-quick-reply svg"));
   assert.equal(top.hidden, true);
   Object.defineProperty(window, "scrollY", { configurable: true, value: 320 });
   window.dispatchEvent(new window.Event("scroll"));

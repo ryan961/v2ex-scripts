@@ -173,11 +173,13 @@ export function createMembers(store, options, topics, currentAccount) {
     if (!options.tags) return;
     for (const link of matching(root, 'strong a[href^="/member/"], .header a[href^="/member/"]')) {
       const name = memberName(link);
+      const topicInfo = link.closest(".topic_info");
       if (
         !name ||
         !link.textContent.trim() ||
         registered.has(link) ||
-        link.closest("[data-vx-owned],#Rightbar,#Bottom")
+        link.closest("[data-vx-owned],#Rightbar,#Bottom") ||
+        (topicInfo && topicInfo.querySelector('strong a[href^="/member/"]') !== link)
       )
         continue;
       registered.add(link);

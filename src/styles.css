@@ -542,6 +542,9 @@
   pointer-events: auto;
   position: relative;
   z-index: 2;
+  margin-inline: 8px;
+  margin-block: 0;
+  vertical-align: middle;
 }
 
 .vx-tags-text {
@@ -589,28 +592,37 @@
 .vx-page-actions {
   position: fixed;
   z-index: 60;
-  inset-inline-end: max(14px, env(safe-area-inset-right));
-  bottom: max(14px, env(safe-area-inset-bottom));
+  inset-inline-end: max(20px, env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
   display: grid;
-  gap: 6px;
+  padding: 3px;
+  border: 1px solid var(--box-border-color);
+  border-radius: 12px;
+  background: var(--v2p-color-bg-widget);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 10%);
 }
 
 .vx-page-actions button {
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0 8px;
-  border: 1px solid var(--box-border-color);
-  border-radius: var(--v2p-button-radius);
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
   color: var(--v2p-color-foreground);
   font: inherit;
-  background: var(--v2p-color-bg-widget);
-  box-shadow: var(--v2p-widget-shadow);
+  background: transparent;
   cursor: pointer;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
 }
 
 .vx-page-actions button:hover {
-  border-color: var(--v2p-color-border-darker);
-  background: var(--v2p-color-bg-input);
+  color: var(--v2p-color-accent-600);
+  background: var(--v2p-color-button-background-hover);
 }
 
 .vx-page-actions button:focus-visible {
@@ -618,6 +630,36 @@
   outline-offset: 2px;
 }
 
-.vx-page-actions .vx-back-to-top {
-  font-size: 20px;
+.vx-page-actions button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.vx-page-action-hint {
+  position: absolute;
+  inset-inline-end: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  visibility: hidden;
+  width: max-content;
+  max-width: min(160px, calc(100vw - 90px));
+  box-sizing: border-box;
+  padding: 5px 10px;
+  border: 1px solid var(--box-border-color);
+  border-radius: 5px;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  color: var(--v2p-color-foreground);
+  background: var(--v2p-color-bg-widget);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+  pointer-events: none;
+}
+
+.vx-page-actions button:is(:hover, :focus-visible) .vx-page-action-hint {
+  visibility: visible;
+}
+
+.v2p-modal-open .vx-page-actions {
+  display: none;
 }
