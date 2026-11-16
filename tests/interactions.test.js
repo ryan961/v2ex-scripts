@@ -14,10 +14,9 @@ test("Polish preview markup uses a same-origin iframe and removes it on close", 
   topics.enhance(document);
   const preview = document.querySelector("button");
   assert.equal(document.querySelectorAll("button").length, 1);
-  assert.equal(
-    document.querySelector(".topic_info > span[title]").nextElementSibling.className,
-    "v2p-topic-actions",
-  );
+  assert.equal(document.querySelector(".item_title").nextElementSibling, preview);
+  assert.equal(preview.classList.contains("vx-preview-visible"), true);
+  assert.equal(document.querySelector(".topic_info button"), null);
   assert.equal(document.querySelector(".item_title button"), null);
   preview.click();
   await new Promise(setImmediate);
@@ -50,7 +49,7 @@ test("editing one member updates all visible instances without duplicate control
   members.edit("Alice");
   document.querySelector(".v2p-modal-content textarea").value = "backend, database";
   [...document.querySelectorAll(".v2p-modal-main button")]
-    .find((node) => node.textContent === "Save")
+    .find((node) => node.textContent === "\u786e\u8ba4\u8bbe\u7f6e")
     .click();
   assert.deepEqual(store.getTags("alice"), ["backend", "database"]);
   assert.equal(document.querySelectorAll(".v2p-reply-tags:not([hidden])").length, 2);

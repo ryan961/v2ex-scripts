@@ -6,7 +6,7 @@ import { createStorage } from "./storage.js";
 import { createHTTP, currentUser } from "./dom.js";
 import { createMembers } from "./members.js";
 import { createTopics } from "./preview.js";
-import { initReplies, REPLY } from "./replies.js";
+import { enhanceReplyActions, initReplies, REPLY } from "./replies.js";
 import { createCheckIn } from "./check-in.js";
 import { initUpload } from "./upload.js";
 import { installSettings } from "./settings.js";
@@ -46,12 +46,13 @@ function start() {
     }
   }
   const getDocument = createHTTP();
-  const members = createMembers(store, options);
   const topics = createTopics(options, themeCSS);
+  const members = createMembers(store, options, topics);
   const enhance = (root) => {
     members.enhance(root);
     topics.enhance(root);
     enhanceEmojis(root);
+    enhanceReplyActions(root);
   };
   enhance(document);
   const replies = initReplies({ options, getDocument, enhance });

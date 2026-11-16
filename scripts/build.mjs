@@ -12,6 +12,10 @@ const floatingLicense = await readFile(
   new URL("../licenses/floating-ui-MIT.txt", import.meta.url),
   "utf8",
 );
+const lucideLicense = await readFile(
+  new URL("../licenses/lucide-LICENSE.txt", import.meta.url),
+  "utf8",
+);
 const base = "https://raw.githubusercontent.com/ryan961/v2ex-scripts/main/dist/v2ex-lite";
 const header = `// ==UserScript==
 // @name         V2EX Lite
@@ -47,7 +51,7 @@ await build({
   target: ["chrome120", "firefox121"],
   outfile: "dist/v2ex-lite.user.js",
   banner: {
-    js: `${header}\n/*\n${polishLicense.trim()}\n\n${repLicense.trim()}\n\n${floatingLicense.trim()}\n*/`,
+    js: `${header}\n/*\n${polishLicense.trim()}\n\n${repLicense.trim()}\n\n${floatingLicense.trim()}\n\n${lucideLicense.trim()}\n*/`,
   },
   legalComments: "inline",
   loader: { ".css": "text" },

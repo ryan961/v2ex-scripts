@@ -90,10 +90,10 @@ export function uploadImage(file, clientId = DEFAULT_IMGUR_CLIENT_ID, request = 
 }
 
 export function openUploadHistory(store) {
-  const dialog = modal("Upload history");
+  const dialog = modal("\u4e0a\u4f20\u8bb0\u5f55");
   const content = element("div", undefined, "v2p-topic-preview");
   const records = store.uploads();
-  if (!records.length) content.append(element("p", "No saved uploads."));
+  if (!records.length) content.append(element("p", "\u6682\u65e0\u4e0a\u4f20\u8bb0\u5f55\u3002"));
   for (const record of records) {
     const row = element("div", undefined, "cell");
     row.append(element("p", `${record.createdAt} · ${record.fileName}`));
@@ -106,7 +106,7 @@ export function openUploadHistory(store) {
       row.append(link);
     }
     if (/^[a-z0-9]+$/i.test(record.deleteHash ?? "")) {
-      const link = element("a", " Delete image");
+      const link = element("a", "\u5220\u9664\u56fe\u7247");
       link.href = `https://imgur.com/delete/${record.deleteHash}`;
       link.target = "_blank";
       link.rel = "noopener noreferrer";

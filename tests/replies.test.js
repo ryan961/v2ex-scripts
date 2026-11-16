@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   cloneTopReply,
+  enhanceReplyActions,
   importReply,
   initReplies,
   parseReply,
@@ -11,6 +12,35 @@ import {
 import { dom } from "./helpers.js";
 
 const fixture = readFileSync(new URL("./fixtures/topic.html", import.meta.url), "utf8");
+
+test("Polish reply icons preserve native handlers, counts and thanked state", () => {
+  dom(
+    '<div id="Main"><div class="cell" id="r_1"><strong><a href="/member/Alice">Alice</a></strong><span class="no">1</span><span class="small fade"><img src="/static/img/heart.png">2</span><div class="thank_area" id="thank_area_1"><a href="#;" onclick="ignoreReply(1, 42)">Hide</a><a href="#;" onclick="thankReply(1)">Thank</a></div></div></div>',
+  );
+  const area = document.querySelector(".thank_area");
+  const original = area.lastElementChild;
+  let clicks = 0;
+  original.addEventListener("click", (event) => {
+    event.preventDefault();
+    clicks++;
+  });
+  enhanceReplyActions(document);
+  enhanceReplyActions(document);
+  assert.equal(document.querySelectorAll(".v2p-control-hide svg").length, 1);
+  assert.equal(document.querySelectorAll(".v2p-control-thank svg").length, 1);
+  assert.equal(document.querySelector(".v2p-control-thank").parentElement, original);
+  assert.equal(original.getAttribute("onclick"), "thankReply(1)");
+  original.click();
+  assert.equal(clicks, 1);
+  assert.equal(parseReply(document.querySelector("#r_1")).thanks, 2);
+  area.classList.add("thanked");
+  area.innerHTML = '<a href="#;" onclick="ignoreReply(1, 42)">Hide</a> Thanks sent';
+  enhanceReplyActions(area);
+  assert.equal(area.querySelectorAll(".v2p-control-hide").length, 1);
+  assert.equal(area.querySelector(".v2p-control-thank").getAttribute("aria-disabled"), "true");
+  assert.equal(document.querySelector(".v2p-likes-box").classList.contains("v2p-thanked"), true);
+  assert.doesNotMatch(area.textContent, /Thanks sent/);
+});
 
 test("imported replies and REP hot replies retain the native table structure", () => {
   dom(

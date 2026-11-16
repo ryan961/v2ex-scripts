@@ -1043,6 +1043,14 @@ body {
     }
   }
 
+  .box:has(#Tabs) .cell.item {
+    padding: 15px 10px;
+  }
+
+  .reply-threads-c > .cell[id^="r_"] {
+    padding: 15px 10px;
+  }
+
   .cell[id^="r_"] {
     // V2EX group containers own reply backgrounds.
     --bg-reply: var(--v2p-color-bg-content);

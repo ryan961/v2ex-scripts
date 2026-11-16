@@ -27,10 +27,10 @@ test("Polish import accepts old tag objects and validates the entire file", () =
   );
   assert.throws(
     () => parseImport('{"member-tag":{"ok":{"tags":["valid"]},"bad/user":[]}}'),
-    /username/,
+    /\u7528\u6237\u540d/,
   );
-  assert.throws(() => parseImport('{"schema":2,"members":{}}'), /version/);
-  assert.throws(() => parseImport('{"members":{"alice":{"tags":[null]}}}'), /Invalid tag/);
+  assert.throws(() => parseImport('{"schema":2,"members":{}}'), /\u7248\u672c/);
+  assert.throws(() => parseImport('{"members":{"alice":{"tags":[null]}}}'), /\u6807\u7b7e/);
 });
 
 test("storage writes only changes; local entries and tombstones win imports", () => {

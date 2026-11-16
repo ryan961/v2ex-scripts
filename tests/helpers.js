@@ -3,7 +3,20 @@ import { JSDOM } from "jsdom";
 export function dom(html, url = "https://www.v2ex.com/t/123") {
   const instance = new JSDOM(html, { url });
   Object.defineProperty(globalThis, "window", { configurable: true, value: instance.window });
-  for (const key of ["document", "location", "DOMParser", "Event", "FormData", "File"]) {
+  for (const key of [
+    "document",
+    "location",
+    "DOMParser",
+    "Event",
+    "FormData",
+    "File",
+    "Node",
+    "Element",
+    "HTMLElement",
+    "ShadowRoot",
+    "Document",
+    "getComputedStyle",
+  ]) {
     Object.defineProperty(globalThis, key, { configurable: true, value: instance.window[key] });
   }
   Object.defineProperty(globalThis, "navigator", {

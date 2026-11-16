@@ -8,7 +8,7 @@ export function createTopics(options, themeCSS = "") {
     enhance(root) {
       for (const link of matching(
         root,
-        ".item_title a[href], a.topic-link[href], .item_hot_topic_title > a[href]",
+        ".item_title a[href], a.topic-link[href], .item_hot_topic_title > a[href], a.v2p-member-topic-item[href]",
       )) {
         if (seen.has(link)) continue;
         seen.add(link);
@@ -58,14 +58,12 @@ export function createTopics(options, themeCSS = "") {
           }),
         );
         trigger.className = "v2p-topic-preview-btn";
-        const item = link.closest(".cell");
-        const info = item?.querySelector(".topic_info");
-        if (info) {
-          const actions = owned(element("span", undefined, "v2p-topic-actions"));
-          actions.append(trigger);
-          const anchor = info.querySelector(":scope > span:first-of-type");
-          if (anchor) anchor.after(actions);
-          else info.append(actions);
+        const title = link.closest(".item_title");
+        if (title) {
+          trigger.classList.add("vx-preview-visible");
+          title.after(trigger);
+        } else if (link.parentElement.matches(".v2p-member-topic-item-row")) {
+          link.after(trigger);
         } else if (link.parentElement.matches(".item_hot_topic_title")) {
           link.parentElement.append(trigger);
         }

@@ -1,6 +1,65 @@
 import { button, element, matching, memberName, owned, safeURL } from "./dom.js";
+import { icon } from "./icons.js";
 
 export const REPLY = '.cell[id^="r_"]';
+
+export function enhanceReplyActions(root) {
+  for (const area of matching(root, ".thank_area")) {
+    const reply = area.closest(REPLY);
+    if (!reply?.closest("#Main")) continue;
+    area.classList.add("v2p-controls");
+    for (const node of [...area.childNodes]) if (node.nodeType === 3) node.remove();
+    for (const anchor of area.querySelectorAll("a")) {
+      const source = `${anchor.getAttribute("href") ?? ""} ${anchor.getAttribute("onclick") ?? ""}`;
+      const action = /ignoreReply\s*\(|\/ignore\/reply\//.test(source)
+        ? "hide"
+        : /thankReply\s*\(|\/thank\/reply\//.test(source)
+          ? "thank"
+          : null;
+      if (!action || anchor.querySelector(".v2p-control")) continue;
+      const control = owned(
+        element("span", undefined, `v2p-control v2p-hover-btn v2p-control-${action}`),
+      );
+      control.append(icon(action === "hide" ? "eye-off" : "heart"));
+      anchor.classList.remove("thank");
+      anchor.style.removeProperty("color");
+      anchor.setAttribute(
+        "aria-label",
+        action === "hide" ? "\u9690\u85cf\u56de\u590d" : "\u611f\u8c22\u56de\u590d",
+      );
+      anchor.replaceChildren(control);
+    }
+    if (area.classList.contains("thanked") && !area.querySelector(".v2p-control-thank")) {
+      for (const node of [...area.childNodes]) if (node.nodeType === 3) node.remove();
+      const thanked = owned(
+        element("span", undefined, "v2p-control v2p-control-thank v2p-thanked"),
+      );
+      thanked.setAttribute("aria-label", "\u5df2\u611f\u8c22");
+      thanked.setAttribute("aria-disabled", "true");
+      thanked.append(icon("heart"));
+      area.append(thanked);
+    }
+    if (area.classList.contains("thanked"))
+      for (const likes of reply.querySelectorAll(".v2p-likes-box"))
+        if (likes.closest(REPLY) === reply) likes.classList.add("v2p-thanked");
+  }
+  for (const image of matching(root, 'img[alt="\u2764\uFE0F"], img[src*="/heart.png"]')) {
+    const reply = image.closest(REPLY);
+    if (!reply?.closest("#Main") || image.closest(".reply_content")) continue;
+    const likes = image.closest(".small.fade");
+    if (!likes) continue;
+    likes.classList.add("v2p-likes-box");
+    if (
+      [...reply.querySelectorAll(".thank_area.thanked")].some(
+        (area) => area.closest(REPLY) === reply,
+      )
+    )
+      likes.classList.add("v2p-thanked");
+    const heart = owned(element("span", undefined, "v2p-icon-heart"));
+    heart.append(icon("heart"));
+    image.replaceWith(heart);
+  }
+}
 
 export function thanksCount(node) {
   const header = node.querySelector(".flex-one-row") ?? node;
@@ -223,6 +282,7 @@ export function initReplies({ options, getDocument, enhance }) {
     replies,
     loaded,
     update(node) {
+      enhanceReplyActions(node);
       const reply = replies.get(node.id);
       if (reply && !node.hasAttribute("data-vx-loaded")) {
         const count = thanksCount(node);

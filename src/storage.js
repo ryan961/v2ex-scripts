@@ -34,31 +34,40 @@ export function normalizeOptions(input = {}) {
 
 export function normalizeTags(value) {
   const raw = typeof value === "string" ? value.split(/[,\uFF0C\n]/) : value;
-  if (!Array.isArray(raw) || raw.length > 20) throw new Error("Use at most 20 tags per user.");
+  if (!Array.isArray(raw) || raw.length > 20)
+    throw new Error("\u6bcf\u4e2a\u7528\u6237\u6700\u591a\u8bbe\u7f6e 20 \u4e2a\u6807\u7b7e\u3002");
   const result = [];
   for (const item of raw) {
     const text = typeof item === "string" ? item.trim() : item?.name?.trim?.();
     if (typeof text !== "string" || text.length > 80)
-      throw new Error("Invalid tag; maximum length is 80.");
+      throw new Error(
+        "\u6807\u7b7e\u683c\u5f0f\u4e0d\u6b63\u786e\uff0c\u5355\u4e2a\u6807\u7b7e\u6700\u591a 80 \u4e2a\u5b57\u7b26\u3002",
+      );
     if (text && !result.includes(text)) result.push(text);
   }
   return result;
 }
 
 export function parseImport(text) {
-  if (text.length > 2_000_000) throw new Error("Backup exceeds 2 MB.");
+  if (text.length > 2_000_000)
+    throw new Error("\u5907\u4efd\u6587\u4ef6\u4e0d\u80fd\u8d85\u8fc7 2 MB\u3002");
   const data = JSON.parse(text.replace(/^V2EX_Polish_settings\s*/, ""));
-  if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("Invalid backup.");
+  if (!data || typeof data !== "object" || Array.isArray(data))
+    throw new Error("\u5907\u4efd\u6587\u4ef6\u683c\u5f0f\u4e0d\u6b63\u786e\u3002");
   if (data.schema !== undefined && data.schema !== 1)
-    throw new Error("Unsupported backup version.");
+    throw new Error("\u4e0d\u652f\u6301\u6b64\u5907\u4efd\u7248\u672c\u3002");
   const source = data.members ?? data["member-tag"];
   if (!source || typeof source !== "object" || Array.isArray(source))
-    throw new Error("No user tags found.");
+    throw new Error("\u5907\u4efd\u4e2d\u672a\u627e\u5230\u7528\u6237\u6807\u7b7e\u3002");
   const entries = Object.entries(source);
-  if (entries.length > 20_000) throw new Error("Too many users in backup.");
+  if (entries.length > 20_000)
+    throw new Error(
+      "\u5907\u4efd\u4e2d\u7684\u7528\u6237\u6570\u4e0d\u80fd\u8d85\u8fc7 20,000\u3002",
+    );
   const members = Object.create(null);
   for (const [name, entry] of entries) {
-    if (!validName.test(name)) throw new Error(`Invalid username: ${name}`);
+    if (!validName.test(name))
+      throw new Error(`\u7528\u6237\u540d\u683c\u5f0f\u4e0d\u6b63\u786e\uff1a ${name}`);
     members[name.toLowerCase()] = normalizeTags(
       Array.isArray(entry) || typeof entry === "string" ? entry : entry?.tags,
     );
@@ -83,7 +92,8 @@ export function createStorage(api) {
       return cache.get(key);
     },
     setTags(name, value) {
-      if (!validName.test(name)) throw new Error("Invalid username.");
+      if (!validName.test(name))
+        throw new Error("\u7528\u6237\u540d\u683c\u5f0f\u4e0d\u6b63\u786e\u3002");
       const tags = normalizeTags(value);
       const key = keyFor(name);
       write(key, tags);

@@ -1,11 +1,12 @@
 import { button, element, matching, memberName, modal, owned, safeURL } from "./dom.js";
 import { computePosition, flip, offset, shift } from "@floating-ui/dom";
+import { blockMember, fetchMember } from "./member-data.js";
 
-export function createMembers(store, options) {
+export function createMembers(store, options, topics) {
   const registered = new WeakSet(),
     byName = new Map();
   function edit(name) {
-    const dialog = modal(`Tags: ${name}`, true);
+    const dialog = modal(`\u8bbe\u7f6e\u7528\u6237\u6807\u7b7e\uff1a${name}`, true);
     Object.assign(dialog.root.style, {
       display: "flex",
       justifyContent: "center",
@@ -19,7 +20,10 @@ export function createMembers(store, options) {
       flexDirection: "column",
       gap: "15px",
     });
-    const label = element("label", "Separate tags with commas (up to 20). ");
+    const label = element(
+      "label",
+      "\u591a\u4e2a\u6807\u7b7e\u4ee5\u9017\u53f7\u5206\u9694\uff0c\u6700\u591a 20 \u4e2a\u3002 ",
+    );
     const input = element("textarea");
     input.className = "sl";
     input.rows = 4;
@@ -30,7 +34,7 @@ export function createMembers(store, options) {
     form.append(label, error);
     dialog.content.append(form);
     dialog.footer.append(
-      button("Save", () => {
+      button("\u786e\u8ba4\u8bbe\u7f6e", () => {
         try {
           store.setTags(name, input.value);
           draw(name);
@@ -102,98 +106,183 @@ export function createMembers(store, options) {
     popup.hidden = true;
     const content = element("div", undefined, "v2p-popup-content");
     popup.append(content);
-    document.body.append(popup);
+    (document.querySelector("#Wrapper") ?? document.body).append(popup);
     let timer,
       closeTimer,
       active,
+      controller,
       sequence = 0;
+
     function hide() {
       clearTimeout(timer);
+      clearTimeout(closeTimer);
+      controller?.abort();
       popup.hidden = true;
       active = null;
       sequence++;
     }
-    async function get(name) {
-      const key = name.toLowerCase(),
-        cached = cache.get(key);
-      if (cached?.expires > Date.now()) return cached.promise;
-      const promise = fetch(`/api/members/show.json?username=${encodeURIComponent(name)}`, {
-        credentials: "same-origin",
-        signal: AbortSignal.timeout(10_000),
-      })
-        .then(async (response) => {
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          const data = await response.json();
-          if (!data.username) throw new Error("Member unavailable.");
-          return data;
-        })
-        .catch((error) => {
-          cache.delete(key);
-          throw error;
-        });
-      if (cache.size >= 100) cache.delete(cache.keys().next().value);
-      cache.set(key, { promise, expires: Date.now() + 600_000 });
-      return promise;
-    }
-    function render(name, data = {}) {
+
+    function render(name, data = null, initialAvatar) {
       const card = element("div", undefined, "v2p-member-card");
       const info = element("div", undefined, "v2p-info"),
         left = element("div", undefined, "v2p-info-left"),
         right = element("div", undefined, "v2p-info-right");
-      const avatar = safeURL(data.avatar_large ?? data.avatar_normal, location.href, true);
+      const avatar = safeURL(
+        data?.avatar_large ?? data?.avatar_normal ?? initialAvatar,
+        location.href,
+        true,
+      );
+      const avatarLink = element("a", undefined, "v2p-avatar-box");
+      avatarLink.href = `/member/${name}`;
       if (avatar) {
-        const link = element("a", undefined, "v2p-avatar-box");
-        link.href = `/member/${name}`;
         const image = element("img", undefined, "v2p-avatar");
         image.src = avatar;
         image.alt = name;
-        link.append(image);
-        left.append(link);
+        avatarLink.append(image);
       }
+      left.append(avatarLink);
       const username = element("div", undefined, "v2p-username"),
         link = element("a", name);
       link.href = `/member/${name}`;
+      for (const target of [avatarLink, link]) {
+        target.target = options.newTab ? "_blank" : "_self";
+        target.rel = "noopener noreferrer";
+      }
       username.append(link);
-      right.append(username);
-      right.append(
-        element("div", data.id ? `V2EX member #${data.id}` : "Loading member...", "v2p-no"),
+      const number = element(
+        "div",
+        data ? `V2EX \u7b2c ${data.id} \u53f7\u4f1a\u5458` : "",
+        "v2p-no",
       );
-      right.append(
-        element(
+      const created = new Date(Number(data?.created) * 1000);
+      const date =
+        data && Number.isFinite(created.getTime())
+          ? `${created.getFullYear()}-${String(created.getMonth() + 1).padStart(2, "0")}-${String(created.getDate()).padStart(2, "0")}`
+          : "";
+      const joined = element("div", date ? `\u52a0\u5165\u4e8e ${date}` : "", "v2p-created-date");
+      if (!data) {
+        number.classList.add("v2p-loading");
+        joined.classList.add("v2p-loading");
+      }
+      right.append(username, number, joined);
+      const days = Math.ceil((Date.now() / 1000 - Number(data?.created)) / 86400);
+      if (data && days >= 0 && days <= 30) {
+        const recent = element(
           "div",
-          data.created ? `Joined: ${new Date(data.created * 1000).toLocaleDateString()}` : "",
-          "v2p-created-date",
-        ),
-      );
+          `${days <= 15 ? "15" : "30"} \u5929\u5185\u6ce8\u518c`,
+          "v2p-register-days",
+        );
+        recent.style.margin = "5px 0";
+        right.append(recent);
+      }
       info.append(left, right);
       card.append(info);
-      if (data.bio) card.append(element("div", data.bio, "v2p-bio"));
+      if (data?.bio?.trim()) card.append(element("div", data.bio, "v2p-bio"));
+      if (data?.topics?.length) {
+        const section = element("div", undefined, "v2p-member-topics");
+        const list = element("div", undefined, "v2p-member-topics-list");
+        section.append(
+          element("div", "\u6700\u8fd1\u53d1\u5e16", "v2p-member-topics-header"),
+          list,
+        );
+        for (const topic of data.topics) {
+          const row = element("div", undefined, "v2p-member-topic-item-row");
+          const topicLink = element("a", topic.title, "v2p-member-topic-item");
+          topicLink.href = topic.url;
+          topicLink.title = topic.title;
+          topicLink.target = options.newTab ? "_blank" : "_self";
+          topicLink.rel = "noopener noreferrer";
+          row.append(topicLink);
+          list.append(row);
+        }
+        card.append(section);
+        topics?.enhance(section);
+      }
+      const actions = element("div", undefined, "v2p-member-card-actions");
       if (options.tags) {
-        const actions = element("div", undefined, "v2p-member-card-actions");
-        const control = button("Set user tags", () => {
+        const control = button("\u6dfb\u52a0\u7528\u6237\u6807\u7b7e", () => {
           hide();
           edit(name);
         });
         control.classList.add("v2p-btn-small");
         actions.append(control);
-        card.append(actions);
       }
+      const block = button("\u5c4f\u853d\u8be5\u7528\u6237", async () => {
+        if (
+          block.disabled ||
+          !window.confirm(`\u786e\u5b9a\u8981\u5c4f\u853d\u7528\u6237 ${name} \u5417\uff1f`)
+        )
+          return;
+        block.disabled = true;
+        block.classList.add("v2p-btn-loading");
+        block.textContent = "\u5c4f\u853d\u4e2d...";
+        try {
+          await blockMember(name);
+          for (const row of document.querySelectorAll('.cell[id^="r_"]')) {
+            if (
+              !row.closest("#Main") ||
+              memberName(row.querySelector('strong a[href^="/member/"]'))?.toLowerCase() !==
+                name.toLowerCase()
+            )
+              continue;
+            if (row.querySelector(":scope > .v2p-blocked-notice")) continue;
+            row.classList.add("v2p-blocked-reply");
+            const notice = owned(
+              element("div", "\u5df2\u5c4f\u853d\u8be5\u7528\u6237 \u00b7 ", "v2p-blocked-notice"),
+            );
+            const toggle = element("a", "\u663e\u793a", "v2p-blocked-toggle");
+            toggle.tabIndex = 0;
+            toggle.setAttribute("role", "button");
+            const reveal = () => {
+              const visible = row.classList.toggle("v2p-blocked-revealed");
+              toggle.textContent = visible ? "\u9690\u85cf" : "\u663e\u793a";
+            };
+            toggle.addEventListener("click", reveal);
+            toggle.addEventListener("keydown", (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                reveal();
+              }
+            });
+            notice.append(toggle);
+            row.prepend(notice);
+          }
+          hide();
+        } catch (error) {
+          block.disabled = false;
+          block.classList.remove("v2p-btn-loading");
+          block.textContent = "\u5c4f\u853d\u8be5\u7528\u6237";
+          content.append(element("p", error.message));
+        }
+      });
+      block.classList.add("v2p-btn-small");
+      actions.append(block);
+      card.append(actions);
       content.replaceChildren(card);
     }
+
     function position(anchor) {
+      const request = sequence;
       void computePosition(anchor, popup, {
-        placement: "bottom-start",
-        middleware: [offset({ mainAxis: 5, crossAxis: 5 }), flip(), shift({ padding: 8 })],
+        placement: "right-start",
+        middleware: [offset({ mainAxis: 8, crossAxis: -4 }), flip(), shift({ padding: 8 })],
       })
         .then(({ x, y }) => {
+          if (request !== sequence) return;
           popup.style.left = `${x}px`;
           popup.style.top = `${y}px`;
         })
-        .catch(hide);
+        .catch(() => {
+          if (request === sequence) hide();
+        });
     }
+
     document.addEventListener("pointerover", (event) => {
-      clearTimeout(closeTimer);
-      if (popup.contains(event.target) || event.target.closest?.(".v2p-modal-mask")) return;
+      if (popup.contains(event.target)) {
+        clearTimeout(closeTimer);
+        return;
+      }
+      if (event.target.closest?.(".v2p-modal-mask")) return;
       const link = event.target.closest?.('a[href^="/member/"]'),
         image = event.target.closest?.("img.avatar");
       const name =
@@ -204,24 +293,64 @@ export function createMembers(store, options) {
       active = anchor;
       const request = sequence;
       timer = setTimeout(async () => {
-        render(name);
+        const initialAvatar =
+          image?.src ??
+          link?.querySelector("img")?.src ??
+          anchor.closest(".cell,.header,.box")?.querySelector("img.avatar")?.src;
+        render(name, null, initialAvatar);
         popup.hidden = false;
         position(anchor);
         if (!options.userCards) return;
+        const key = name.toLowerCase(),
+          cached = cache.get(key);
+        if (cached?.expires > Date.now()) {
+          if (cached.banned)
+            content.replaceChildren(
+              element(
+                "span",
+                "\u67e5\u65e0\u6b64\u7528\u6237\uff0c\u7591\u4f3c\u5df2\u88ab\u5c01\u7981",
+              ),
+            );
+          else render(name, cached.data, initialAvatar);
+          position(anchor);
+          return;
+        }
+        const task = new AbortController();
+        controller = task;
+        const timeout = setTimeout(() => task.abort(), 10_000);
         try {
-          const data = await get(name);
-          if (request !== sequence) return;
-          render(name, data);
+          const data = await fetchMember(name, task.signal);
+          if (request !== sequence || task.signal.aborted) return;
+          if (cache.size >= 100) cache.delete(cache.keys().next().value);
+          cache.set(key, { data, expires: Date.now() + 600_000 });
+          render(name, data, initialAvatar);
           position(anchor);
         } catch (error) {
-          if (request === sequence) content.append(element("p", error.message));
+          task.abort();
+          if (request !== sequence) return;
+          if (error.status === 404) {
+            if (cache.size >= 100) cache.delete(cache.keys().next().value);
+            cache.set(key, { banned: true, expires: Date.now() + 600_000 });
+          }
+          content.replaceChildren(
+            element(
+              "span",
+              error.name === "AbortError"
+                ? "\u52a0\u8f7d\u8d85\u65f6\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5\u3002"
+                : error.message,
+            ),
+          );
+        } finally {
+          clearTimeout(timeout);
+          if (controller === task) controller = null;
         }
       }, 350);
     });
     document.addEventListener("pointerout", (event) => {
+      if (!active || (!active.contains(event.target) && !popup.contains(event.target))) return;
       if (
         event.relatedTarget &&
-        (popup.contains(event.relatedTarget) || active?.contains(event.relatedTarget))
+        (popup.contains(event.relatedTarget) || active.contains(event.relatedTarget))
       )
         return;
       closeTimer = setTimeout(hide, 350);
