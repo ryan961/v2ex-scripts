@@ -4,6 +4,33 @@ import { compile } from "sass";
 import { readFileSync } from "node:fs";
 import { dom } from "./helpers.js";
 
+test("privacy CSS covers arriving account cards without obscuring other sidebar members", () => {
+  const { window } = dom('<div id="Rightbar"></div>');
+  const style = document.createElement("style");
+  style.textContent = compile("src/vendor/polish/v2ex-effect.scss").css;
+  document.head.append(style);
+  const flatten = (rules) =>
+    [...rules].flatMap((rule) => (rule.cssRules?.length ? flatten(rule.cssRules) : [rule]));
+  const blurRules = flatten(style.sheet.cssRules).filter(
+    (rule) => rule.style?.getPropertyValue("filter") === "blur(6px)",
+  );
+  const protectedByCSS = (node) => blurRules.some((rule) => node.matches(rule.selectorText));
+  const rightbar = document.getElementById("Rightbar");
+  for (const marker of ['<div class="balance_area">100</div>', '<a href="/my/nodes">Nodes</a>']) {
+    rightbar.innerHTML = `<div class="box"><a id="account" href="/member/Reader">Reader</a>${marker}</div>
+      <div class="box"><a id="other" href="/member/Other">Other member</a></div>`;
+    const account = document.getElementById("account");
+    assert.equal(protectedByCSS(account), false);
+    document.documentElement.dataset.vxPrivacy = "";
+    assert.equal(protectedByCSS(account), true);
+    assert.equal(protectedByCSS(document.getElementById("other")), false);
+    const balance = rightbar.querySelector(".balance_area");
+    if (balance) assert.equal(protectedByCSS(balance), true);
+    delete document.documentElement.dataset.vxPrivacy;
+  }
+  window.close();
+});
+
 test("requested padding stays scoped to the topic list and top-level replies", () => {
   dom(
     '<style>.cell {padding:10px}.reply-group > .reply-group-item {padding:8px 0} #Rightbar .cell.item {padding:7px}</style><div id="Main"><div class="box"><div id="Tabs"></div><div class="cell item" id="topic"></div></div><div class="box"><div class="cell item" id="other"></div></div><div class="box reply-threads-c"><div class="cell" id="r_1"></div><div class="reply-group"><div class="cell reply-group-item" id="r_2"></div></div></div></div><div id="Rightbar"><div class="cell item" id="side"></div></div>',

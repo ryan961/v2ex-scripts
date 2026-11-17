@@ -24,6 +24,8 @@
 
 默认使用 Minimalist，可在设置中切换至 Arco 清阅或 V2EX 原生。主题跟随 V2EX 的浅色、跟随系统和深色设置，增强主题保留现有字体和回复间距。
 
+脚本在识别到 V2EX 页头后提前应用主题；开启防窥屏时，Logo 和账户遮挡也提前生效，减少刷新时的视觉跳变。Chrome 用户建议在 Tampermonkey **设置 → 通用 → 配置模式** 中选择“高级”，再将 **实验 → Content Script API** 设为 **UserScripts API Dynamic**，以支持即时的 `document-start` 注入（[官方说明](https://www.tampermonkey.net/documentation.php?locale=en&q=content_script_api)）。无需额外安装遮罩脚本或填写 V2EX Custom CSS；实际加载效果仍受脚本管理器注入时机影响。
+
 自动签到、图片上传和表情选择器需要登录 V2EX。图片上传至 Imgur 公共图床。
 
 ## 本地开发

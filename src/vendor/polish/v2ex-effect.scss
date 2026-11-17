@@ -1171,7 +1171,12 @@ a.v2p-topic-preview-title-link {
   }
 }
 
-.v2p-hide-account {
+:root[data-vx-privacy] #Top a[href^="/member/"] {
+  display: none;
+}
+
+.v2p-hide-account,
+:root[data-vx-privacy] #Rightbar .box:has(.balance_area, a[href="/my/nodes"]) a[href^="/member/"] {
   @supports (filter: blur(6px)) {
     opacity: 0.5;
     filter: blur(6px);
@@ -1182,7 +1187,8 @@ a.v2p-topic-preview-title-link {
   }
 }
 
-.v2p-hide-balance {
+.v2p-hide-balance,
+:root[data-vx-privacy] #Rightbar .box .balance_area {
   @supports (filter: blur(6px)) {
     opacity: 0.5;
     filter: blur(6px);

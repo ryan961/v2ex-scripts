@@ -20,17 +20,36 @@ const previewFrame = window.frameElement?.matches("iframe.v2p-topic-preview-fram
   : null;
 let themeReady = false;
 
+function preparePrivacy() {
+  // Protect streamed account markup before the rest of the page finishes loading.
+  document.documentElement.dataset.vxPrivacy = "";
+  for (const icon of document.querySelectorAll('link[rel~="icon"]')) {
+    if (icon.href !== "https://v2p.leoku.dev/favicon.svg")
+      icon.href = "https://v2p.leoku.dev/favicon.svg";
+  }
+  const logo = document.getElementById("Logo");
+  if (logo && !logo.classList.contains("v2p-logo")) {
+    logo.classList.add("v2p-logo");
+    logo.innerHTML =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
+  }
+}
+
 function prepareTheme() {
   if (!themeReady && (document.querySelector("body > #Top #Logo") || isV2EXPage(document))) {
     let theme;
+    let privacy = false;
     if (previewFrame) theme = previewFrame.ownerDocument.documentElement.dataset.vxTheme;
     else {
       try {
-        theme = GM_getValue(`${PREFIX}options`, {})?.theme;
+        const options = GM_getValue(`${PREFIX}options`, {});
+        theme = options?.theme;
+        privacy = options?.privacy === true;
       } catch {
         // A storage failure must not prevent the fallback theme from loading.
       }
     }
+    if (privacy) preparePrivacy();
     applyTheme(document, Boolean(previewFrame), theme);
     themeCSS = themeStyles(document.documentElement.dataset.vxTheme);
     if (!document.getElementById(THEME_STYLE_ID)) {
@@ -58,26 +77,7 @@ function start() {
   const options = store.options();
   setLanguage(options.language);
   const name = currentUser();
-  if (options.privacy) {
-    for (const icon of document.querySelectorAll('link[rel~="icon"]'))
-      icon.href = "https://v2p.leoku.dev/favicon.svg";
-    for (const link of document.querySelectorAll('#Top a[href^="/member/"]')) link.remove();
-    const logo = document.querySelector("#Logo");
-    if (logo) {
-      logo.classList.add("v2p-logo");
-      logo.innerHTML =
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
-    }
-    if (name) {
-      const account = [...document.querySelectorAll('#Rightbar a[href^="/member/"]')].find(
-        (link) => link.getAttribute("href").toLowerCase() === `/member/${name.toLowerCase()}`,
-      );
-      const box = account?.closest(".box");
-      for (const link of box?.querySelectorAll('a[href^="/member/"]') ?? [])
-        link.classList.add("v2p-hide-account");
-      box?.querySelector(".balance_area")?.classList.add("v2p-hide-balance");
-    }
-  }
+  if (options.privacy) preparePrivacy();
   const getDocument = createHTTP();
   const topics = createTopics(options, themeCSS);
   const members = createMembers(store, options, topics, name);

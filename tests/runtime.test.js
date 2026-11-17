@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { JSDOM } from "jsdom";
+import { currentUser } from "../src/dom.js";
 
 const fixture = readFileSync(new URL("./fixtures/topic.html", import.meta.url), "utf8");
 const built = readFileSync(new URL("../dist/v2ex-lite.user.js", import.meta.url), "utf8");
@@ -22,6 +23,7 @@ test("only owned preview frames bootstrap the theme without account or storage w
     });
     const frame = instance.window.document.createElement("iframe");
     instance.window.document.documentElement.dataset.vxTheme = theme;
+    instance.window.document.documentElement.dataset.vxPrivacy = "";
     if (owned) frame.className = "v2p-topic-preview-frame";
     frame.style.visibility = "hidden";
     instance.window.document.body.append(frame);
@@ -51,9 +53,83 @@ test("only owned preview frames bootstrap the theme without account or storage w
     assert.deepEqual(calls, themed ? ["style"] : []);
     assert.equal(doc.documentElement.dataset.v2pPreview, themed ? "1" : undefined);
     assert.equal(doc.documentElement.dataset.vxTheme, themed ? theme : undefined);
+    assert.equal(doc.documentElement.hasAttribute("data-vx-privacy"), false);
     assert.equal(doc.querySelectorAll("#v2ex-lite-theme").length, themed ? 1 : 0);
     assert.equal(frame.style.visibility, owned ? "" : "hidden");
     instance.window.close();
+  }
+});
+
+test("privacy prepares the header before main content and preserves account detection", async () => {
+  for (const theme of ["minimalist", "arco-clear", "native"]) {
+    for (const privacy of [true, false, "true"]) {
+      const { window } = new JSDOM("", {
+        url: "https://www.v2ex.com/",
+        runScripts: "outside-only",
+        pretendToBeVisual: true,
+      });
+      await new Promise((resolve) => window.addEventListener("load", resolve, { once: true }));
+      const doc = window.document;
+      let phase = "loading";
+      const errors = [];
+      window.addEventListener("error", (event) => errors.push(event.error));
+      Object.defineProperty(doc, "readyState", { get: () => phase });
+      let menus = 0;
+      Object.assign(window, {
+        GM_getValue: (key, fallback) =>
+          key === "v2ex-lite:options"
+            ? { theme, privacy, autoCheckIn: false, preloadPages: 0, userCards: false }
+            : fallback,
+        GM_addStyle(css) {
+          assert.equal(doc.documentElement.hasAttribute("data-vx-privacy"), privacy === true);
+          assert.equal(Boolean(doc.querySelector("#Logo svg")), privacy === true);
+          const style = doc.createElement("style");
+          style.textContent = css;
+          doc.head.append(style);
+          return style;
+        },
+        GM_setValue: () => assert.fail("unexpected storage write"),
+        GM_deleteValue() {},
+        GM_listValues: () => [],
+        GM_addValueChangeListener() {},
+        GM_registerMenuCommand: () => menus++,
+        GM_xmlhttpRequest: () => assert.fail("unexpected upload"),
+        fetch: () => assert.fail("unexpected request"),
+        matchMedia: () => ({ matches: false, addEventListener() {} }),
+        unsafeWindow: window,
+      });
+      window.eval(built);
+      doc.head.insertAdjacentHTML("beforeend", '<link rel="icon" href="/favicon.ico">');
+      doc.body.innerHTML = `<div id="Top"><a href="/"><div id="Logo"></div></a>
+        <div class="tools"><a class="top" href="/member/Reader">Reader</a></div></div>`;
+      await new Promise(setImmediate);
+      assert.equal(doc.getElementById("Main"), null);
+      const logo = doc.querySelector("#Logo svg");
+      assert.equal(Boolean(logo), privacy === true);
+      assert.equal(menus, 0);
+      assert.equal(currentUser(doc), "Reader");
+      assert.equal(
+        window.getComputedStyle(doc.querySelector("#Top .top")).display === "none",
+        privacy === true,
+      );
+      assert.equal(
+        doc.querySelector('link[rel="icon"]').getAttribute("href"),
+        privacy === true ? "https://v2p.leoku.dev/favicon.svg" : "/favicon.ico",
+      );
+      doc.body.insertAdjacentHTML("beforeend", '<div id="Main"></div><div id="Bottom"></div>');
+      phase = "interactive";
+      doc.dispatchEvent(new window.Event("DOMContentLoaded"));
+      assert.equal(menus, 1);
+      assert.equal(
+        doc.querySelector("#Logo svg"),
+        logo,
+        "initialization must not replace the logo again",
+      );
+      assert.equal(currentUser(doc), "Reader");
+      assert.equal(doc.querySelectorAll("#v2ex-lite-theme").length, 1);
+      assert.deepEqual(errors, []);
+      window.close();
+    }
   }
 });
 
@@ -78,6 +154,7 @@ test("saved themes are selected before the first style and recover from invalid 
     doc.addEventListener("DOMContentLoaded", () => (phase = "interactive"), { once: true });
     const options = {
       theme: saved,
+      privacy: true,
       autoCheckIn: false,
       preloadPages: 0,
       userCards: false,
@@ -113,6 +190,8 @@ test("saved themes are selected before the first style and recover from invalid 
     await new Promise(setImmediate);
     assert.deepEqual(reads, ["loading", "interactive"]);
     assert.equal(doc.documentElement.dataset.vxTheme, expected);
+    assert.equal(doc.documentElement.hasAttribute("data-vx-privacy"), true);
+    assert.ok(doc.querySelector("#Logo svg"));
     assert.equal(doc.querySelectorAll("#v2ex-lite-theme").length, 1);
     instance.window.close();
   }
@@ -335,6 +414,7 @@ test("Cloudflare and error pages do not run V2EX Lite", async () => {
   await new Promise((resolve) => window.setTimeout(resolve, 0));
   assert.equal(window.document.querySelector(".v2p-footer"), null);
   assert.equal(window.document.documentElement.dataset.v2pTheme, undefined);
+  assert.equal(window.document.documentElement.hasAttribute("data-vx-privacy"), false);
   assert.deepEqual(calls, []);
   window.document.body.insertAdjacentHTML("beforeend", '<div id="Top"></div><div id="Main"></div>');
   await new Promise((resolve) => window.setTimeout(resolve, 0));
