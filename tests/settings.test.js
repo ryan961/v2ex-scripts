@@ -91,6 +91,7 @@ test("guest settings retain saved preferences and show account dependencies", ()
   let saved;
   openSettings(
     {
+      ...createStorage(memoryAPI()),
       options: () => original,
       saveOptions(next) {
         saved = next;

@@ -1,4 +1,4 @@
-import { button, currentUser, element, modal } from "./dom.js";
+import { button, currentUser, element } from "./dom.js";
 import { interfaceLanguage, t } from "./i18n.js";
 import { BACKUP_BYTES, TAG_LIMITS, byteLength } from "./storage.js";
 import {
@@ -10,15 +10,9 @@ import {
   readBackupParts,
   singleBackup,
 } from "./backup-format.js";
-import { notesBackup } from "./backup-remote.js";
+import { notesBackup } from "./backup-notes.js";
 
-const methods = { local: "backupLocal", notes: "backupNotes", cloud: "backupCloud" };
-const providers = { github: "GitHub", webdav: "WebDAV", drive: "Google Drive" };
-const providerHelp = {
-  github: "backupGitHubHelp",
-  webdav: "backupWebDAVHelp",
-  drive: "backupDriveHelp",
-};
+const methods = { local: "backupLocal", notes: "backupNotes" };
 
 function select(label, choices, value) {
   const control = element("select");
@@ -28,7 +22,7 @@ function select(label, choices, value) {
     control.append(option);
   }
   control.value = Object.hasOwn(choices, value) ? value : Object.keys(choices)[0];
-  const field = element("label", label);
+  const field = element("label", label, "vx-backup-method");
   field.append(control);
   return { control, field };
 }
@@ -49,15 +43,16 @@ function download(text, name) {
   setTimeout(() => URL.revokeObjectURL(link.href), 1000);
 }
 
-export function openBackup(store, { onTags, onRestored, signedIn = Boolean(currentUser()) } = {}) {
-  const dialog = modal(t("backup"));
-  dialog.root.classList.add("vx-backup-dialog");
+export function createBackup(
+  store,
+  { onTags, onRestored, signedIn = Boolean(currentUser()) } = {},
+) {
+  const root = element("fieldset", undefined, "vx-backup");
   const mode = select(
     t("backupMode"),
     Object.fromEntries(Object.entries(methods).map(([key, value]) => [key, t(value)])),
     store.get("backup:mode", "local"),
   );
-  const provider = select(t("backupCloud"), providers, store.get("backup:provider", "github"));
   const usage = element("p");
   const details = element("div", undefined, "vx-backup-fields");
   const files = element("div", undefined, "vx-backup-fields");
@@ -72,14 +67,12 @@ export function openBackup(store, { onTags, onRestored, signedIn = Boolean(curre
   });
   input.setAttribute("aria-label", t("selectBackup"));
   const actions = element("div", undefined, "vx-settings-backup-actions");
-  const extraActions = element("div", undefined, "vx-settings-backup-actions");
   const preview = element("div", undefined, "vx-backup-fields");
   let busy = false;
 
   function refresh() {
     const snapshot = store.snapshot();
     const notes = mode.control.value === "notes";
-    const cloud = mode.control.value === "cloud";
     usage.textContent = t(
       "backupUsage",
       ...[
@@ -90,22 +83,10 @@ export function openBackup(store, { onTags, onRestored, signedIn = Boolean(curre
       ].map((number) => number.toLocaleString(interfaceLanguage())),
     );
     details.replaceChildren();
-    extraActions.replaceChildren();
+    actions.replaceChildren(...(notes ? [saveNote, restoreNote] : [exportFile, importFile]));
     if (notes) {
       details.append(element("p", t("backupNotesHelp")));
       if (!signedIn) details.append(element("strong", t("loginRequired")));
-      extraActions.append(saveNote, restoreNote);
-    } else if (cloud) {
-      details.append(
-        provider.field,
-        element("p", t(providerHelp[provider.control.value])),
-        element("p", t("backupCloudHelp")),
-      );
-      const link = element("a", t("backupOpenCloud"), "normal button");
-      link.href = `http://localhost:8765/?provider=${provider.control.value}&lang=${interfaceLanguage()}`;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      extraActions.append(link);
     }
   }
 
@@ -113,7 +94,7 @@ export function openBackup(store, { onTags, onRestored, signedIn = Boolean(curre
     if (busy) return;
     busy = true;
     status.textContent = "";
-    mode.control.disabled = provider.control.disabled = true;
+    mode.control.disabled = true;
     for (const control of [exportFile, importFile, saveNote, restoreNote]) control.disabled = true;
     try {
       await action();
@@ -121,7 +102,7 @@ export function openBackup(store, { onTags, onRestored, signedIn = Boolean(curre
       status.textContent = error instanceof SyntaxError ? t("invalidJSON") : error.message;
     } finally {
       busy = false;
-      mode.control.disabled = provider.control.disabled = false;
+      mode.control.disabled = false;
       for (const control of [exportFile, importFile, saveNote, restoreNote])
         control.disabled = false;
       saveNote.disabled = restoreNote.disabled = !signedIn;
@@ -129,7 +110,7 @@ export function openBackup(store, { onTags, onRestored, signedIn = Boolean(curre
   }
 
   function showRestore(data) {
-    if (!dialog.root.isConnected) return;
+    if (!root.isConnected) return;
     const changes = store.previewRestore(data);
     const tags = checkbox(
       t("backupRestoreTags"),
@@ -207,8 +188,7 @@ export function openBackup(store, { onTags, onRestored, signedIn = Boolean(curre
       void run(async () => {
         const text = singleBackup(store.snapshot(), NOTE_MARK, NOTE_BYTES);
         const saved = await notesBackup(currentUser(), text, {
-          approve: (account) =>
-            dialog.root.isConnected && window.confirm(t("backupApproveNote", account)),
+          approve: (account) => root.isConnected && window.confirm(t("backupApproveNote", account)),
         });
         if (saved) status.textContent = t("backupSaved");
       }),
@@ -222,23 +202,21 @@ export function openBackup(store, { onTags, onRestored, signedIn = Boolean(curre
       }),
   );
   saveNote.disabled = restoreNote.disabled = !signedIn;
-  for (const [field, key] of [
-    [mode, "mode"],
-    [provider, "provider"],
-  ])
-    field.control.addEventListener("change", () => {
-      store.set(`backup:${key}`, field.control.value);
-      status.textContent = "";
-      refresh();
-    });
+  mode.control.addEventListener("change", () => {
+    store.set("backup:mode", mode.control.value);
+    status.textContent = "";
+    files.replaceChildren();
+    preview.replaceChildren();
+    refresh();
+  });
 
-  actions.append(exportFile, importFile);
-  dialog.content.append(
-    element("p", t("storageHelp")),
+  root.append(
+    element("legend", t("backup")),
+    element("p", t("storageHelp"), "vx-storage-help"),
+    element("p", t("backupHelp")),
     mode.field,
     usage,
     details,
-    extraActions,
     actions,
     input,
     files,
@@ -246,4 +224,5 @@ export function openBackup(store, { onTags, onRestored, signedIn = Boolean(curre
     status,
   );
   refresh();
+  return root;
 }

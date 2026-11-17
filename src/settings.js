@@ -4,7 +4,7 @@ import { createTagManager } from "./tag-manager.js";
 import { openUploadHistory } from "./upload.js";
 import { icon } from "./icons.js";
 import { THEMES } from "./theme.js";
-import { openBackup } from "./backup-ui.js";
+import { createBackup } from "./backup-ui.js";
 
 export function openSettings(store, signedIn = Boolean(currentUser()), tagActions) {
   if (document.querySelector("#vx-settings-dialog")) return;
@@ -106,28 +106,20 @@ export function openSettings(store, signedIn = Boolean(currentUser()), tagAction
     }
   });
   let manager;
-  const backup = element("fieldset");
-  backup.append(
-    element("legend", t("backup")),
-    element("p", t("storageHelp"), "vx-storage-help"),
-    element("p", t("backupHelp")),
-    button(t("backup"), () =>
-      openBackup(store, {
-        signedIn,
-        onTags: tagActions?.updateTags,
-        onRestored(settings) {
-          manager?.refresh();
-          if (!settings) return;
-          const restored = store.options();
-          for (const [key, control] of fields) {
-            if (control.disabled) continue;
-            if (control.type === "checkbox") control.checked = restored[key];
-            else control.value = restored[key];
-          }
-        },
-      }),
-    ),
-  );
+  const backup = createBackup(store, {
+    signedIn,
+    onTags: tagActions?.updateTags,
+    onRestored(settings) {
+      manager?.refresh();
+      if (!settings) return;
+      const restored = store.options();
+      for (const [key, control] of fields) {
+        if (control.disabled) continue;
+        if (control.type === "checkbox") control.checked = restored[key];
+        else control.value = restored[key];
+      }
+    },
+  });
   if (tagActions) {
     const details = element("details", undefined, "vx-settings-tag-manager");
     details.append(element("summary", t("manageTags")));

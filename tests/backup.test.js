@@ -8,9 +8,8 @@ import {
   readBackupParts,
   singleBackup,
 } from "../src/backup-format.js";
-import { boundedText, notesBackup, githubBackup, webdavBackup } from "../src/backup-remote.js";
-import { uploadDrive, listDrive, downloadDrive } from "../src/backup-drive.js";
-import { openBackup } from "../src/backup-ui.js";
+import { boundedText, notesBackup } from "../src/backup-notes.js";
+import { openSettings } from "../src/settings.js";
 import { setLanguage, t } from "../src/i18n.js";
 import { dom, memoryAPI } from "./helpers.js";
 
@@ -21,7 +20,6 @@ const snapshot = (members = { alice: ["friend"] }) => ({
   members,
 });
 const text = singleBackup(snapshot());
-const json = (data) => new Response(JSON.stringify(data));
 
 test("split files obey byte and member limits and restore only complete sets", () => {
   const long = Array.from({ length: 20 }, (_, i) => `${i}\u754c`.padEnd(80, "\u754c"));
@@ -57,7 +55,7 @@ test("legacy label records and settings restore independently and preserve local
   const store = createStorage(memoryAPI());
   store.setTags("alice", []);
   store.saveOptions({ theme: "arco-clear", imgurClientId: "local123" });
-  store.set("backup:provider", "drive");
+  store.set("backup:mode", "notes");
   const restored = readBackupParts([
     singleBackup(snapshot({ alice: ["old"], bob: [], carol: ["new"] })),
   ]);
@@ -65,7 +63,7 @@ test("legacy label records and settings restore independently and preserve local
   assert.equal(store.restore(restored, { settings: true, tags: false }), 0);
   assert.equal(store.options().theme, "native");
   assert.equal(store.options().imgurClientId, "local123");
-  assert.equal(store.get("backup:provider"), "drive");
+  assert.equal(store.get("backup:mode"), "notes");
   assert.equal(store.restore(restored), 2);
   assert.deepEqual(store.getTags("alice"), []);
   assert.equal(JSON.parse(store.export()).options.imgurClientId, undefined);
@@ -153,90 +151,19 @@ test("Notes verifies the signed-in account and reads the saved note back", async
   window.close();
 });
 
-test("GitHub only writes private repositories with the checked file SHA", async () => {
-  const sha = "a".repeat(40);
-  const config = { repo: "owner/backup", token: "github_pat_sample" };
-  let writes = 0;
-  const fetcher = async (url, init) => {
-    assert.equal(new URL(url).hostname, "api.github.com");
-    assert.equal(init.redirect, "error");
-    assert.equal(init.headers.Authorization, `Bearer ${config.token}`);
-    if (init.method === "PUT") {
-      writes++;
-      const body = JSON.parse(init.body);
-      assert.equal(body.sha, sha);
-      assert.equal(Buffer.from(body.content, "base64").toString(), text);
-      return new Response(null, { status: 409 });
-    }
-    if (url.endsWith("/backup")) return json({ private: true, default_branch: "main" });
-    if (url.endsWith(sha)) return new Response(text);
-    return json({ type: "file", sha });
-  };
-  await assert.rejects(githubBackup(config, text, fetcher));
-  assert.equal(writes, 1);
-  await assert.rejects(githubBackup(config, text, async () => json({ private: false })));
-  const result = await githubBackup(config, undefined, fetcher);
-  assert.equal(result.options.theme, "native");
-});
-
-test("WebDAV requires a strong ETag for replacement and protects first creation", async () => {
-  const config = {
-    url: "https://dav.example/private/backup.json",
-    user: "reader",
-    password: "secret",
-  };
-  for (const prior of [404, 200]) {
-    await webdavBackup(config, text, async (url, init) => {
-      assert.equal(url, config.url);
-      assert.equal(init.headers.Authorization, `Basic ${btoa("reader:secret")}`);
-      if (init.method === "PUT") {
-        assert.equal(
-          init.headers[prior === 404 ? "If-None-Match" : "If-Match"],
-          prior === 404 ? "*" : '"last"',
-        );
-        return new Response(null, { status: 204 });
-      }
-      return new Response(prior === 200 ? text : null, {
-        status: prior,
-        headers: { etag: '"last"' },
-      });
-    });
-  }
-  await assert.rejects(
-    webdavBackup(config, text, async (_, init) => {
-      assert.equal(init.method, undefined);
-      return new Response(text, { headers: { etag: 'W/"weak"' } });
-    }),
-  );
-});
-
-test("Drive creates a visible snapshot and reads an app-scoped file", async () => {
-  const fetcher = async (url, init) => {
-    assert.equal(new URL(url).origin, "https://www.googleapis.com");
-    assert.equal(init.headers.Authorization, "Bearer access-token");
-    if (init.method === "POST") {
-      assert.match(init.headers["Content-Type"], /^multipart\/related/);
-      assert.match(init.body, /"appProperties":\{"v2exLiteBackup":"1"\}/);
-      assert.ok(init.body.includes(text));
-      return json({ id: "sample", size: String(byteLength(text)) });
-    }
-    if (url.endsWith("?alt=media")) return new Response(text);
-    assert.match(new URL(url).searchParams.get("q"), /v2exLiteBackup/);
-    return json({ files: [{ id: "sample", name: "Backup", size: String(byteLength(text)) }] });
-  };
-  assert.equal(await uploadDrive("access-token", text, fetcher), "sample");
-  assert.equal((await listDrive("access-token", fetcher))[0].id, "sample");
-  assert.deepEqual((await downloadDrive("access-token", "sample", fetcher)).members.alice, [
-    "friend",
-  ]);
-});
-
-test("the backup dialog defaults to local and file import waits for restore choices", async () => {
+test("settings embed local backup and file import waits for restore choices", async () => {
   const { window } = dom("");
   setLanguage("en");
   const store = createStorage(memoryAPI());
-  openBackup(store);
-  const dialog = document.querySelector(".vx-backup-dialog");
+  openSettings(store, true);
+  const dialog = document.querySelector("#vx-settings-dialog .vx-backup");
+  assert.equal(document.querySelectorAll(".v2p-modal-mask").length, 1);
+  assert.deepEqual(
+    [...dialog.querySelector("select").options].map(({ value }) => value),
+    ["local", "notes"],
+  );
+  const theme = document.querySelector('[name="theme"]');
+  theme.value = "arco-clear";
   assert.equal(dialog.querySelector("select").value, "local");
   const input = dialog.querySelector('input[type="file"]');
   Object.defineProperty(input, "files", {
@@ -254,6 +181,64 @@ test("the backup dialog defaults to local and file import waits for restore choi
     .click();
   assert.deepEqual(store.getTags("alice"), ["friend"]);
   assert.equal(store.options().theme, "native");
+  assert.equal(theme.value, "native");
+  assert.equal(document.querySelectorAll(".v2p-modal-mask").length, 1);
+  const mode = dialog.querySelector("select");
+  mode.value = "notes";
+  mode.dispatchEvent(new window.Event("change"));
+  assert.equal(document.querySelectorAll(".v2p-modal-mask").length, 1);
+  assert.equal(theme.value, "native");
+  assert.ok(
+    [...dialog.querySelectorAll("button")].find((b) => b.textContent === t("backupToNotes")),
+  );
   window.close();
   setLanguage("zh");
+});
+
+test("removed cloud preferences fall back to local and guests cannot use Notes", () => {
+  const { window } = dom("");
+  setLanguage("en");
+  const api = memoryAPI();
+  const store = createStorage(api);
+  store.set("backup:mode", "cloud");
+  const writes = api.writes.length;
+  openSettings(store, false);
+  const root = document.querySelector(".vx-backup");
+  const mode = root.querySelector("select");
+  assert.equal(mode.value, "local");
+  assert.equal(api.writes.length, writes);
+  const theme = document.querySelector('[name="theme"]');
+  theme.value = "native";
+  mode.value = "notes";
+  mode.dispatchEvent(new window.Event("change"));
+  assert.equal(theme.value, "native");
+  assert.equal(document.querySelectorAll(".v2p-modal-mask").length, 1);
+  assert.match(root.textContent, /Requires V2EX sign-in/);
+  assert.equal(root.querySelectorAll("button").length, 2);
+  for (const button of root.querySelectorAll("button")) {
+    assert.equal(button.disabled, true);
+    assert.equal(button.type, "button");
+  }
+  assert.equal(store.get("backup:mode"), "notes");
+  window.close();
+  setLanguage("zh");
+});
+
+test("closing settings while a backup file loads cannot restore or reopen it", async () => {
+  const { window } = dom("");
+  const api = memoryAPI();
+  openSettings(createStorage(api), true);
+  let finish;
+  const loaded = new Promise((resolve) => (finish = resolve));
+  const input = document.querySelector('.vx-backup input[type="file"]');
+  Object.defineProperty(input, "files", {
+    value: [{ text: () => loaded, size: byteLength(text) }],
+  });
+  input.dispatchEvent(new window.Event("change"));
+  document.querySelector(".v2p-modal-close-btn").click();
+  finish(text);
+  await new Promise(setImmediate);
+  assert.equal(document.querySelector(".v2p-modal-mask"), null);
+  assert.deepEqual(api.writes, []);
+  window.close();
 });

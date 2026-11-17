@@ -851,33 +851,38 @@
   img:not(.v2p-emoji-img) {
   cursor: zoom-in;
 }
-.vx-backup-dialog .v2p-modal-main {
-  width: min(100%, 640px);
-  height: auto;
-  max-height: 96dvh;
-}
-
-.vx-backup-dialog .v2p-modal-content {
+.vx-backup {
   display: grid;
-  gap: 12px;
-  padding: 16px;
-}
-
-.vx-backup-dialog p {
-  margin: 0;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
 }
 
 .vx-backup-fields {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 8px;
   justify-items: start;
 }
 
-.vx-backup-dialog select {
+.vx-backup-fields > :is(label, button) {
   max-width: 100%;
-  margin-inline-start: 8px;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
-.vx-backup-dialog :is(.vx-backup-fields, .vx-settings-backup-actions, p):empty {
+.vx-backup-method {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.vx-backup-method select {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.vx-backup :is(.vx-backup-fields, p):empty {
   display: none;
 }
