@@ -11,6 +11,7 @@ test("only owned preview frames bootstrap the theme without account or storage w
   for (const [owned, html, themed, theme] of [
     [true, fixture, true, "minimalist"],
     [true, fixture, true, "arco-clear"],
+    [true, fixture, true, "native"],
     [false, fixture, false, "arco-clear"],
     [true, '<h1>Security verification</h1><div id="challenge-stage"></div>', false, "arco-clear"],
   ]) {
@@ -59,6 +60,7 @@ test("only owned preview frames bootstrap the theme without account or storage w
 test("saved themes are selected before the first style and recover from invalid or unavailable options", async () => {
   for (const [saved, expected, failFirstRead] of [
     ["arco-clear", "arco-clear", false],
+    ["native", "native", false],
     [undefined, "minimalist", false],
     ["unknown", "minimalist", false],
     ["arco-clear", "minimalist", true],

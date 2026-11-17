@@ -1,7 +1,7 @@
 import { t } from "./i18n.js";
 import { button, element, matching, memberName, modal, owned, safeURL } from "./dom.js";
 import { computePosition, flip, offset, shift } from "@floating-ui/dom";
-import { blockMember, fetchMember } from "./member-data.js";
+import { blockMember, fetchMember, setMemberFollow } from "./member-data.js";
 import { normalizeTags, TAG_LIMITS } from "./storage.js";
 
 export function createMembers(store, options, topics, currentAccount) {
@@ -272,6 +272,13 @@ export function createMembers(store, options, topics, currentAccount) {
         joined.classList.add("v2p-loading");
       }
       right.append(username, number, joined);
+      if (data?.activityRank) {
+        const rank = element("a", t("activityRank", data.activityRank), "vx-member-rank");
+        rank.href = "/top/dau";
+        rank.target = options.newTab ? "_blank" : "_self";
+        rank.rel = "noopener noreferrer";
+        right.append(rank);
+      }
       const days = Math.ceil((Date.now() / 1000 - Number(data?.created)) / 86400);
       if (data && days >= 0 && days <= 30) {
         const recent = element("div", t("recentMember", days <= 15 ? 15 : 30), "v2p-register-days");
@@ -298,7 +305,56 @@ export function createMembers(store, options, topics, currentAccount) {
         card.append(section);
         topics?.enhance(section);
       }
+      if (data?.replies?.length) {
+        const section = element("div", undefined, "v2p-member-topics vx-member-replies");
+        const list = element("div", undefined, "v2p-member-topics-list");
+        section.append(element("div", t("recentReplies"), "v2p-member-topics-header"), list);
+        for (const reply of data.replies) {
+          const row = element("a", undefined, "vx-member-reply");
+          row.href = reply.url;
+          row.target = options.newTab ? "_blank" : "_self";
+          row.rel = "noopener noreferrer";
+          row.append(element("span", reply.title, "vx-member-reply-title"));
+          if (reply.text) row.append(element("span", reply.text, "vx-member-reply-text"));
+          if (reply.time) row.append(element("span", reply.time, "vx-member-reply-time"));
+          list.append(row);
+        }
+        card.append(section);
+      }
       const actions = element("div", undefined, "v2p-member-card-actions");
+      if (
+        currentAccount &&
+        currentAccount.toLowerCase() !== name.toLowerCase() &&
+        typeof data?.following === "boolean"
+      ) {
+        const feedback = element("p");
+        feedback.setAttribute("role", "alert");
+        feedback.hidden = true;
+        const follow = button(t(data.following ? "unfollowMember" : "followMember"), async () => {
+          if (follow.disabled) return;
+          const next = !data.following;
+          if (!window.confirm(t(next ? "confirmFollow" : "confirmUnfollow", name))) return;
+          follow.disabled = true;
+          feedback.hidden = true;
+          follow.classList.add("v2p-btn-loading");
+          follow.textContent = t("updatingFollow");
+          try {
+            data.following = await setMemberFollow(name, next, currentAccount);
+            follow.setAttribute("aria-pressed", String(data.following));
+          } catch (error) {
+            feedback.textContent = error.message;
+            feedback.hidden = false;
+            actions.after(feedback);
+          } finally {
+            follow.disabled = false;
+            follow.classList.remove("v2p-btn-loading");
+            follow.textContent = t(data.following ? "unfollowMember" : "followMember");
+          }
+        });
+        follow.classList.add("v2p-btn-small", "vx-member-follow");
+        follow.setAttribute("aria-pressed", String(data.following));
+        actions.append(follow);
+      }
       if (options.tags) {
         const control = button(t("addTags"), () => {
           hide();
@@ -360,7 +416,11 @@ export function createMembers(store, options, topics, currentAccount) {
       const request = sequence;
       void computePosition(anchor, popup, {
         placement: "right-start",
-        middleware: [offset({ mainAxis: 8, crossAxis: -4 }), flip(), shift({ padding: 8 })],
+        middleware: [
+          offset({ mainAxis: 8, crossAxis: -4 }),
+          flip(),
+          shift({ padding: 8, crossAxis: true }),
+        ],
       })
         .then(({ x, y }) => {
           if (request !== sequence) return;

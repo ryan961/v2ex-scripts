@@ -1,6 +1,5 @@
 import { applyTheme, THEME_STYLE_ID } from "./theme.js";
-import polishCSS from "./theme.scss";
-import integrationCSS from "./styles.css";
+import { themeStyles } from "./theme-styles.js";
 import { enhanceEmojis, initEmoji } from "./emoji.js";
 import { createStorage, PREFIX } from "./storage.js";
 import { setLanguage } from "./i18n.js";
@@ -14,7 +13,7 @@ import { createReplyFolding } from "./folding.js";
 import { installSettings } from "./settings.js";
 import { installPageActions } from "./page-actions.js";
 
-const themeCSS = `${polishCSS}\n${integrationCSS}`;
+let themeCSS;
 const previewFrame = window.frameElement?.matches("iframe.v2p-topic-preview-frame")
   ? window.frameElement
   : null;
@@ -32,6 +31,7 @@ function prepareTheme() {
       }
     }
     applyTheme(document, Boolean(previewFrame), theme);
+    themeCSS = themeStyles(document.documentElement.dataset.vxTheme);
     if (!document.getElementById(THEME_STYLE_ID)) {
       const style = GM_addStyle(themeCSS);
       if (style) style.id = THEME_STYLE_ID;

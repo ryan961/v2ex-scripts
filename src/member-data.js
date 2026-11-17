@@ -1,5 +1,5 @@
 import { t } from "./i18n.js";
-import { syncOnce } from "./dom.js";
+import { currentUser, syncOnce } from "./dom.js";
 
 export function parseMemberTopics(doc) {
   const topics = [];
@@ -15,6 +15,44 @@ export function parseMemberTopics(doc) {
     }
   }
   return topics;
+}
+
+export function parseMemberReplies(doc) {
+  const replies = [];
+  for (const row of [...doc.querySelectorAll("#Main .dock_area")].slice(0, 3)) {
+    const link = row.querySelector('a[href*="/t/"]');
+    const content = row.nextElementSibling?.querySelector(".reply_content");
+    if (!link?.textContent.trim() || !content) continue;
+    try {
+      const url = new URL(link.getAttribute("href"), location.href);
+      if (url.origin !== location.origin || !/^\/t\/\d+\/?$/.test(url.pathname)) continue;
+      const text = content.cloneNode(true);
+      for (const br of text.querySelectorAll("br")) br.replaceWith(" ");
+      const excerpt = text.textContent.replace(/\s+/g, " ").trim();
+      replies.push({
+        title: link.textContent.trim(),
+        url: url.href,
+        text: excerpt.length > 160 ? `${excerpt.slice(0, 160)}\u2026` : excerpt,
+        time: row.querySelector(".fade")?.textContent.trim() ?? "",
+      });
+    } catch {
+      /* Ignore malformed links in the optional reply list. */
+    }
+  }
+  return replies;
+}
+
+function followAction(doc) {
+  const header = doc.querySelector("#Main h1")?.closest(".box");
+  for (const control of header?.querySelectorAll(
+    'input[type="button"][onclick], button[onclick]',
+  ) ?? []) {
+    const match = /location\.href\s*=\s*['"](\/(unfollow|follow)\/(\d+)\?once=\d+)['"]/.exec(
+      control.getAttribute("onclick"),
+    );
+    if (match) return { path: match[1], following: match[2] === "unfollow", id: match[3] };
+  }
+  return null;
 }
 
 export async function fetchMemberPage(name, signal, fetcher = fetch) {
@@ -60,7 +98,40 @@ export async function fetchMember(name, signal, fetcher = fetch) {
       return null;
     }),
   ]);
-  return { ...data, topics: page ? parseMemberTopics(page) : [] };
+  const rank = page?.querySelector('#Main a[href="/top/dau"]')?.textContent.trim();
+  const activityRank = Number(rank);
+  return {
+    ...data,
+    topics: page ? parseMemberTopics(page) : [],
+    replies: page ? parseMemberReplies(page) : [],
+    activityRank:
+      /^\d+$/.test(rank ?? "") && Number.isSafeInteger(activityRank) && activityRank > 0
+        ? activityRank
+        : null,
+    following: page ? (followAction(page)?.following ?? null) : null,
+  };
+}
+
+export async function setMemberFollow(name, following, account, fetcher = fetch) {
+  const signal = AbortSignal.timeout(10_000);
+  const page = await fetchMemberPage(name, signal, fetcher);
+  if (!account || currentUser(page)?.toLowerCase() !== account.toLowerCase())
+    throw new Error(t("accountChanged"));
+  const action = followAction(page);
+  if (!action) throw new Error(t("followUnavailable"));
+  if (action.following === following) return following;
+  const response = await fetcher(action.path, { credentials: "same-origin", signal });
+  const final = new URL(response.url || action.path, location.href);
+  if (
+    !response.ok ||
+    final.origin !== location.origin ||
+    ![action.path.split("?")[0], `/member/${name}`].includes(final.pathname)
+  )
+    throw new Error(t("followFailed"));
+  const verified = followAction(await fetchMemberPage(name, signal, fetcher));
+  if (verified?.id !== action.id || verified.following !== following)
+    throw new Error(t("followFailed"));
+  return following;
 }
 
 function blockPath(doc) {

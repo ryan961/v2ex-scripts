@@ -47,7 +47,13 @@ export function openSettings(store, signedIn = Boolean(currentUser()), tagAction
         for (const value of THEMES) {
           const option = element(
             "option",
-            t(value === "minimalist" ? "themeMinimalist" : "themeArcoClear"),
+            t(
+              {
+                minimalist: "themeMinimalist",
+                "arco-clear": "themeArcoClear",
+                native: "themeNative",
+              }[value],
+            ),
           );
           option.value = value;
           control.append(option);

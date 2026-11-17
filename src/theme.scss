@@ -1,7 +1,5 @@
-@use "./vendor/polish/v2ex-theme-var";
-@use "./vendor/polish/v2ex-theme-default";
+@use "./themes/foundation";
 @use "./vendor/polish/v2ex-effect";
-@use "./vendor/polish/v2ex-theme-minimalist";
-@use "./vendor/polish/v2ex-theme-mobile";
+@use "./themes/decoration";
 @use "./vendor/rep/content";
 @use "./themes/index";

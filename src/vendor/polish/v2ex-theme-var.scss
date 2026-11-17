@@ -2,38 +2,10 @@
  * MIT; see licenses/v2ex-polish-MIT.txt. Font overrides removed as requested.
  */
 @use "../../themes/base";
+@use "../../themes/geometry";
 
 :root {
-  --zidx-search: 100;
-  --zidx-tabs: 10;
-  --zidx-tools-card: 10;
-  --zidx-reply-box: 99;
-  --zidx-modal-header: 50;
-  --zidx-modal-mask: 888;
-  --zidx-toast: 999;
-  --zidx-tip: 999;
-  --zidx-popup: 99;
-  --zidx-expand-mask: 10;
-  --zidx-expand-btn: 20;
-  --zidx-rightbar: 99;
-  --v2p-spacing-box: 12px;
-  --v2p-spacing-cell: 10px;
-  --v2p-underline-offset: 0.5ex;
-  --v2p-layout-column-gap: 25px;
-  --v2p-layout-row-gap: 20px;
-  --v2p-nav-height: 55px;
-  --v2p-tp-item-x: 20px;
-  --v2p-tp-item-y: 10px;
-  --v2p-tp-tabs-pd: 10px;
-  --v2p-tp-nested-pd: 15px;
-  --v2p-tp-preview-pd: 20px;
-  --v2p-emoji-size: 21px;
-  --v2p-box-radius: 10px;
-  --v2p-input-radius: 6px;
-  --v2p-button-radius: 6px;
-  --v2p-popup-radius: 6px;
-  --v2p-content-width: 1120px;
-  --v2p-rightbar-width: 270px;
+  @include geometry.defaults;
 
   body {
     color: var(--v2p-color-foreground);

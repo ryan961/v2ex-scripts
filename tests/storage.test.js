@@ -14,6 +14,7 @@ test("options reject invalid types and unknown fields", () => {
   });
   assert.equal(options.theme, "minimalist");
   assert.equal(normalizeOptions({ theme: "arco-clear" }).theme, "arco-clear");
+  assert.equal(normalizeOptions({ theme: "native" }).theme, "native");
   assert.equal(normalizeOptions({ theme: ["arco-clear"] }).theme, "minimalist");
   assert.equal(options.language, "zh");
   assert.equal(normalizeOptions({ language: "site" }).language, "site");

@@ -199,7 +199,8 @@ export function initReplies({ options, getDocument, enhance }) {
       const gap = owned(element("div", undefined, "sep20"));
       gap.dataset.vxHotGap = "";
       anchor.after(gap, panel);
-      document.querySelector("#Wrapper")?.classList.add("sticky_rightbar");
+      if (options.theme !== "native")
+        document.querySelector("#Wrapper")?.classList.add("sticky_rightbar");
     }
     const rankedIds = new Set(ranked.map((reply) => reply.id));
     for (const [id, cloned] of topClones) {

@@ -20,6 +20,11 @@ test("theme IDs are validated while Polish structure and preview markers remain 
   assert.equal(root.dataset.vxTheme, "arco-clear");
   applyTheme(document, true, "invalid");
   assert.equal(root.dataset.vxTheme, "minimalist");
+  applyTheme(document, true, "native");
+  assert.equal(root.dataset.vxTheme, "native");
+  assert.equal(root.dataset.v2pTheme, undefined);
+  assert.equal(root.dataset.v2pPreview, "1");
+  assert.equal(document.body.classList.contains("v2p-theme-minimalist"), false);
   window.close();
 });
 
@@ -55,5 +60,53 @@ test("Arco colors override both root and body palettes without modifying geometr
         property.startsWith("--") || allowed.has(property),
         `${file}: ${property} changes layout`,
       );
+  window.close();
+});
+
+test("native theme leaves site colors and geometry intact while feature surfaces follow the site", () => {
+  const { window } = dom(`<style>
+    :root { --box-background-color:#ffffff; --box-foreground-color:#000000; --box-border-radius:3px; --color-gray:#999999; }
+    :root.night { --box-background-color:#18222d; --box-foreground-color:#d1d5d9; --color-gray:#b2c3d4; }
+    body { color:var(--box-foreground-color); margin:8px; }
+    #Main .cell { padding:10px; background:var(--box-background-color); color:var(--box-foreground-color); }
+    #Main a { color:#778087; }
+  </style><div id="Main"><div class="cell" id="r_1"><a href="/member/Alice">Alice</a></div></div>
+  <div class="vx-member-popup v2p-popup"><div class="v2p-popup-content"><div class="v2p-member-card">Card</div></div></div>`);
+  const selectors = ["body", "#Main .cell", "#Main a"];
+  const properties = [
+    "color",
+    "backgroundColor",
+    "padding",
+    "margin",
+    "position",
+    "fontFamily",
+    "fontSize",
+  ];
+  const snapshot = () =>
+    selectors.map((selector) => {
+      const style = window.getComputedStyle(document.querySelector(selector));
+      return Object.fromEntries(properties.map((property) => [property, style[property]]));
+    });
+  const original = snapshot();
+  const style = document.createElement("style");
+  style.textContent =
+    ["src/themes/native.scss", "src/vendor/polish/v2ex-effect.scss", "src/vendor/rep/content.scss"]
+      .map((file) => compile(file).css)
+      .join("\n") + readFileSync("src/styles.css", "utf8");
+  document.head.append(style);
+  applyTheme(document, false, "native");
+  assert.deepEqual(snapshot(), original);
+  assert.equal(
+    window.getComputedStyle(document.querySelector(".v2p-popup")).backgroundColor,
+    "rgb(255, 255, 255)",
+  );
+  document.documentElement.classList.add("night");
+  assert.equal(
+    window.getComputedStyle(document.querySelector(".v2p-popup")).backgroundColor,
+    "rgb(24, 34, 45)",
+  );
+  assert.equal(window.getComputedStyle(document.body).color, "rgb(209, 213, 217)");
+  assert.equal(window.getComputedStyle(document.querySelector("#r_1")).padding, "10px");
+  assert.equal(document.documentElement.dataset.v2pTheme, undefined);
   window.close();
 });

@@ -1,0 +1,105 @@
+@use "./geometry";
+
+:root[data-vx-theme="native"] {
+  @include geometry.defaults;
+
+  // Map feature tokens to V2EX without replacing any native variables or page rules.
+  &,
+  & body {
+    --v2p-box-radius: var(--box-border-radius);
+    --v2p-input-radius: var(--box-border-radius);
+    --v2p-button-radius: var(--box-border-radius);
+    --v2p-popup-radius: var(--box-border-radius);
+    --v2p-color-background: var(--box-background-alt-color);
+    --v2p-color-foreground: var(--box-foreground-color);
+    --v2p-color-font-primary: var(--box-foreground-color);
+    --v2p-color-font-secondary: var(--color-gray);
+    --v2p-color-font-tertiary: var(--color-gray);
+    --v2p-color-font-quaternary: var(--color-fade);
+    --v2p-color-main-100: var(--box-background-alt-color);
+    --v2p-color-main-300: var(--box-border-color);
+    --v2p-color-main-600: var(--color-graphite);
+    --v2p-color-main-700: var(--box-foreground-color);
+    --v2p-color-accent-50: var(--box-background-alt-color);
+    --v2p-color-accent-100: var(--subtle-blue-background-color);
+    --v2p-color-accent-200: var(--box-border-color);
+    --v2p-color-accent-300: var(--color-blue);
+    --v2p-color-accent-400: var(--color-blue);
+    --v2p-color-accent-500: var(--color-blue);
+    --v2p-color-accent-600: var(--color-blue);
+    --v2p-color-accent-700: var(--color-blue);
+    --v2p-color-orange-50: var(--box-background-alt-color);
+    --v2p-color-orange-100: var(--box-background-hover-color);
+    --v2p-color-orange-400: var(--link-caution-color, var(--color-graphite));
+    --v2p-color-button-background: var(--button-background-color);
+    --v2p-color-button-foreground: var(--button-foreground-color);
+    --v2p-color-button-background-hover: var(--button-background-hover-color);
+    --v2p-color-button-foreground-hover: var(--button-foreground-hover-color);
+    --v2p-color-button-special-background: var(--button-background-color);
+    --v2p-color-button-special-foreground: var(--button-foreground-color);
+    --v2p-color-button-special-border: var(--button-border-color);
+    --v2p-color-bg-content: var(--box-background-color);
+    --v2p-color-bg-footer: var(--box-background-color);
+    --v2p-color-bg-hover-btn: var(--box-background-hover-color);
+    --v2p-color-bg-subtle: var(--box-background-alt-color);
+    --v2p-color-bg-input: var(--box-background-alt-color);
+    --v2p-color-bg-widget: var(--box-background-color);
+    --v2p-color-bg-tooltip: var(--box-background-color);
+    --v2p-color-bg-block: var(--box-background-alt-color);
+    --v2p-color-bg-link-hover: var(--box-background-hover-color);
+    --v2p-color-bg-avatar: var(--box-background-alt-color);
+    --v2p-color-bg-tpr: var(--box-background-alt-color);
+    --v2p-color-border: var(--box-border-color);
+    --v2p-color-border-darker: var(--box-border-hover-color);
+    --v2p-color-divider: var(--box-border-color);
+    --v2p-color-mask: var(--menu-shadow-color);
+    --v2p-color-heart: #ef4444;
+    --v2p-color-heart-fill: var(--box-background-alt-color);
+    --v2p-color-error: #c53030;
+    --v2p-color-bg-error: var(--box-background-alt-color);
+    --v2p-widget-shadow: var(--shadows);
+    --v2p-toast-shadow: var(--shadows);
+    --vx-reply-link: var(--link-color);
+  }
+
+  &[data-v2p-preview="1"] :is(#Top, #Bottom) {
+    display: none;
+  }
+
+  .v2p-reply-content {
+    --bg-reply: var(--box-background-color);
+  }
+
+  #reply-box.reply-box-sticky {
+    z-index: calc(var(--zidx-popup) + 1);
+  }
+
+  :is(.button[data-vx-owned], [data-vx-owned] .button) {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    box-sizing: border-box;
+    min-height: 28px;
+    padding: 3px 10px;
+    border: 1px solid var(--button-border-color);
+    border-radius: var(--box-border-radius);
+    color: var(--button-foreground-color);
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.4;
+    text-shadow: none;
+    background: var(--button-background-color);
+
+    &:hover:enabled {
+      border-color: var(--button-border-hover-color);
+      color: var(--button-foreground-hover-color);
+      background: var(--button-background-hover-color);
+    }
+
+    &.v2p-btn-small {
+      min-height: 24px;
+      padding: 2px 8px;
+      font-size: 12px;
+    }
+  }
+}
