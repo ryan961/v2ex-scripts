@@ -24,8 +24,7 @@ body.v2p-theme-minimalist,
 
   #Wrapper {
     #Main {
-      > .box:has(.topic_buttons),
-      .v2p-left-group .box:has(.topic_buttons) {
+      > .box:has(.topic_buttons) {
         border-bottom: 1px solid var(--v2p-color-border) !important;
       }
 

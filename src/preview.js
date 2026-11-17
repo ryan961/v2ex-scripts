@@ -4,6 +4,7 @@ import { applyTheme, THEME_STYLE_ID } from "./theme.js";
 import { enhanceEmojis } from "./emoji.js";
 import { createReplyFolding } from "./folding.js";
 import { enhanceReplyActions } from "./reply-actions.js";
+import { enhanceImages, installImageViewer } from "./image-viewer.js";
 
 export function createTopics(options, themeCSS = "") {
   const seen = new WeakSet();
@@ -57,15 +58,19 @@ export function createTopics(options, themeCSS = "") {
                   doc.head.append(style);
                 }
                 enhanceEmojis(doc);
+                enhanceImages(doc);
+                const main = doc.getElementById("Main");
+                installImageViewer(main);
                 const view = doc.defaultView;
                 enhanceReplyActions(doc, view);
                 const observer = new view.MutationObserver((records) => {
-                  for (const { target } of records) {
+                  for (const { target, addedNodes } of records) {
                     const area = target.closest(".thank_area");
                     if (area) enhanceReplyActions(area, view);
+                    for (const node of addedNodes) if (node.nodeType === 1) enhanceImages(node);
                   }
                 });
-                observer.observe(doc.querySelector("#Main"), { childList: true, subtree: true });
+                observer.observe(main, { childList: true, subtree: true });
                 view.addEventListener("pagehide", () => observer.disconnect(), { once: true });
                 createReplyFolding(options.autoFold, doc).enhance(doc);
                 syncOnce(doc);

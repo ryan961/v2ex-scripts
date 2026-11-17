@@ -6,6 +6,7 @@ import { openSettings } from "../src/settings.js";
 import { installPageActions } from "../src/page-actions.js";
 import { setLanguage } from "../src/i18n.js";
 import { createStorage } from "../src/storage.js";
+import { enhanceImages, installImageViewer } from "../src/image-viewer.js";
 import { dom, memoryAPI } from "./helpers.js";
 
 test("reply shortcut floats the existing draft when the native helper is unavailable", () => {
@@ -57,6 +58,7 @@ test("Polish preview markup uses a same-origin iframe and removes it on close", 
   embedded.open();
   embedded.write(`<div id="Top"></div><div id="Main"><div id="r_23" class="cell">
     <div class="thank_area"><a onclick="ignoreReply(23, 1)">Hide</a><a onclick="thankReply(23)">Thank</a></div>
+    <div class="reply_content"><img src="https://images.example.org/photo.png" alt="Reply photo"></div>
     </div></div>`);
   embedded.close();
   frame.dispatchEvent(new Event("load"));
@@ -78,6 +80,13 @@ test("Polish preview markup uses a same-origin iframe and removes it on close", 
   area.textContent = "Thanks sent";
   await new Promise(setImmediate);
   assert.ok(area.querySelector(".v2p-control-thank.v2p-thanked"));
+  const previewMask = document.querySelector(".v2p-modal-mask");
+  embedded.querySelector(".reply_content img").click();
+  assert.equal(document.querySelectorAll(".vx-image-viewer").length, 1);
+  assert.equal(previewMask.hasAttribute("inert"), true);
+  document.querySelector(".vx-image-viewer .v2p-modal-close-btn").click();
+  assert.equal(previewMask.hasAttribute("inert"), false);
+  assert.equal(document.querySelector("iframe"), frame);
   document.querySelector(".v2p-modal-close-btn").click();
   await new Promise(setImmediate);
   assert.equal(document.querySelector(".v2p-modal-mask"), null);
@@ -89,6 +98,53 @@ test("Polish preview markup uses a same-origin iframe and removes it on close", 
     "https://www.v2ex.com/t/456",
   );
   document.querySelector(".v2p-modal-close-btn").click();
+});
+
+test("topic images open in place while ordinary links and emoji keep their behavior", () => {
+  const { window } = dom(`<div id="Main"><div class="topic_content">
+    <img id="plain" src="/plain.png" alt="Screenshot">
+    <a id="linked" href="/full.png" target="_blank"><img src="/thumbnail.png"></a>
+    <a id="website" href="/member/Alice" target="_blank"><img src="/logo.png"></a>
+    <img id="emoji" class="v2p-emoji-img" src="/emoji.png">
+  </div></div>`);
+  const main = document.getElementById("Main");
+  installImageViewer(main);
+  enhanceImages(main);
+  const plain = document.getElementById("plain");
+  assert.equal(plain.tabIndex, 0);
+  assert.equal(plain.getAttribute("role"), "button");
+  assert.equal(document.getElementById("emoji").hasAttribute("tabindex"), false);
+
+  plain.focus();
+  const press = (node, key) =>
+    node.dispatchEvent(
+      new window.KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }),
+    );
+  assert.equal(press(plain, "Enter"), false);
+  const viewer = () => document.querySelector(".vx-image-viewer");
+  assert.equal(viewer().querySelector("img").src, "https://www.v2ex.com/plain.png");
+  assert.equal(viewer().querySelector("img").alt, "Screenshot");
+  press(document, "Escape");
+  assert.equal(viewer(), null);
+  assert.equal(document.activeElement, plain);
+
+  document.getElementById("linked").click();
+  const large = viewer().querySelector("img");
+  assert.equal(large.src, "https://www.v2ex.com/full.png");
+  large.dispatchEvent(new window.Event("error"));
+  assert.equal(large.src, "https://www.v2ex.com/thumbnail.png");
+  large.dispatchEvent(new window.Event("error"));
+  assert.ok(viewer().querySelector('[role="status"]'));
+  press(document, "Escape");
+
+  document.querySelector("#website img").click();
+  document.getElementById("emoji").click();
+  assert.equal(viewer(), null);
+  main.insertAdjacentHTML("beforeend", '<div class="reply_content"><img src="/new.png"></div>');
+  main.querySelector(".reply_content img").click();
+  assert.equal(viewer().querySelector("img").src, "https://www.v2ex.com/new.png");
+  press(document, "Escape");
+  window.close();
 });
 
 test("editing one member updates all visible instances without duplicate controls", () => {

@@ -164,6 +164,58 @@ test("theme applies before DOMContentLoaded and functional initialization", asyn
   instance.window.close();
 });
 
+test("V2EX navigation applies the theme while the main panel is still streaming", async () => {
+  for (const url of [
+    "https://www.v2ex.com/?tab=hot",
+    "https://www.v2ex.com/t/123",
+    "https://www.v2ex.com/member/Alice",
+    "https://www.v2ex.com/my/nodes",
+    "https://www.v2ex.com/my/topics",
+    "https://www.v2ex.com/my/following",
+    "https://www.v2ex.com/write",
+    "https://www.v2ex.com/notes",
+    "https://edge.v2ex.com/chat",
+    "https://edge.v2ex.com/planes",
+  ]) {
+    const { window } = new JSDOM("", { url, runScripts: "outside-only", pretendToBeVisual: true });
+    await new Promise((resolve) => window.addEventListener("load", resolve, { once: true }));
+    const doc = window.document;
+    let phase = "loading";
+    let menus = 0;
+    Object.defineProperty(doc, "readyState", { get: () => phase });
+    Object.assign(window, {
+      GM_getValue: (key, fallback) =>
+        key === "v2ex-lite:options" ? { theme: "arco-clear", privacy: false } : fallback,
+      GM_setValue: () => assert.fail("unexpected storage write"),
+      GM_deleteValue() {},
+      GM_listValues: () => [],
+      GM_addValueChangeListener() {},
+      GM_addStyle(css) {
+        const style = doc.createElement("style");
+        style.textContent = css;
+        doc.head.append(style);
+        return style;
+      },
+      GM_registerMenuCommand: () => menus++,
+      fetch: () => assert.fail("unexpected network request"),
+      matchMedia: () => ({ matches: false, addEventListener() {} }),
+    });
+    window.eval(built);
+    doc.body.innerHTML = '<div id="Top"><a href="/"><div id="Logo"></div></a></div>';
+    await new Promise(setImmediate);
+    assert.equal(doc.getElementById("Main"), null, url);
+    assert.equal(doc.documentElement.dataset.vxTheme, "arco-clear", url);
+    assert.equal(doc.querySelectorAll("#v2ex-lite-theme").length, 1, url);
+    assert.equal(menus, 0, url);
+    doc.body.insertAdjacentHTML("beforeend", '<div id="Main"></div><div id="Bottom"></div>');
+    phase = "interactive";
+    doc.dispatchEvent(new window.Event("DOMContentLoaded"));
+    assert.equal(menus, 1, url);
+    assert.equal(doc.querySelectorAll("#v2ex-lite-theme").length, 1, url);
+    window.close();
+  }
+});
+
 test("bundled script initializes, enhances only new nodes, and settles without storage writes", async () => {
   const instance = new JSDOM(fixture, {
     url: "https://www.v2ex.com/t/123",

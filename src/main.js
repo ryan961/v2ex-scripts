@@ -12,6 +12,7 @@ import { initUpload } from "./upload.js";
 import { createReplyFolding } from "./folding.js";
 import { installSettings } from "./settings.js";
 import { installPageActions } from "./page-actions.js";
+import { enhanceImages, installImageViewer } from "./image-viewer.js";
 
 let themeCSS;
 const previewFrame = window.frameElement?.matches("iframe.v2p-topic-preview-frame")
@@ -20,7 +21,7 @@ const previewFrame = window.frameElement?.matches("iframe.v2p-topic-preview-fram
 let themeReady = false;
 
 function prepareTheme() {
-  if (!themeReady && isV2EXPage(document)) {
+  if (!themeReady && (document.querySelector("body > #Top #Logo") || isV2EXPage(document))) {
     let theme;
     if (previewFrame) theme = previewFrame.ownerDocument.documentElement.dataset.vxTheme;
     else {
@@ -81,10 +82,14 @@ function start() {
   const topics = createTopics(options, themeCSS);
   const members = createMembers(store, options, topics, name);
   const folding = createReplyFolding(options.autoFold);
+  const main = document.getElementById("Main");
+  const isTopic = document.documentElement.dataset.v2pPage === "topic";
+  if (isTopic) installImageViewer(main);
   const enhance = (root) => {
     members.enhance(root);
     topics.enhance(root);
     enhanceEmojis(root);
+    if (isTopic) enhanceImages(root);
     enhanceReplyActions(root);
     folding.enhance(root);
   };
@@ -96,7 +101,6 @@ function start() {
     initUpload(options, store);
     initEmoji(options);
   }
-  const main = document.querySelector("#Main");
   if (main) {
     const roots = new Set();
     const changed = new Set();

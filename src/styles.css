@@ -817,3 +817,37 @@
     transform: translateY(-50%);
   }
 }
+.vx-image-viewer {
+  display: grid;
+  place-items: center;
+}
+
+.vx-image-viewer .v2p-modal-main {
+  width: fit-content;
+  min-width: min(280px, 100%);
+  max-width: 100%;
+  height: auto;
+  max-height: 100%;
+}
+
+.vx-image-viewer .v2p-modal-content {
+  display: grid;
+  place-items: center;
+}
+
+.vx-image-viewer img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(96dvh - 70px);
+  object-fit: contain;
+}
+
+.vx-image-viewer [role="status"] {
+  margin: 20px;
+}
+
+:root:is([data-v2p-page="topic"], [data-v2p-preview="1"])
+  :is(.topic_content, .reply_content, .subtle .markdown_body)
+  img:not(.v2p-emoji-img) {
+  cursor: zoom-in;
+}

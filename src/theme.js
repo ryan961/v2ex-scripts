@@ -15,7 +15,15 @@ export function applyTheme(
   if (!root) return;
   root.dataset.vxTheme = normalizeTheme(theme);
   if (root.dataset.vxTheme === "native") delete root.dataset.v2pTheme;
-  else root.dataset.v2pTheme = "minimalist";
+  else {
+    root.dataset.v2pTheme = "minimalist";
+    if (!root.hasAttribute("data-vx-system-dark")) {
+      const scheme = doc.defaultView?.matchMedia?.("(prefers-color-scheme: dark)");
+      const sync = () => (root.dataset.vxSystemDark = scheme?.matches ? "1" : "0");
+      sync();
+      scheme?.addEventListener("change", sync);
+    }
+  }
   if (/^\/t\/\d+/.test(doc.location?.pathname ?? location.pathname)) root.dataset.v2pPage = "topic";
   if (preview) root.dataset.v2pPreview = "1";
   doc.body?.classList.toggle("v2p-theme-minimalist", root.dataset.vxTheme !== "native");

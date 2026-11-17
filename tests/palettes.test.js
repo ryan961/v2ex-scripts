@@ -110,3 +110,44 @@ test("native theme leaves site colors and geometry intact while feature surfaces
   assert.equal(document.documentElement.dataset.v2pTheme, undefined);
   window.close();
 });
+
+test("enhanced themes follow the native dark selection and system changes in auto mode", () => {
+  const { window } = dom('<div class="box">Panel</div><div class="v2p-modal-main">Dialog</div>');
+  const root = document.documentElement;
+  let onChange;
+  const media = {
+    matches: false,
+    addEventListener(type, listener) {
+      assert.equal(type, "change");
+      assert.equal(onChange, undefined);
+      onChange = listener;
+    },
+  };
+  window.matchMedia = (query) => {
+    assert.equal(query, "(prefers-color-scheme: dark)");
+    return media;
+  };
+  const style = document.createElement("style");
+  style.textContent = compile("src/theme.scss").css;
+  document.head.append(style);
+  const background = (node) => window.getComputedStyle(node).backgroundColor;
+  const dialog = document.querySelector(".v2p-modal-main");
+
+  root.dataset.siteTheme = "dark";
+  applyTheme(document, false, "minimalist");
+  assert.equal(background(document.body), "rgb(21, 26, 36)");
+  assert.equal(background(dialog), "rgb(30, 37, 50)");
+  applyTheme(document, false, "arco-clear");
+  assert.equal(background(dialog), "rgb(35, 35, 36)");
+  assert.equal(window.getComputedStyle(root).colorScheme, "dark");
+
+  root.dataset.siteTheme = "auto";
+  assert.equal(background(dialog), "rgb(255, 255, 255)");
+  media.matches = true;
+  onChange();
+  assert.equal(background(dialog), "rgb(35, 35, 36)");
+  root.dataset.siteTheme = "light";
+  assert.equal(background(dialog), "rgb(255, 255, 255)");
+  assert.equal(window.getComputedStyle(root).colorScheme, "light");
+  window.close();
+});

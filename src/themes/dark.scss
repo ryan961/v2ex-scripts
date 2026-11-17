@@ -1,0 +1,87 @@
+:root[data-v2p-theme]:is(
+    [data-site-theme="dark"],
+    [data-site-theme="auto"][data-vx-system-dark="1"]
+  ) {
+  color-scheme: dark;
+  --vx-dark-page: #151a24;
+  --vx-dark-panel: #1e2532;
+  --vx-dark-accent: #80d4b8;
+
+  &[data-vx-theme="arco-clear"] {
+    --vx-dark-page: #17171a;
+    --vx-dark-panel: #232324;
+    --vx-dark-accent: #93b8ff;
+  }
+
+  &,
+  & body {
+    --v2p-color-main-50: #21252e;
+    --v2p-color-main-100: #2c313d;
+    --v2p-color-main-150: #333946;
+    --v2p-color-main-200: #3d4452;
+    --v2p-color-main-300: #505a6b;
+    --v2p-color-main-400: #929cad;
+    --v2p-color-main-500: #afb8c9;
+    --v2p-color-main-600: #c1c9d7;
+    --v2p-color-main-700: #d6dce6;
+    --v2p-color-main-800: #e9edf5;
+
+    --v2p-color-accent-50: color-mix(in srgb, var(--vx-dark-accent) 14%, var(--vx-dark-panel));
+    --v2p-color-accent-100: color-mix(in srgb, var(--vx-dark-accent) 22%, var(--vx-dark-panel));
+    --v2p-color-accent-200: color-mix(in srgb, var(--vx-dark-accent) 38%, var(--vx-dark-panel));
+    --v2p-color-accent-400: var(--vx-dark-accent);
+    --v2p-color-accent-500: var(--vx-dark-accent);
+    --v2p-color-accent-600: var(--vx-dark-accent);
+    --v2p-color-accent-700: var(--vx-dark-accent);
+    --v2p-color-orange-50: #362619;
+    --v2p-color-orange-100: #463021;
+    --v2p-color-orange-400: #ffbe83;
+
+    --vx-color-fill: var(--v2p-color-main-100);
+    --v2p-color-background: var(--vx-dark-page);
+    --v2p-color-foreground: var(--v2p-color-main-800);
+    --v2p-color-font-secondary: var(--v2p-color-main-600);
+    --v2p-color-font-tertiary: var(--v2p-color-main-500);
+    --v2p-color-font-quaternary: var(--v2p-color-main-400);
+    --v2p-color-bg-content: var(--vx-dark-panel);
+    --v2p-color-bg-hover-btn: var(--v2p-color-main-200);
+    --v2p-color-bg-subtle: var(--vx-color-fill);
+    --v2p-color-button-background: var(--vx-color-fill);
+    --v2p-color-button-background-hover: var(--v2p-color-main-200);
+    --v2p-color-border: var(--v2p-color-main-200);
+    --v2p-color-border-darker: var(--v2p-color-main-300);
+    --v2p-color-divider: var(--v2p-color-border);
+    --v2p-color-selection-foreground: var(--v2p-color-foreground);
+    --v2p-color-selection-background: var(--v2p-color-accent-200);
+    --v2p-color-heart: #ff8589;
+    --v2p-color-heart-fill: #532d36;
+    --v2p-color-error: var(--v2p-color-heart);
+    --v2p-color-bg-error: var(--v2p-color-heart-fill);
+    --v2p-color-mask: rgb(0 0 0 / 65%);
+    --v2p-widget-shadow: 0 6px 20px rgb(0 0 0 / 32%);
+    --v2p-toast-shadow: var(--v2p-widget-shadow);
+    --link-hover-color: var(--vx-dark-accent);
+    --vx-reply-link: var(--vx-dark-accent);
+    --vx-cited-background: var(--vx-color-fill);
+    --vx-color-success: #8bddab;
+    --vx-color-success-bg: #233d33;
+    --vx-modal-mask-background: var(--v2p-color-mask);
+    --vx-modal-mask-image: none;
+    --vx-modal-header-image: none;
+    --vx-account-image: none;
+    --vx-subtle-image: linear-gradient(to right, var(--vx-color-fill), transparent);
+  }
+
+  &[data-vx-theme="arco-clear"] {
+    &,
+    & body {
+      --v2p-color-button-special-background: #1e55b6;
+      --vx-color-primary-hover: #234a9a;
+      --vx-color-primary-active: #1d3d80;
+    }
+  }
+
+  body #Logo {
+    background-image: url("/static/img/v2ex-alt@2x.png");
+  }
+}

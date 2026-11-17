@@ -325,6 +325,18 @@ const messages = {
     "\u30c8\u30d4\u30c3\u30af\u3092\u958b\u304f",
     "\uc8fc\uc81c \uc5f4\uae30",
   ],
+  imagePreview: [
+    "Image preview",
+    "\u56fe\u7247\u9884\u89c8",
+    "\u753b\u50cf\u30d7\u30ec\u30d3\u30e5\u30fc",
+    "\uc774\ubbf8\uc9c0 \ubbf8\ub9ac\ubcf4\uae30",
+  ],
+  imageLoadFailed: [
+    "Could not load the image.",
+    "\u56fe\u7247\u52a0\u8f7d\u5931\u8d25\u3002",
+    "\u753b\u50cf\u3092\u8aad\u307f\u8fbc\u3081\u307e\u305b\u3093\u3002",
+    "\uc774\ubbf8\uc9c0\ub97c \ubd88\ub7ec\uc624\uc9c0 \ubabb\ud588\uc2b5\ub2c8\ub2e4.",
+  ],
   userCards: [
     "Member hover cards",
     "\u7528\u6237\u60ac\u6d6e\u5361\u7247",

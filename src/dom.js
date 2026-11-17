@@ -116,7 +116,7 @@ export function modal(title, hasFooter = false) {
     previousModal?.removeAttribute("inert");
     if (!document.querySelector(".v2p-modal-mask"))
       document.body.classList.remove("v2p-modal-open");
-    previous?.focus?.();
+    previous?.focus?.({ preventScroll: true });
   };
   const onKey = (event) => {
     if (mask.hasAttribute("inert")) return;

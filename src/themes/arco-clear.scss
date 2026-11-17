@@ -73,6 +73,7 @@
     --vx-related-mask: var(--v2p-color-foreground);
     --vx-color-success: #008026;
     --vx-color-success-bg: #e8ffea;
+    --vx-color-primary-hover: var(--v2p-color-accent-700);
     --vx-color-primary-active: #072ca6;
     --vx-modal-mask-background: var(--v2p-color-mask);
     --vx-modal-mask-image: none;
@@ -136,7 +137,7 @@
     }
 
     .button.special:is(:hover:enabled, :active:enabled) {
-      background-color: var(--v2p-color-accent-700);
+      background-color: var(--vx-color-primary-hover);
     }
 
     .button.special:active:enabled {
@@ -146,10 +147,10 @@
     #reply-box :is(input, button)[type="submit"] {
       color: var(--v2p-color-button-special-foreground);
       border-color: var(--v2p-color-button-special-border);
-      background-color: var(--v2p-color-accent-600);
+      background-color: var(--v2p-color-button-special-background);
 
       &:hover:enabled {
-        background-color: var(--v2p-color-accent-700);
+        background-color: var(--vx-color-primary-hover);
       }
     }
 
