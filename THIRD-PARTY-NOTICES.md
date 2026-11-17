@@ -2,7 +2,7 @@
 
 ## V2EX Polish
 
-基于 [c8f1b70fdf13fa17bc842d05949f94ff19bc6cfc](https://github.com/coolpace/V2EX_Polish/tree/c8f1b70fdf13fa17bc842d05949f94ff19bc6cfc)。`src/vendor/polish/` 保留基础主题、Minimalist、通用组件、移动端样式和表情数据，构建时直接编译这些 SCSS。
+基于 [c8f1b70fdf13fa17bc842d05949f94ff19bc6cfc](https://github.com/coolpace/V2EX_Polish/tree/c8f1b70fdf13fa17bc842d05949f94ff19bc6cfc)。`src/vendor/polish/` 保留结构样式、通用组件、移动端样式和表情数据；基础色板、Minimalist 配色与 V2EX 变量映射抽离至 `src/themes/`，构建时直接编译这些 SCSS。
 
 移植保留上游选择器、配色及组件结构。调整范围包括移除字体下载和字体覆盖、保留官方回复字号与行高、按本项目需求调整列表和顶层回复内边距、移除或转义中文源码注释与字符串，以及将 jQuery 组件改写为原生 DOM。预览沿用上游 iframe 结构，列表入口按本项目需求移到标题后并常驻显示；用户卡片沿用上游占位加载、资料、最近发帖和操作区布局。感谢和隐藏图标沿用上游外观，并保留原站操作事件。
 
@@ -15,6 +15,10 @@
 基于 [a5820a221d7832b340a26624b6e2211149ec6397](https://github.com/v2hot/v2ex.rep/tree/a5820a221d7832b340a26624b6e2211149ec6397)。`src/vendor/rep/content.scss` 来自上游样式文件；热评模块移植 `show-top-replies.ts` 和 `cloneReplyElement` 的结构与展示逻辑，上传入口沿用上游类名及布局。
 
 回复索引、分页去重、上传队列、限流处理和持久记录由本项目整合。版权归 Pipecraft 所有，适用 [原始 MIT 许可](licenses/v2ex-rep-MIT.txt)。
+
+## Arco Design
+
+Arco 清阅参考 [Arco Design 样式指南](https://arco.design/docs/spec/style-guideline)及官方仓库 [84504beeaf68e8dd8a5fba7a74b45f4ca71c76f2](https://github.com/arco-design/arco-design/tree/84504beeaf68e8dd8a5fba7a74b45f4ca71c76f2) 中的色板与控件状态规则，使用本项目原生 CSS 实现。安装文件不包含 Arco React 组件库或其运行时代码。
 
 ## Floating UI
 

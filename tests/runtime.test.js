@@ -8,10 +8,11 @@ const built = readFileSync(new URL("../dist/v2ex-lite.user.js", import.meta.url)
 
 test("only owned preview frames bootstrap the theme without account or storage work", async () => {
   assert.equal(/^\/\/ @noframes\s*$/m.test(built), false);
-  for (const [owned, html, themed] of [
-    [true, fixture, true],
-    [false, fixture, false],
-    [true, '<h1>Security verification</h1><div id="challenge-stage"></div>', false],
+  for (const [owned, html, themed, theme] of [
+    [true, fixture, true, "minimalist"],
+    [true, fixture, true, "arco-clear"],
+    [false, fixture, false, "arco-clear"],
+    [true, '<h1>Security verification</h1><div id="challenge-stage"></div>', false, "arco-clear"],
   ]) {
     const instance = new JSDOM("", {
       url: "https://www.v2ex.com/",
@@ -19,6 +20,7 @@ test("only owned preview frames bootstrap the theme without account or storage w
       pretendToBeVisual: true,
     });
     const frame = instance.window.document.createElement("iframe");
+    instance.window.document.documentElement.dataset.vxTheme = theme;
     if (owned) frame.className = "v2p-topic-preview-frame";
     frame.style.visibility = "hidden";
     instance.window.document.body.append(frame);
@@ -47,8 +49,69 @@ test("only owned preview frames bootstrap the theme without account or storage w
     await new Promise(setImmediate);
     assert.deepEqual(calls, themed ? ["style"] : []);
     assert.equal(doc.documentElement.dataset.v2pPreview, themed ? "1" : undefined);
+    assert.equal(doc.documentElement.dataset.vxTheme, themed ? theme : undefined);
     assert.equal(doc.querySelectorAll("#v2ex-lite-theme").length, themed ? 1 : 0);
     assert.equal(frame.style.visibility, owned ? "" : "hidden");
+    instance.window.close();
+  }
+});
+
+test("saved themes are selected before the first style and recover from invalid or unavailable options", async () => {
+  for (const [saved, expected, failFirstRead] of [
+    ["arco-clear", "arco-clear", false],
+    [undefined, "minimalist", false],
+    ["unknown", "minimalist", false],
+    ["arco-clear", "minimalist", true],
+  ]) {
+    const instance = new JSDOM(fixture, {
+      url: "https://www.v2ex.com/t/123",
+      runScripts: "outside-only",
+      pretendToBeVisual: true,
+    });
+    const { window } = instance;
+    const doc = window.document;
+    const reads = [];
+    let phase = "loading";
+    Object.defineProperty(doc, "readyState", { get: () => phase });
+    doc.addEventListener("DOMContentLoaded", () => (phase = "interactive"), { once: true });
+    const options = {
+      theme: saved,
+      autoCheckIn: false,
+      preloadPages: 0,
+      userCards: false,
+      tags: false,
+    };
+    Object.assign(window, {
+      GM_getValue(key, fallback) {
+        if (key !== "v2ex-lite:options") return fallback;
+        reads.push(phase);
+        if (failFirstRead && reads.length === 1) throw new Error("Storage unavailable");
+        return options;
+      },
+      GM_addStyle(css) {
+        assert.equal(doc.documentElement.dataset.vxTheme, expected);
+        assert.equal(phase, "loading");
+        const style = doc.createElement("style");
+        style.textContent = css;
+        doc.head.append(style);
+        return style;
+      },
+      GM_setValue: () => assert.fail("unexpected storage write"),
+      GM_deleteValue() {},
+      GM_listValues: () => [],
+      GM_addValueChangeListener() {},
+      GM_registerMenuCommand() {},
+      GM_xmlhttpRequest: () => assert.fail("unexpected upload"),
+      fetch: () => assert.fail("unexpected network request"),
+      matchMedia: () => ({ matches: false, addEventListener() {} }),
+      unsafeWindow: window,
+    });
+    window.eval(built);
+    assert.deepEqual(reads, ["loading"]);
+    await new Promise(setImmediate);
+    assert.deepEqual(reads, ["loading", "interactive"]);
+    assert.equal(doc.documentElement.dataset.vxTheme, expected);
+    assert.equal(doc.querySelectorAll("#v2ex-lite-theme").length, 1);
     instance.window.close();
   }
 });

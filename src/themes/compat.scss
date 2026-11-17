@@ -1,0 +1,25 @@
+/* Adapted from V2EX Polish c8f1b70; MIT, see licenses/v2ex-polish-MIT.txt. */
+
+@mixin native {
+  --color-fade: var(--v2p-color-font-secondary);
+  --color-gray: var(--v2p-color-font-secondary);
+  --link-color: var(--v2p-color-foreground);
+  --link-darker-color: var(--v2p-color-main-600);
+  --link-hover-color: var(--v2p-color-foreground);
+  --link-caution-color: var(--v2p-color-orange-400);
+  --link-visited-color: currentColor;
+  --box-border-color: var(--v2p-color-border);
+  --box-foreground-color: var(--v2p-color-foreground);
+  --box-background-color: var(--v2p-color-bg-content);
+  --box-background-alt-color: var(--v2p-color-main-100);
+  --box-background-hover-color: var(--v2p-color-main-200);
+  --box-border-focus-color: var(--v2p-color-main-200);
+  --box-border-radius: var(--v2p-box-radius);
+  --button-background-color: var(--v2p-color-button-background);
+  --button-foreground-color: var(--v2p-color-button-foreground);
+  --button-hover-color: var(--v2p-color-button-background-hover);
+  --button-background-hover-color: var(--v2p-color-button-background-hover);
+  --button-foreground-hover-color: var(--v2p-color-button-foreground-hover);
+  --button-border-color: var(--v2p-color-main-300);
+  --button-border-hover-color: var(--v2p-color-main-400);
+}

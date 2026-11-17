@@ -3,6 +3,7 @@ import { interfaceLanguage, LANGUAGE_NAMES, t } from "./i18n.js";
 import { createTagManager } from "./tag-manager.js";
 import { openUploadHistory } from "./upload.js";
 import { icon } from "./icons.js";
+import { THEMES } from "./theme.js";
 
 export function openSettings(store, signedIn = Boolean(currentUser()), tagActions) {
   if (document.querySelector("#vx-settings-dialog")) return;
@@ -14,7 +15,7 @@ export function openSettings(store, signedIn = Boolean(currentUser()), tagAction
   form.id = "vx-settings-form";
   const fields = new Map();
   const groups = {
-    browse: ["language", "privacy", "newTab", "preview", "userCards", "tags"],
+    browse: ["language", "theme", "privacy", "newTab", "preview", "userCards", "tags"],
     discussion: ["hotReplies", "autoFold", "preloadPages", "autoCheckIn"],
     editor: ["emoji", "upload", "imgurClientId"],
   };
@@ -27,7 +28,7 @@ export function openSettings(store, signedIn = Boolean(currentUser()), tagAction
       const login = requiresLogin.has(key);
       const wrapper = element("div", undefined, "vx-settings-option");
       const caption = element("label", t(key));
-      const control = element(key === "language" ? "select" : "input");
+      const control = element(key === "language" || key === "theme" ? "select" : "input");
       control.id = `vx-option-${key}`;
       control.name = key;
       control.disabled = login && !signedIn;
@@ -42,6 +43,16 @@ export function openSettings(store, signedIn = Boolean(currentUser()), tagAction
           control.append(option);
         }
         control.value = options.language;
+      } else if (key === "theme") {
+        for (const value of THEMES) {
+          const option = element(
+            "option",
+            t(value === "minimalist" ? "themeMinimalist" : "themeArcoClear"),
+          );
+          option.value = value;
+          control.append(option);
+        }
+        control.value = options.theme;
       } else if (key === "preloadPages") {
         Object.assign(control, { type: "number", min: "0", max: "5", step: "1", required: true });
         control.value = String(options[key]);

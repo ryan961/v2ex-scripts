@@ -2,7 +2,7 @@ import { applyTheme, THEME_STYLE_ID } from "./theme.js";
 import polishCSS from "./theme.scss";
 import integrationCSS from "./styles.css";
 import { enhanceEmojis, initEmoji } from "./emoji.js";
-import { createStorage } from "./storage.js";
+import { createStorage, PREFIX } from "./storage.js";
 import { setLanguage } from "./i18n.js";
 import { createHTTP, currentUser, isV2EXPage } from "./dom.js";
 import { createMembers } from "./members.js";
@@ -22,11 +22,20 @@ let themeReady = false;
 
 function prepareTheme() {
   if (!themeReady && isV2EXPage(document)) {
+    let theme;
+    if (previewFrame) theme = previewFrame.ownerDocument.documentElement.dataset.vxTheme;
+    else {
+      try {
+        theme = GM_getValue(`${PREFIX}options`, {})?.theme;
+      } catch {
+        // A storage failure must not prevent the fallback theme from loading.
+      }
+    }
+    applyTheme(document, Boolean(previewFrame), theme);
     if (!document.getElementById(THEME_STYLE_ID)) {
       const style = GM_addStyle(themeCSS);
       if (style) style.id = THEME_STYLE_ID;
     }
-    applyTheme(document, Boolean(previewFrame));
     previewFrame?.style.removeProperty("visibility");
     themeReady = true;
   }

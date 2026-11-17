@@ -12,6 +12,7 @@ test("closing upload history returns to settings and preserves unsaved fields", 
   const settings = document.querySelector("#vx-settings-dialog");
   const language = settings.querySelector('[name="language"]');
   language.value = "ko";
+  settings.querySelector('[name="theme"]').value = "arco-clear";
   const history = settings.querySelector(".v2p-modal-actions button");
   for (const method of ["button", "escape", "backdrop"]) {
     history.focus();
@@ -30,6 +31,7 @@ test("closing upload history returns to settings and preserves unsaved fields", 
     assert.equal(settings.isConnected, true);
     assert.equal(settings.hasAttribute("inert"), false);
     assert.equal(language.value, "ko");
+    assert.equal(settings.querySelector('[name="theme"]').value, "arco-clear");
     assert.equal(document.activeElement, history);
     assert.equal(document.body.classList.contains("v2p-modal-open"), true);
   }
@@ -43,10 +45,15 @@ test("closing upload history returns to settings and preserves unsaved fields", 
 test("settings expose Chinese labels and associated explanations for every option", () => {
   dom("");
   const store = createStorage(memoryAPI());
-  store.saveOptions({ preloadPages: 3, imgurClientId: "custom123", privacy: true });
+  store.saveOptions({
+    preloadPages: 3,
+    imgurClientId: "custom123",
+    privacy: true,
+    theme: "arco-clear",
+  });
   openSettings(store);
   const controls = [...document.querySelectorAll("form :is(input,select)[name]")];
-  assert.equal(controls.length, 13);
+  assert.equal(controls.length, 14);
   assert.equal(document.querySelectorAll("fieldset legend").length, 4);
   assert.equal(
     document.querySelector(".v2p-modal-footer [type=submit]").form.id,
@@ -60,6 +67,12 @@ test("settings expose Chinese labels and associated explanations for every optio
   assert.equal(document.querySelector('[name="privacy"]').checked, true);
   assert.equal(document.querySelector('[name="preloadPages"]').value, "3");
   assert.equal(document.querySelector('[name="imgurClientId"]').value, "custom123");
+  const theme = document.querySelector('[name="theme"]');
+  assert.equal(theme.value, "arco-clear");
+  assert.deepEqual(
+    [...theme.options].map((option) => option.value),
+    ["minimalist", "arco-clear"],
+  );
   const language = document.querySelector('[name="language"]');
   assert.equal(language.value, "zh");
   assert.deepEqual(
@@ -99,10 +112,12 @@ test("guest settings retain saved preferences and show account dependencies", ()
   }
   document.querySelector('[name="preloadPages"]').value = "1";
   document.querySelector('[name="language"]').value = "ko";
+  assert.equal(document.querySelector('[name="theme"]').disabled, false);
+  document.querySelector('[name="theme"]').value = "arco-clear";
   document
     .querySelector("form")
     .dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
-  assert.deepEqual(saved, { ...original, preloadPages: 1, language: "ko" });
+  assert.deepEqual(saved, { ...original, preloadPages: 1, language: "ko", theme: "arco-clear" });
   document.querySelector(".v2p-modal-close-btn").click();
   setLanguage("zh");
 });

@@ -40,7 +40,7 @@ body .v2p-controls a[onclick^="replyOne"] {
     overflow-y: auto;
     overflow-x: hidden;
     --sb-track-color: #00000000;
-    --sb-thumb-color: #33334480;
+    --sb-thumb-color: var(--vx-scroll-thumb, #33334480);
     --sb-size: 2px;
 
     scrollbar-color: #00000000 #00000000;
@@ -90,9 +90,9 @@ body .v2p-controls a[onclick^="replyOne"] {
     padding: 0px !important;
     z-index: 10000;
     width: 100%;
-    -webkit-box-shadow: 0px 10px 39px 10px rgba(62, 66, 66, 0.22);
-    -moz-box-shadow: 0px 10px 39px 10px rgba(62, 66, 66, 0.22);
-    box-shadow: 0px 10px 39px 10px rgba(62, 66, 66, 0.22) !important;
+    -webkit-box-shadow: 0px 10px 39px 10px var(--vx-related-shadow-color, rgba(62, 66, 66, 0.22));
+    -moz-box-shadow: 0px 10px 39px 10px var(--vx-related-shadow-color, rgba(62, 66, 66, 0.22));
+    box-shadow: 0px 10px 39px 10px var(--vx-related-shadow-color, rgba(62, 66, 66, 0.22)) !important;
   }
   .related_replies_before::before {
     content: "";
@@ -101,7 +101,7 @@ body .v2p-controls a[onclick^="replyOne"] {
     height: 10000px;
     position: absolute;
     margin-top: -10000px;
-    background-color: #333344;
+    background-color: var(--vx-related-mask, #333344);
     opacity: 50%;
   }
   .related_replies_after::after {
@@ -110,7 +110,7 @@ body .v2p-controls a[onclick^="replyOne"] {
     width: 100%;
     height: 10000px;
     position: absolute;
-    background-color: #333344;
+    background-color: var(--vx-related-mask, #333344);
     opacity: 50%;
   }
 
@@ -138,21 +138,21 @@ body .v2p-controls a[onclick^="replyOne"] {
 
 a.no {
   background-color: transparent !important;
-  color: #1484cd !important;
-  border: 1px solid #1484cd;
+  color: var(--vx-reply-link, #1484cd) !important;
+  border: 1px solid var(--vx-reply-link, #1484cd);
   border-radius: 3px !important;
 
   opacity: 1 !important;
 }
 
 .cited_floor_number {
-  color: #1484cd !important;
+  color: var(--vx-reply-link, #1484cd) !important;
   cursor: pointer;
 }
 
 .reply_content .cell.cited_reply {
   scale: 0.85;
-  background-color: #f5f5f5;
+  background-color: var(--vx-cited-background, #f5f5f5);
   border: 1px solid var(--box-border-color);
 
   white-space: initial;
@@ -176,7 +176,7 @@ a.no {
     max-height: 150px;
     overflow: auto;
     --sb-track-color: #00000000;
-    --sb-thumb-color: #33334480;
+    --sb-thumb-color: var(--vx-scroll-thumb, #33334480);
     --sb-size: 2px;
     scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
 
@@ -271,7 +271,7 @@ a.no {
 
 .Night {
   .reply_content .cell.cited_reply {
-    background-color: #1d1f21;
+    background-color: var(--vx-cited-background, #1d1f21);
   }
 }
 

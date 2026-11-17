@@ -12,7 +12,9 @@ test("options reject invalid types and unknown fields", () => {
     imgurClientId: "x\r\ny",
     injected: true,
   });
-  assert.equal(options.theme, undefined);
+  assert.equal(options.theme, "minimalist");
+  assert.equal(normalizeOptions({ theme: "arco-clear" }).theme, "arco-clear");
+  assert.equal(normalizeOptions({ theme: ["arco-clear"] }).theme, "minimalist");
   assert.equal(options.language, "zh");
   assert.equal(normalizeOptions({ language: "site" }).language, "site");
   assert.equal(options.privacy, false);
@@ -57,7 +59,7 @@ test("storage writes only changes; local entries and tombstones win imports", ()
 test("backup excludes Client ID and runtime state; remote events never echo writes", () => {
   const api = memoryAPI();
   const store = createStorage(api);
-  store.saveOptions({ imgurClientId: "abc123" });
+  store.saveOptions({ imgurClientId: "abc123", theme: "arco-clear" });
   store.set("daily:reader", { success: true });
   store.watchTags("Alice", () => {});
   const before = api.writes.length;
@@ -66,5 +68,6 @@ test("backup excludes Client ID and runtime state; remote events never echo writ
   assert.equal(api.writes.length, before);
   const backup = JSON.parse(store.export());
   assert.equal(backup.options.imgurClientId, undefined);
+  assert.equal(backup.options.theme, "arco-clear");
   assert.equal(JSON.stringify(backup).includes("daily:"), false);
 });

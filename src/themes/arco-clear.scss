@@ -1,0 +1,173 @@
+// Shared Polish color tokens form the palette API; geometry stays in the existing styles.
+:root[data-vx-theme="arco-clear"] {
+  &,
+  & body {
+    --v2p-color-main-50: #f7f8fa;
+    --v2p-color-main-100: #f2f3f5;
+    --v2p-color-main-150: #e5e6eb;
+    --v2p-color-main-200: #e5e6eb;
+    --v2p-color-main-300: #c9cdd4;
+    --v2p-color-main-350: #a9aeb8;
+    --v2p-color-main-400: #86909c;
+    --v2p-color-main-500: #626e7f;
+    --v2p-color-main-600: #4e5969;
+    --v2p-color-main-700: #272e3b;
+    --v2p-color-main-800: #1d2129;
+    --v2p-color-accent-50: #e8f3ff;
+    --v2p-color-accent-100: #bedaff;
+    --v2p-color-accent-200: #94bfff;
+    --v2p-color-accent-300: #6aa1ff;
+    --v2p-color-accent-400: #4080ff;
+    --v2p-color-accent-500: #165dff;
+    --v2p-color-accent-600: #165dff;
+    --v2p-color-accent-700: #0e42d2;
+    --v2p-color-orange-50: #fff7e8;
+    --v2p-color-orange-100: #ffe4ba;
+    --v2p-color-orange-400: #a64500;
+
+    --vx-color-fill: var(--v2p-color-main-100);
+    --v2p-color-background: var(--v2p-color-main-50);
+    --v2p-color-foreground: var(--v2p-color-main-800);
+    --v2p-color-font-secondary: var(--v2p-color-main-600);
+    --v2p-color-font-tertiary: var(--v2p-color-main-500);
+    --v2p-color-font-quaternary: var(--v2p-color-main-500);
+    --v2p-color-selection-foreground: var(--v2p-color-foreground);
+    --v2p-color-selection-background: var(--v2p-color-accent-100);
+
+    --v2p-color-button-background: var(--v2p-color-main-100);
+    --v2p-color-button-foreground: var(--v2p-color-font-secondary);
+    --v2p-color-button-background-hover: var(--v2p-color-main-200);
+    --v2p-color-button-border: transparent;
+    --v2p-color-button-special-background: var(--v2p-color-accent-600);
+    --v2p-color-button-special-foreground: #fff;
+    --v2p-color-button-special-foreground-hover: #fff;
+
+    --v2p-color-bg-hover-btn: var(--v2p-color-main-100);
+    --v2p-color-bg-subtle: var(--v2p-color-accent-50);
+    --v2p-color-bg-input: var(--v2p-color-main-100);
+    --v2p-color-bg-search: var(--v2p-color-main-100);
+    --v2p-color-bg-search-active: var(--v2p-color-bg-content);
+    --v2p-color-bg-tooltip: var(--v2p-color-bg-content);
+    --v2p-color-tabs: var(--v2p-color-accent-600);
+    --v2p-color-heart: #cb272d;
+    --v2p-color-heart-fill: #ffece8;
+    --v2p-color-mask: rgb(29 33 41 / 24%);
+    --v2p-color-divider: var(--v2p-color-main-200);
+    --v2p-color-input-border: var(--v2p-color-main-300);
+    --v2p-color-input-border-focus: var(--v2p-color-accent-600);
+    --v2p-color-border-darker: var(--v2p-color-main-300);
+    --v2p-color-error: #cb272d;
+    --v2p-color-bg-error: #ffece8;
+    --v2p-color-cell-num: var(--v2p-color-font-tertiary);
+    --v2p-widget-shadow: 0 4px 16px rgb(29 33 41 / 12%);
+    --v2p-toast-shadow: 0 4px 16px rgb(29 33 41 / 12%);
+
+    --color-fade: var(--v2p-color-font-tertiary);
+    --color-graphite: var(--v2p-color-foreground);
+    --link-hover-color: var(--v2p-color-accent-600);
+    --box-border-focus-color: var(--v2p-color-accent-600);
+    --vx-reply-link: var(--v2p-color-accent-600);
+    --vx-scroll-thumb: #626e7f80;
+    --vx-cited-background: var(--v2p-color-bg-block);
+    --vx-related-shadow-color: rgb(29 33 41 / 12%);
+    --vx-related-mask: var(--v2p-color-foreground);
+    --vx-color-success: #008026;
+    --vx-color-success-bg: #e8ffea;
+    --vx-color-primary-active: #072ca6;
+    --vx-modal-mask-background: var(--v2p-color-mask);
+    --vx-modal-mask-image: none;
+    --vx-modal-header-image: none;
+    --vx-account-image: none;
+    --vx-subtle-image: none;
+  }
+
+  body {
+    #Top {
+      background-color: var(--v2p-color-bg-content);
+    }
+
+    .fade {
+      color: var(--v2p-color-font-tertiary);
+    }
+
+    #Main :is(.topic_content, .reply_content) a[href] {
+      color: var(--v2p-color-accent-600);
+    }
+
+    :is(.topic-link, .item_title a, .v2p-member-topic-item):hover {
+      color: var(--v2p-color-accent-600);
+    }
+
+    :is(.v2p-reply-tags, .vx-tag-field) {
+      color: var(--v2p-color-accent-700);
+      background-color: var(--v2p-color-accent-50);
+    }
+
+    .badge.op {
+      color: var(--vx-color-success);
+      border-color: var(--vx-color-success-bg);
+      background-color: var(--vx-color-success-bg);
+    }
+
+    .green {
+      color: var(--vx-color-success);
+    }
+
+    :is(.button, .v2p-topic-preview-btn) {
+      box-shadow: none;
+      transition:
+        color 0.1s,
+        background-color 0.1s,
+        border-color 0.1s;
+    }
+
+    .button.special:is(:hover:enabled, :active:enabled) {
+      background-color: var(--v2p-color-accent-700);
+    }
+
+    .button.special:active:enabled {
+      background-color: var(--vx-color-primary-active);
+    }
+
+    #reply-box :is(input, button)[type="submit"] {
+      color: var(--v2p-color-button-special-foreground);
+      border-color: var(--v2p-color-button-special-border);
+      background-color: var(--v2p-color-accent-600);
+
+      &:hover:enabled {
+        background-color: var(--v2p-color-accent-700);
+      }
+    }
+
+    :is(button.normal.button, input[type="submit"], .v2p-topic-preview-btn):focus-visible {
+      outline: 2px solid var(--v2p-color-accent-600);
+      outline-offset: 2px;
+    }
+
+    :is(#vx-settings-dialog, .vx-tag-editor-dialog) {
+      :is(input[type="text"], input[type="search"], input[type="number"], select, .vx-tag-input) {
+        &:hover {
+          background-color: var(--v2p-color-button-background-hover);
+          border-color: transparent;
+        }
+
+        &:focus,
+        &:focus-within {
+          background-color: var(--v2p-color-bg-content);
+          border-color: var(--v2p-color-accent-600);
+          outline: none;
+        }
+      }
+    }
+
+    .vx-page-actions {
+      box-shadow: var(--v2p-widget-shadow);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      :is(.button, .v2p-topic-preview-btn) {
+        transition: none;
+      }
+    }
+  }
+}

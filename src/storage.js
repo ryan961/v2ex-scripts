@@ -1,9 +1,11 @@
 import { DEFAULT_LANGUAGE, LANGUAGE_NAMES, t } from "./i18n.js";
+import { DEFAULT_THEME, normalizeTheme } from "./theme.js";
 export const PREFIX = "v2ex-lite:";
 export const DEFAULT_IMGUR_CLIENT_ID = "3107b9ef8b316f3";
 export const TAG_LIMITS = Object.freeze({ perMember: 20, length: 80, importMembers: 20_000 });
 export const DEFAULTS = Object.freeze({
   language: DEFAULT_LANGUAGE,
+  theme: DEFAULT_THEME,
   privacy: false,
   newTab: true,
   preview: true,
@@ -23,6 +25,7 @@ const validName = /^[a-z0-9_-]{1,64}$/i;
 export function normalizeOptions(input = {}) {
   const output = { ...DEFAULTS };
   if (!input || typeof input !== "object") return output;
+  output.theme = normalizeTheme(input.theme);
   if (
     typeof input.language === "string" &&
     (input.language === "site" || Object.hasOwn(LANGUAGE_NAMES, input.language))

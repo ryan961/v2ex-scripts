@@ -49,7 +49,7 @@ export function createTopics(options, themeCSS = "") {
               try {
                 const doc = frame.contentDocument;
                 if (!isV2EXPage(doc)) return;
-                applyTheme(doc, true);
+                applyTheme(doc, true, options.theme);
                 if (!doc.getElementById(THEME_STYLE_ID)) {
                   const style = doc.createElement("style");
                   style.id = THEME_STYLE_ID;
