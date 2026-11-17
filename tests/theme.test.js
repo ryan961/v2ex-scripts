@@ -4,7 +4,7 @@ import { compile } from "sass";
 import { readFileSync } from "node:fs";
 import { dom } from "./helpers.js";
 
-test("requested padding stays scoped to the topic list and top-level threaded replies", () => {
+test("requested padding stays scoped to the topic list and top-level replies", () => {
   dom(
     '<style>.cell {padding:10px}.reply-group > .reply-group-item {padding:8px 0} #Rightbar .cell.item {padding:7px}</style><div id="Main"><div class="box"><div id="Tabs"></div><div class="cell item" id="topic"></div></div><div class="box"><div class="cell item" id="other"></div></div><div class="box reply-threads-c"><div class="cell" id="r_1"></div><div class="reply-group"><div class="cell reply-group-item" id="r_2"></div></div></div></div><div id="Rightbar"><div class="cell item" id="side"></div></div>',
   );
@@ -17,6 +17,61 @@ test("requested padding stays scoped to the topic list and top-level threaded re
   assert.equal(padding("r_1"), "15px 10px");
   assert.equal(padding("r_2"), "8px 0px");
   assert.equal(padding("side"), "7px");
+});
+
+test("all seven reply layouts use taller rows while retaining native gutters and inset content", () => {
+  const modes = ["off", "a", "b", "c", "d", "f", "h"];
+  const native = `<style>
+    .cell { padding: 10px; }
+    .reply-threads-d > .cell[data-depth] { --tree-top: 6px; padding: 6px 10px 10px 68px; }
+    .reply-threads-d > .cell[data-depth="0"] { --tree-top: 12px; padding-left: 10px; }
+    .reply-threads-f.reply-lines-on > .cell[data-reply-id] { padding-left: 42px; }
+    .reply-group > .reply-group-item { padding: 8px 0; }
+    .reply-strip { padding: 4px 10px; }
+    .reply-quote { padding: 6px 10px 8px; }
+    .reply-threads-d { --tree-curve: 10px; --tree-bottom: 10px; }
+  </style>`;
+  const layouts = modes.map(
+    (mode, index) => `<div class="box reply-threads reply-threads-${mode} reply-lines-on">
+      <div class="cell" id="r_${index * 2 + 1}" data-reply-id="${index * 2 + 1}" data-depth="0">Root</div>
+      <div class="cell" id="r_${index * 2 + 2}" data-reply-id="${index * 2 + 2}" data-depth="1">Answer
+        <a class="reply-strip">Quote strip</a><div class="reply-quote">Stacked quote</div></div>
+      <div class="reply-group"><div class="cell reply-group-item" id="r_${index + 200}">Nested answer</div></div>
+      <div class="cell reply-ad">Ad</div></div>`,
+  );
+  dom(`<div id="Main">${layouts.join("")}</div><div id="Rightbar">
+    <div class="box"><div class="cell" id="r_100">Outside the reply list</div></div></div>`);
+  const style = document.createElement("style");
+  style.textContent = compile("src/theme.scss").css;
+  document.head.append(style);
+  document.head.insertAdjacentHTML("beforeend", native);
+  const computed = (node) => window.getComputedStyle(node);
+  for (const mode of modes) {
+    const box = document.querySelector(`.reply-threads-${mode}`);
+    const [root, answer] = box.querySelectorAll(":scope > .cell[id]");
+    for (const row of [root, answer]) {
+      const actual = computed(row);
+      assert.equal(actual.paddingTop, "15px", `${mode}: top`);
+      assert.equal(actual.paddingBottom, "15px", `${mode}: bottom`);
+      assert.equal(actual.paddingRight, "10px", `${mode}: right`);
+      assert.equal(
+        actual.paddingLeft,
+        mode === "f" ? "42px" : row === answer && mode === "d" ? "68px" : "10px",
+        `${mode}: native left gutter`,
+      );
+    }
+    assert.equal(computed(box.querySelector(".reply-group-item")).padding, "8px 0px");
+    assert.equal(computed(box.querySelector(".reply-strip")).padding, "4px 10px");
+    assert.equal(computed(box.querySelector(".reply-quote")).padding, "6px 10px 8px");
+    assert.equal(computed(box.querySelector(".reply-ad")).padding, "20px 10px");
+    if (mode === "d") {
+      assert.equal(computed(box).getPropertyValue("--tree-curve"), "0px");
+      assert.equal(computed(box).getPropertyValue("--tree-bottom"), "15px");
+      for (const row of [root, answer])
+        assert.equal(computed(row).getPropertyValue("--tree-top"), "15px");
+    }
+  }
+  assert.equal(computed(document.getElementById("r_100")).padding, "10px");
 });
 
 test("title preview is visible before hover and separated from the title", () => {
@@ -49,7 +104,7 @@ test("native thank-area styles cannot hide the Polish action icons", () => {
   assert.equal(window.getComputedStyle(document.querySelector(".thank_area")).zIndex, "1");
 });
 
-test("theme keeps native V2EX reply spacing and typography on desktop and mobile", () => {
+test("theme keeps native V2EX reply typography and inner spacing on desktop and mobile", () => {
   dom(`<style>
     .box { padding: 0; }
     .cell { padding: 10px; font-size: 14px; line-height: 150%; }
@@ -85,7 +140,11 @@ test("theme keeps native V2EX reply spacing and typography on desktop and mobile
   const metrics = () =>
     selectors.map((selector) => {
       const style = window.getComputedStyle(document.querySelector(selector));
-      return properties.map((property) => style[property]);
+      return properties
+        .filter(
+          (property) => selector !== "#r_1" || !["paddingTop", "paddingBottom"].includes(property),
+        )
+        .map((property) => style[property]);
     });
   const native = metrics();
   const style = document.createElement("style");

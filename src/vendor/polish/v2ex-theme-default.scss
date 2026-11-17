@@ -1047,8 +1047,19 @@ body {
     padding: 15px 10px;
   }
 
-  .reply-threads-c > .cell[id^="r_"] {
-    padding: 15px 10px;
+  .box > .cell[id^="r_"] {
+    // Keep the native horizontal gutters for tree and conversation lines.
+    padding-top: 15px;
+    padding-bottom: 15px;
+  }
+
+  .reply-threads-d {
+    --tree-curve: 0px;
+    --tree-bottom: 15px;
+
+    > .cell[data-depth] {
+      --tree-top: 15px;
+    }
   }
 
   .cell[id^="r_"] {
