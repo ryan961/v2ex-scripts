@@ -4,6 +4,7 @@ import { createTagManager } from "./tag-manager.js";
 import { openUploadHistory } from "./upload.js";
 import { icon } from "./icons.js";
 import { THEMES } from "./theme.js";
+import { openBackup } from "./backup-ui.js";
 
 export function openSettings(store, signedIn = Boolean(currentUser()), tagActions) {
   if (document.querySelector("#vx-settings-dialog")) return;
@@ -91,7 +92,7 @@ export function openSettings(store, signedIn = Boolean(currentUser()), tagAction
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     if (!form.checkValidity()) return;
-    const next = { ...options };
+    const next = { ...store.options() };
     for (const [key, control] of fields) {
       if (control.disabled) continue;
       next[key] = control.type === "checkbox" ? control.checked : control.value;
@@ -104,48 +105,28 @@ export function openSettings(store, signedIn = Boolean(currentUser()), tagAction
       message.textContent = t("saveFailed");
     }
   });
-  const file = element("input");
-  file.type = "file";
-  file.accept = ".json,application/json,text/plain";
-  file.hidden = true;
   let manager;
-  file.setAttribute("aria-label", t("selectBackup"));
-  file.addEventListener("change", async () => {
-    try {
-      if (!file.files[0]) return;
-      if (file.files[0].size > 2_000_000) throw new Error(t("backupSize"));
-      const count = store.import(await file.files[0].text());
-      manager?.refresh();
-      message.textContent = t("imported", count);
-    } catch (error) {
-      message.textContent = t(
-        "importFailed",
-        error instanceof SyntaxError ? t("invalidJSON") : error.message,
-      );
-    } finally {
-      file.value = "";
-    }
-  });
   const backup = element("fieldset");
-  const buttons = element("div", undefined, "vx-settings-backup-actions");
-  buttons.append(
-    button(t("exportBackup"), () => {
-      const url = URL.createObjectURL(new Blob([store.export()], { type: "application/json" }));
-      const anchor = element("a");
-      anchor.href = url;
-      anchor.download = "v2ex-lite-backup.json";
-      anchor.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    }),
-    button(t("importBackup"), () => file.click()),
-    file,
-  );
   backup.append(
     element("legend", t("backup")),
-    element("strong", t("storage")),
     element("p", t("storageHelp"), "vx-storage-help"),
     element("p", t("backupHelp")),
-    buttons,
+    button(t("backup"), () =>
+      openBackup(store, {
+        signedIn,
+        onTags: tagActions?.updateTags,
+        onRestored(settings) {
+          manager?.refresh();
+          if (!settings) return;
+          const restored = store.options();
+          for (const [key, control] of fields) {
+            if (control.disabled) continue;
+            if (control.type === "checkbox") control.checked = restored[key];
+            else control.value = restored[key];
+          }
+        },
+      }),
+    ),
   );
   if (tagActions) {
     const details = element("details", undefined, "vx-settings-tag-manager");

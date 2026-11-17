@@ -1,3 +1,4 @@
 dist/
 package-lock.json
 tests/fixtures/
+docs/backup/app.js

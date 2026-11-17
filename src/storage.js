@@ -3,6 +3,8 @@ import { DEFAULT_THEME, normalizeTheme } from "./theme.js";
 export const PREFIX = "v2ex-lite:";
 export const DEFAULT_IMGUR_CLIENT_ID = "3107b9ef8b316f3";
 export const TAG_LIMITS = Object.freeze({ perMember: 20, length: 80, importMembers: 20_000 });
+export const BACKUP_BYTES = 2_000_000;
+export const byteLength = (text) => new TextEncoder().encode(text).length;
 export const DEFAULTS = Object.freeze({
   language: DEFAULT_LANGUAGE,
   theme: DEFAULT_THEME,
@@ -59,12 +61,37 @@ export function normalizeTags(value) {
   return result;
 }
 
-export function parseImport(text) {
-  if (text.length > 2_000_000) throw new Error(t("backupSize"));
-  const data = JSON.parse(text.replace(/^V2EX_Polish_settings\s*/, ""));
+export function parseImport(text, allowParts = false) {
+  if (byteLength(text) > BACKUP_BYTES) throw new Error(t("backupSize"));
+  const next = /^--\u7528\u6237\u6807\u7b7e--\s*/;
+  const input = JSON.parse(
+    text
+      .replace(/^(?:\uFEFF)?\s*/, "")
+      .replace(/^V2EX_Polish_settings\s*/, "")
+      .replace(next, ""),
+  );
+  const data = next.test(text.trim()) ? { members: input } : input;
   if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error(t("backupFormat"));
-  if (data.schema !== undefined && data.schema !== 1) throw new Error(t("backupVersion"));
-  const source = data.members ?? data["member-tag"];
+  if (data.schema !== undefined && data.schema !== 1 && !(allowParts && data.schema === 2))
+    throw new Error(t("backupVersion"));
+  let source = data.members ?? data["member-tag"];
+  if (!source && data.meta?.databaseVersion === 3 && data.data && typeof data.data === "object") {
+    source = Object.create(null);
+    for (const [key, entry] of Object.entries(data.data)) {
+      const name =
+        /^https:\/\/(?:[a-z0-9-]+\.)*v2ex\.(?:com|co)\/member\/([a-z0-9_-]{1,64})\/?$/i.exec(
+          key,
+        )?.[1];
+      if (!name || !Array.isArray(entry?.tags)) continue;
+      const tags = entry.tags.includes("._DELETED_") ? [] : entry.tags;
+      const existing = source[name.toLowerCase()];
+      source[name.toLowerCase()] = existing
+        ? existing.length && tags.length
+          ? [...new Set([...existing, ...tags])]
+          : []
+        : tags;
+    }
+  }
   if (!source || typeof source !== "object" || Array.isArray(source))
     throw new Error(t("backupNoTags"));
   const entries = Object.entries(source);
@@ -73,11 +100,16 @@ export function parseImport(text) {
   const members = Object.create(null);
   for (const [name, entry] of entries) {
     if (!validName.test(name)) throw new Error(`${t("badUsername")} ${name}`);
+    if (Object.hasOwn(members, name.toLowerCase())) throw new Error(t("backupFormat"));
     members[name.toLowerCase()] = normalizeTags(
       Array.isArray(entry) || typeof entry === "string" ? entry : entry?.tags,
     );
   }
-  return { members, options: data.schema === 1 ? normalizeOptions(data.options) : null };
+  const options =
+    data.schema && data.options && typeof data.options === "object" && !Array.isArray(data.options)
+      ? normalizeOptions(data.options)
+      : null;
+  return { members, options, part: data.schema === 2 ? (data.part ?? {}) : null };
 }
 
 export function createStorage(api) {
@@ -121,26 +153,41 @@ export function createStorage(api) {
         callback();
       });
     },
-    export() {
+    snapshot() {
       const members = Object.create(null);
       for (const key of memberKeys()) members[key.slice(memberPrefix.length)] = api.get(key);
       const { imgurClientId: _clientId, ...options } = this.options();
-      return JSON.stringify(
-        { schema: 1, exportedAt: new Date().toISOString(), options, members },
-        null,
-        2,
-      );
+      return { schema: 1, exportedAt: new Date().toISOString(), options, members };
+    },
+    export() {
+      return JSON.stringify(this.snapshot(), null, 2);
+    },
+    previewRestore(data) {
+      const changes = { added: 0, deleted: 0, conflicts: 0 };
+      for (const [name, tags] of Object.entries(data.members)) {
+        const local = api.get(keyFor(name));
+        if (local === undefined) changes[tags.length ? "added" : "deleted"]++;
+        else if (JSON.stringify(local) !== JSON.stringify(tags)) changes.conflicts++;
+      }
+      return changes;
+    },
+    restore(data, { tags = true, settings = false, onTags } = {}) {
+      let imported = 0;
+      if (tags) {
+        for (const [name, value] of Object.entries(data.members)) {
+          // Existing records include tombstones and may have changed since the preview.
+          if (api.get(keyFor(name)) !== undefined) continue;
+          this.setTags(name, value);
+          imported++;
+          onTags?.(name, value);
+        }
+      }
+      if (settings && data.options)
+        this.saveOptions({ ...data.options, imgurClientId: this.options().imgurClientId });
+      return imported;
     },
     import(text) {
-      const data = parseImport(text);
-      let imported = 0;
-      for (const [name, tags] of Object.entries(data.members)) {
-        // Empty local entries are tombstones; importing must not resurrect removed tags.
-        if (api.get(keyFor(name)) !== undefined) continue;
-        this.setTags(name, tags);
-        imported++;
-      }
-      return imported;
+      return this.restore(parseImport(text));
     },
     get: (key, fallback) => api.get(`${PREFIX}${key}`, fallback),
     set: (key, value) => write(`${PREFIX}${key}`, value),

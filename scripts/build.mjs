@@ -78,3 +78,11 @@ await build({
   ],
 });
 await writeFile(new URL("../dist/v2ex-lite.meta.js", import.meta.url), `${header}\n`);
+await build({
+  entryPoints: ["src/backup-page.js"],
+  bundle: true,
+  format: "iife",
+  target,
+  minify: true,
+  outfile: "docs/backup/app.js",
+});
