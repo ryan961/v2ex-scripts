@@ -83,12 +83,13 @@
 
   body {
     :is(#Top, #Main, #Rightbar, #Bottom, .v2p-popup, .v2p-modal-main)
-      a[href]:not(:where(.button, .tab_current, .page_current, .count_livid, .count_orange)):is(
-        :hover,
-        :focus-visible
-      ),
+      a[href]:not(:where(.button, .tab_current, .page_current)):is(:hover, :focus-visible),
     #Main #SecondaryTabs a[href]:is(:hover, :focus-visible) {
       color: var(--link-hover-color);
+    }
+
+    #Main a:is(.count_livid, .count_orange):is(:hover, :focus-visible) {
+      background-color: var(--v2p-color-accent-50);
     }
 
     #Top {

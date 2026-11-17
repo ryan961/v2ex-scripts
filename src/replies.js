@@ -117,6 +117,9 @@ export function cloneTopReply(reply) {
       reply.node.scrollIntoView({ block: "start" });
     });
     toolbox.replaceChildren(jump);
+    toolbox.classList.add("vx-hot-meta");
+    const likes = cloned.querySelector(".v2p-likes-box");
+    if (likes) toolbox.prepend(likes);
   }
   for (const node of cloned.querySelectorAll("[id]")) node.removeAttribute("id");
   const table = cloned.firstElementChild;

@@ -72,6 +72,32 @@ test("thanks sorting uses floor order for ties", () => {
   );
 });
 
+test("hot reply metadata shares the first row without moving the original likes", () => {
+  const { window } = dom(`<div id="Main"><div class="cell" id="r_12"><table><tbody><tr><td>
+    <div class="flex-one-row"><div class="flex-one-row gap10"><strong><a href="/member/Alice">Alice</a></strong>
+    <span class="ago">now</span><span class="small fade flex-one-row gap5"><img src="/heart.png">123</span></div>
+    <div class="fr"><span class="no">12</span></div></div><div class="reply_content">Reply</div>
+    </td></tr></tbody></table></div></div>`);
+  enhanceReplyActions(document);
+  const source = document.querySelector("#r_12");
+  const likes = source.querySelector(".v2p-likes-box");
+  const originalParent = likes.parentElement;
+  const hot = cloneTopReply(parseReply(source));
+  const meta = hot.querySelector(".vx-hot-meta");
+  assert.equal(meta.firstElementChild.classList.contains("v2p-likes-box"), true);
+  assert.equal(meta.firstElementChild.textContent, "123");
+  assert.equal(meta.lastElementChild.getAttribute("href"), "#r_12");
+  assert.equal(meta.parentElement.querySelector("strong a").textContent, "Alice");
+  assert.equal(hot.querySelector(".ago").parentElement.parentElement, meta.previousElementSibling);
+  assert.equal(likes.parentElement, originalParent);
+  assert.equal(parseReply(source).thanks, 123);
+  let jumped = false;
+  source.scrollIntoView = () => (jumped = true);
+  meta.lastElementChild.click();
+  assert.equal(jumped, true);
+  window.close();
+});
+
 test("hot replies retain unchanged rows and update counts, ordering and empty states", () => {
   const row = (floor, thanks) => `<div class="cell" id="r_${floor}"><table><tbody><tr><td>
     <div class="flex-one-row"><div class="flex-one-row"><strong><a href="/member/Member${floor}">Member${floor}</a></strong>
