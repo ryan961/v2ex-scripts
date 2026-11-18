@@ -433,6 +433,7 @@ export function createMembers(store, options, topics, currentAccount) {
     }
 
     document.addEventListener("pointerover", (event) => {
+      if (event.pointerType === "touch") return;
       if (popup.contains(event.target)) {
         clearTimeout(closeTimer);
         return;
@@ -450,6 +451,10 @@ export function createMembers(store, options, topics, currentAccount) {
       active = anchor;
       const request = sequence;
       timer = setTimeout(async () => {
+        if (!anchor.isConnected) {
+          hide();
+          return;
+        }
         const initialAvatar =
           image?.src ??
           link?.querySelector("img")?.src ??
@@ -490,7 +495,7 @@ export function createMembers(store, options, topics, currentAccount) {
           clearTimeout(timeout);
           if (controller === task) controller = null;
         }
-      }, 350);
+      }, 500);
     });
     document.addEventListener("pointerout", (event) => {
       if (!active || (!active.contains(event.target) && !popup.contains(event.target))) return;
@@ -499,6 +504,10 @@ export function createMembers(store, options, topics, currentAccount) {
         (popup.contains(event.relatedTarget) || active.contains(event.relatedTarget))
       )
         return;
+      if (popup.hidden) {
+        hide();
+        return;
+      }
       clearTimeout(closeTimer);
       closeTimer = setTimeout(hide, 1000);
     });

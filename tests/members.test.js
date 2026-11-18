@@ -212,6 +212,44 @@ test("blocking requires a fresh validated URL and verifies the resulting profile
   assert.equal(calls, 3);
 });
 
+test("brief pointer passes never open a member card or load its profile", (t) => {
+  const { window } = dom('<div id="Main"><a href="/member/Alice"><span>Alice</span></a></div>');
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const fetch = t.mock.method(globalThis, "fetch", () => Promise.resolve(response({})));
+  try {
+    createMembers(createStorage(memoryAPI()), { userCards: true });
+    const anchor = document.querySelector("#Main a");
+    const popup = document.querySelector(".vx-member-popup");
+    const pointer = (type, pointerType = "mouse") =>
+      anchor.firstElementChild.dispatchEvent(
+        new window.PointerEvent(type, { bubbles: true, relatedTarget: document.body, pointerType }),
+      );
+
+    pointer("pointerover");
+    t.mock.timers.tick(150);
+    pointer("pointerout");
+    t.mock.timers.tick(500);
+    assert.equal(popup.hidden, true);
+    assert.equal(fetch.mock.callCount(), 0);
+
+    pointer("pointerover", "touch");
+    t.mock.timers.tick(500);
+    assert.equal(popup.hidden, true);
+    assert.equal(fetch.mock.callCount(), 0);
+
+    pointer("pointerover");
+    t.mock.timers.tick(499);
+    assert.equal(popup.hidden, true);
+    assert.equal(fetch.mock.callCount(), 0);
+    t.mock.timers.tick(1);
+    assert.equal(popup.hidden, false);
+    assert.equal(fetch.mock.callCount(), 2);
+    document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+  } finally {
+    window.close();
+  }
+});
+
 test("member cards cancel dismissal on reentry and close one second after leaving", async () => {
   const { window } = dom('<div id="Main"><a href="/member/Alice">Alice</a></div>');
   try {
@@ -221,7 +259,7 @@ test("member cards cancel dismissal on reentry and close one second after leavin
     const pointer = (node, type, relatedTarget) =>
       node.dispatchEvent(new window.MouseEvent(type, { bubbles: true, relatedTarget }));
     pointer(anchor, "pointerover", document.body);
-    await delay(380);
+    await delay(530);
     assert.equal(popup.hidden, false);
     pointer(anchor, "pointerout", document.body);
     await delay(80);
@@ -260,7 +298,7 @@ test("Polish member card uses skeletons, complete content, cached requests and t
     const anchor = document.querySelector('a[href="/member/Alice"]');
     anchor.dispatchEvent(new window.MouseEvent("pointerover", { bubbles: true }));
     assert.equal(requests.length, 0);
-    await delay(380);
+    await delay(530);
     assert.equal(requests.length, 2);
     assert.equal(document.querySelectorAll(".v2p-member-card .v2p-loading").length, 2);
     requests
@@ -284,7 +322,7 @@ test("Polish member card uses skeletons, complete content, cached requests and t
     assert.ok(document.querySelector(".v2p-member-topic-item-row > .v2p-topic-preview-btn"));
     document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     anchor.dispatchEvent(new window.MouseEvent("pointerover", { bubbles: true }));
-    await delay(380);
+    await delay(530);
     assert.equal(requests.length, 2);
     document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
   } finally {
@@ -303,7 +341,7 @@ test("leaving a member card aborts both outstanding requests and stale results s
     document
       .querySelector("a")
       .dispatchEvent(new window.MouseEvent("pointerover", { bubbles: true }));
-    await delay(380);
+    await delay(530);
     document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     assert.equal(
       requests.every((x) => x.options.signal.aborted),
@@ -344,7 +382,7 @@ test("member cards show activity, three replies and verified follow state withou
     );
     const anchor = document.querySelector("#Main > a");
     anchor.dispatchEvent(new window.MouseEvent("pointerover", { bubbles: true }));
-    await delay(380);
+    await delay(530);
     assert.equal(paths.length, 2);
     assert.match(document.querySelector(".vx-member-rank").textContent, /8553/);
     assert.equal(document.querySelectorAll(".vx-member-reply").length, 3);
@@ -361,7 +399,7 @@ test("member cards show activity, three replies and verified follow state withou
     assert.equal(follow.disabled, false);
     document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     anchor.dispatchEvent(new window.MouseEvent("pointerover", { bubbles: true }));
-    await delay(380);
+    await delay(530);
     assert.equal(paths.length, 5);
     assert.equal(document.querySelector(".vx-member-follow").getAttribute("aria-pressed"), "true");
   } finally {
@@ -381,7 +419,7 @@ test("guests and the current member never receive follow controls", async () => 
       document
         .querySelector("a")
         .dispatchEvent(new window.MouseEvent("pointerover", { bubbles: true }));
-      await delay(380);
+      await delay(530);
       assert.ok(document.querySelector(".v2p-member-card"));
       assert.equal(document.querySelector(".vx-member-follow"), null);
       window.close();
