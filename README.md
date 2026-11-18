@@ -2,7 +2,7 @@
 
 V2EX Lite 是一个改善 V2EX 阅读与回复体验的浏览器用户脚本，提供主题切换、帖子预览、多页回复浏览、用户标签和图片上传等功能。安装后直接在 V2EX 页面使用，无需部署服务器。
 
-[安装脚本](https://raw.githubusercontent.com/ryan961/v2ex-scripts/main/dist/v2ex-lite.user.js) · [版本标签](https://github.com/ryan961/v2ex-scripts/tags) · [问题反馈](https://github.com/ryan961/v2ex-scripts/issues)
+[安装脚本](https://raw.githubusercontent.com/ryan961/v2ex-scripts/main/dist/v2ex-lite.user.js) · [正式版本](https://github.com/ryan961/v2ex-scripts/releases/latest) · [问题反馈](https://github.com/ryan961/v2ex-scripts/issues)
 
 ## ✨ 主要功能
 
