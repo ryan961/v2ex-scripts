@@ -160,26 +160,86 @@ test("member info and recent topics start together; optional profile failures ke
 
 test("blocking requires a fresh validated URL and verifies the resulting profile", async () => {
   dom("");
+  const signedIn = (body, name = "reader") =>
+    `<div id="Top"><a class="top" href="/member/${name}">${name}</a></div>${body}`;
   const paths = [];
-  await blockMember("Alice", async (path) => {
+  await blockMember("Alice", "reader", async (path) => {
     paths.push(path);
-    return response(profile("Alice", paths.length === 1), "https://www.v2ex.com/member/Alice");
+    return response(
+      signedIn(profile("Alice", paths.length === 1)),
+      "https://www.v2ex.com/member/Alice",
+    );
   });
   assert.deepEqual(paths, ["/member/Alice", "/block/123?once=42", "/member/Alice"]);
   let calls = 0;
   await assert.rejects(
-    blockMember("Alice", async () => {
+    blockMember("Alice", "reader", async () => {
       calls++;
       return response(
-        '<div id="Main"><input type="button" value="Block" onclick="location.href=\'https://evil.test/block/1?once=42\'"></div>',
+        signedIn(
+          '<div id="Main"><input type="button" value="Block" onclick="location.href=\'https://evil.test/block/1?once=42\'"></div>',
+        ),
       );
     }),
   );
   assert.equal(calls, 1);
   await assert.rejects(
-    blockMember("Alice", async () => response(profile("Alice", true), "/signin")),
+    blockMember("Alice", "reader", async () =>
+      response(signedIn(profile("Alice", true)), "/signin"),
+    ),
   );
-  await assert.rejects(blockMember("Alice", async () => response(profile("Alice", true))));
+  await assert.rejects(
+    blockMember("Alice", "reader", async () => response(signedIn(profile("Alice", true)))),
+  );
+  for (const account of ["other", null]) {
+    calls = 0;
+    await assert.rejects(
+      blockMember("Alice", account, async (path) => {
+        calls++;
+        assert.equal(path, "/member/Alice");
+        return response(signedIn(profile("Alice", true)));
+      }),
+    );
+    assert.equal(calls, 1);
+  }
+  calls = 0;
+  await assert.rejects(
+    blockMember("Alice", "reader", async () => {
+      calls++;
+      return response(signedIn(profile("Alice", calls === 1), calls < 3 ? "reader" : "other"));
+    }),
+  );
+  assert.equal(calls, 3);
+});
+
+test("member cards cancel dismissal on reentry and close one second after leaving", async () => {
+  const { window } = dom('<div id="Main"><a href="/member/Alice">Alice</a></div>');
+  try {
+    createMembers(createStorage(memoryAPI()), { tags: true, userCards: false });
+    const anchor = document.querySelector("#Main a");
+    const popup = document.querySelector(".vx-member-popup");
+    const pointer = (node, type, relatedTarget) =>
+      node.dispatchEvent(new window.MouseEvent(type, { bubbles: true, relatedTarget }));
+    pointer(anchor, "pointerover", document.body);
+    await delay(380);
+    assert.equal(popup.hidden, false);
+    pointer(anchor, "pointerout", document.body);
+    await delay(80);
+    pointer(anchor, "pointerover", document.body);
+    await delay(1050);
+    assert.equal(popup.hidden, false);
+    pointer(anchor, "pointerout", document.body);
+    pointer(popup, "pointerover", document.body);
+    await delay(1050);
+    assert.equal(popup.hidden, false);
+    pointer(popup, "pointerout", document.body);
+    await delay(400);
+    assert.equal(popup.hidden, false);
+    await delay(650);
+    assert.equal(popup.hidden, true);
+  } finally {
+    window.close();
+  }
 });
 
 test("Polish member card uses skeletons, complete content, cached requests and topic previews", async () => {

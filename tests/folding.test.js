@@ -85,6 +85,30 @@ test("separate enhancement calls measure every reply before inserting any foldin
   window.close();
 });
 
+test("short text with many line breaks folds by height while compact paragraphs stay open", () => {
+  const { window } = dom(`<div id="Main">
+    <div class="reply_content">${"x<br>".repeat(60)}</div>
+    <div class="reply_content">${"<p>x</p>".repeat(20)}</div>
+    <div class="reply_content"><p>Short paragraph</p></div>
+    </div>`);
+  const frames = animationFrames(window);
+  const contents = [...document.querySelectorAll(".reply_content")];
+  contents.forEach((content, index) => {
+    content.getBoundingClientRect = () => ({ height: index < 2 ? 1200 : 30 });
+  });
+  const folding = createReplyFolding();
+  folding.enhance(document);
+  frames.flush();
+  assert.equal(document.querySelectorAll(".v2p-collapsed").length, 2);
+  assert.equal(contents[2].parentElement.id, "Main");
+  const original = contents[0].innerHTML;
+  contents[0].nextElementSibling.click();
+  assert.equal(contents[0].parentElement.classList.contains("v2p-collapsed"), false);
+  assert.equal(contents[0].innerHTML, original);
+  folding.destroy();
+  window.close();
+});
+
 test("resize callbacks share a frame, detach removed content and cancel work on page exit", () => {
   const { window } = dom('<div id="Main"><div class="reply_content"><img></div></div>');
   const frames = animationFrames(window);

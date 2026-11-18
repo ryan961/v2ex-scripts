@@ -389,7 +389,7 @@ test("bundled script initializes, enhances only new nodes, and settles without s
   row.className = "cell";
   row.id = "r_99";
   row.innerHTML =
-    '<strong><a href="/member/Carol">Carol</a></strong><span class="no">4</span><span><img src="/heart.png">50</span><div class="reply_content">new</div>';
+    '<table><tbody><tr><td><strong><a href="/member/Carol">Carol</a></strong><div class="fr"><span class="no">4</span></div><span><img src="/heart.png">50</span><div class="reply_content">new</div></td></tr></tbody></table>';
   window.document.querySelector("#replies").append(row);
   await new Promise((resolve) => setTimeout(resolve, 60));
   assert.equal(row.querySelectorAll(".vx-tags").length, 1);
@@ -397,6 +397,59 @@ test("bundled script initializes, enhances only new nodes, and settles without s
   const tagCount = window.document.querySelectorAll(".vx-tags").length;
   await new Promise((resolve) => setTimeout(resolve, 60));
   assert.equal(window.document.querySelectorAll(".vx-tags").length, tagCount);
+  const hot = () => window.document.getElementById("top_r_99");
+  const settle = () => new Promise((resolve) => setTimeout(resolve, 60));
+  row.querySelector(".reply_content").textContent = "Updated content";
+  await settle();
+  assert.equal(hot().querySelector(".reply_content").textContent, "Updated content");
+  row.querySelector(".vx-tags").textContent = "Updated tag";
+  await settle();
+  assert.equal(hot().querySelector(".vx-tags").textContent, "Updated tag");
+  row.classList.add("v2p-blocked-reply");
+  await settle();
+  assert.equal(hot(), null);
+  row.classList.remove("v2p-blocked-reply");
+  await settle();
+  assert.ok(hot());
+  row.style.display = "none";
+  await settle();
+  assert.equal(hot(), null);
+  row.style.removeProperty("display");
+  await settle();
+  assert.ok(hot());
+  row.hidden = true;
+  await settle();
+  assert.equal(hot(), null);
+  row.hidden = false;
+  await settle();
+  assert.ok(hot());
+  const stable = hot();
+  window.document.querySelector("#replies").append(row);
+  await settle();
+  assert.equal(hot(), stable);
+  const replacement = row.cloneNode(true);
+  replacement.querySelector(".reply_content").textContent = "Replacement content";
+  row.replaceWith(replacement);
+  await settle();
+  assert.equal(hot().querySelector(".reply_content").textContent, "Replacement content");
+  replacement.remove();
+  await settle();
+  assert.equal(hot(), null);
+  let mutations = 0;
+  const watch = new window.MutationObserver((records) => (mutations += records.length));
+  watch.observe(window.document.querySelector("#Main"), {
+    subtree: true,
+    childList: true,
+    attributes: true,
+  });
+  watch.observe(window.document.querySelector("#Rightbar"), {
+    subtree: true,
+    childList: true,
+    attributes: true,
+  });
+  await settle();
+  watch.disconnect();
+  assert.equal(mutations, 0);
   assert.deepEqual(writes, []);
   instance.window.close();
 });

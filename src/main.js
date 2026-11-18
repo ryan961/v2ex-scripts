@@ -3,7 +3,7 @@ import { themeStyles } from "./theme-styles.js";
 import { enhanceEmojis, initEmoji } from "./emoji.js";
 import { createStorage, PREFIX } from "./storage.js";
 import { setLanguage } from "./i18n.js";
-import { createHTTP, currentUser, isV2EXPage } from "./dom.js";
+import { createHTTP, currentUser, isV2EXPage, matching } from "./dom.js";
 import { createMembers } from "./members.js";
 import { createTopics } from "./preview.js";
 import { enhanceReplyActions, initReplies, REPLY } from "./replies.js";
@@ -109,10 +109,19 @@ function start() {
       for (const mutation of mutations) {
         const target =
           mutation.target.nodeType === 1 ? mutation.target : mutation.target.parentElement;
+        if (mutation.type === "attributes") {
+          if (target?.matches(REPLY)) changed.add(target);
+          continue;
+        }
         const reply = target?.closest(REPLY);
-        if (reply) replies?.invalidate(reply);
+        if (reply) {
+          replies?.invalidate(reply);
+          changed.add(reply);
+        }
+        for (const node of mutation.removedNodes)
+          if (node.nodeType === 1)
+            for (const removed of matching(node, REPLY)) changed.add(removed);
         if (target?.closest("[data-vx-owned]")) continue;
-        if (reply) changed.add(reply);
         for (const node of mutation.addedNodes) {
           if (node.nodeType === 1 && !node.matches("[data-vx-owned]")) roots.add(node);
         }
@@ -127,15 +136,19 @@ function start() {
             replies?.add(root);
           }
         }
-        for (const node of changed) {
-          folding.enhance(node);
-          replies?.update(node);
-        }
+        for (const node of changed) if (node.isConnected) folding.enhance(node);
+        replies?.update(changed);
         roots.clear();
         changed.clear();
       });
     });
-    observer.observe(main, { childList: true, subtree: true, characterData: true });
+    observer.observe(main, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: ["class", "style", "hidden"],
+    });
   }
   if (name && options.autoCheckIn) {
     const report = (message) => {

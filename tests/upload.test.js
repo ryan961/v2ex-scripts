@@ -118,6 +118,32 @@ test("upload records survive another storage instance and stay out of tag backup
   assert.doesNotMatch(first.export(), /deleteHash|i.imgur.com/);
 });
 
+test("rejected image drops cancel browser navigation and preserve the draft", () => {
+  for (const paused of [true, false]) {
+    const { window } = dom('<form><textarea id="reply_content">Unsaved draft</textarea></form>');
+    const store = createStorage(memoryAPI());
+    if (paused) store.set("upload-paused-until", Date.now() + 60_000);
+    initUpload({ upload: true }, store, () => assert.fail("unexpected upload"));
+    const textarea = document.querySelector("textarea");
+    const drop = (files) => {
+      const event = new window.Event("drop", { bubbles: true, cancelable: true });
+      Object.defineProperty(event, "dataTransfer", { value: { files } });
+      textarea.dispatchEvent(event);
+      return event.defaultPrevented;
+    };
+    const image = new File(["image"], "test.png", { type: "image/png" });
+    assert.equal(drop(Array(paused ? 1 : 11).fill(image)), true);
+    assert.equal(textarea.value, "Unsaved draft");
+    assert.equal(store.uploads().length, 0);
+    assert.equal(drop([new File(["text"], "test.txt", { type: "text/plain" })]), false);
+    assert.equal(drop([]), false);
+    const submit = new window.Event("submit", { bubbles: true, cancelable: true });
+    textarea.form.dispatchEvent(submit);
+    assert.equal(submit.defaultPrevented, false);
+    window.close();
+  }
+});
+
 test("upload history links lazy Imgur previews and preserves original and deletion links", () => {
   dom("");
   openUploadHistory({

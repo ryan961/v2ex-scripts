@@ -74,7 +74,7 @@ export function createReplyFolding(enabled = true, doc = document) {
         continue;
       if (
         content.textContent.length < 300 &&
-        !content.querySelector("img,pre,blockquote,ul,ol,table")
+        !content.querySelector("img,pre,blockquote,ul,ol,table,br,p,div")
       )
         continue;
       if (!watched.has(content)) {

@@ -84,10 +84,23 @@ test("Polish preview markup uses a same-origin iframe and removes it on close", 
   embedded.querySelector(".reply_content img").click();
   assert.equal(document.querySelectorAll(".vx-image-viewer").length, 1);
   assert.equal(previewMask.hasAttribute("inert"), true);
-  document.querySelector(".vx-image-viewer .v2p-modal-close-btn").click();
+  const escape = () =>
+    new window.KeyboardEvent("keydown", {
+      key: "Escape",
+      bubbles: true,
+      cancelable: true,
+    });
+  embedded.dispatchEvent(escape());
+  assert.equal(document.querySelectorAll(".v2p-modal-mask").length, 2);
+  document.dispatchEvent(escape());
   assert.equal(previewMask.hasAttribute("inert"), false);
   assert.equal(document.querySelector("iframe"), frame);
-  document.querySelector(".v2p-modal-close-btn").click();
+  const handled = escape();
+  handled.preventDefault();
+  embedded.dispatchEvent(handled);
+  assert.equal(previewMask.isConnected, true);
+  embedded.querySelector(".reply_content img").focus();
+  embedded.querySelector(".reply_content img").dispatchEvent(escape());
   await new Promise(setImmediate);
   assert.equal(document.querySelector(".v2p-modal-mask"), null);
   preview.click();

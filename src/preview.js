@@ -46,9 +46,21 @@ export function createTopics(options, themeCSS = "") {
             const wrapper = element("div", undefined, "v2p-topic-preview-wrapper");
             wrapper.append(frame);
             dialog.content.append(wrapper);
+            const onPreviewKey = (event) => {
+              if (
+                event.key === "Escape" &&
+                !event.defaultPrevented &&
+                dialog.root.isConnected &&
+                !dialog.root.hasAttribute("inert")
+              ) {
+                event.preventDefault();
+                dialog.close();
+              }
+            };
             frame.addEventListener("load", () => {
               try {
                 const doc = frame.contentDocument;
+                doc?.addEventListener("keydown", onPreviewKey);
                 if (!isV2EXPage(doc)) return;
                 applyTheme(doc, true, options.theme);
                 if (!doc.getElementById(THEME_STYLE_ID)) {

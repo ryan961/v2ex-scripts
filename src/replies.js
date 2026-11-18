@@ -64,9 +64,35 @@ export function importReply(row, base) {
   captureImportedActions(copy, base);
   for (const node of copy.querySelectorAll(
     "script,style,iframe,object,embed,link,meta,base,form,input,button",
-  ))
-    node.remove();
+  )) {
+    const treeRow = node.closest(`${REPLY}[data-depth]`);
+    if (
+      node.matches("button.reply-toggle,button.reply-tree-more") &&
+      /^\d{1,5}$/.test(treeRow?.dataset.depth ?? "") &&
+      (node.classList.contains("reply-tree-more") || node.parentElement === treeRow) &&
+      !node.closest(".reply_content")
+    ) {
+      // Native tree actions are delegated; rebuild only their inert controls.
+      const toggle = element("button", node.textContent);
+      toggle.type = "button";
+      toggle.className = ["reply-toggle", "reply-toggle-big", "reply-tree-more"]
+        .filter((name) => node.classList.contains(name))
+        .join(" ");
+      for (const name of ["aria-expanded", "aria-label", "title"])
+        if (node.hasAttribute(name)) toggle.setAttribute(name, node.getAttribute(name));
+      node.replaceWith(toggle);
+    } else node.remove();
+  }
   for (const node of [copy, ...copy.querySelectorAll("*")]) {
+    const treeRow = node.matches(`${REPLY}[data-depth]`);
+    const treeLine =
+      node.matches(".reply-tree-line") && node.parentElement?.matches(`${REPLY}[data-depth]`);
+    const depth = treeRow && !node.closest(".reply_content") ? node.dataset.depth : "";
+    const displayDepth = treeRow ? node.style.getPropertyValue("--depth").trim() : "";
+    const level =
+      treeLine && !node.closest(".reply_content")
+        ? node.style.getPropertyValue("--level").trim()
+        : "";
     for (const attr of [...node.attributes]) {
       if (
         /^on/i.test(attr.name) ||
@@ -75,6 +101,9 @@ export function importReply(row, base) {
       )
         node.removeAttribute(attr.name);
     }
+    if (/^\d{1,5}$/.test(depth))
+      node.style.setProperty("--depth", /^\d{1,5}$/.test(displayDepth) ? displayDepth : depth);
+    if (/^\d{1,5}$/.test(level)) node.style.setProperty("--level", level);
     for (const attr of ["href", "src"]) {
       if (!node.hasAttribute(attr)) continue;
       const value = safeURL(node.getAttribute(attr), base, attr === "src");
@@ -101,7 +130,9 @@ export function importReply(row, base) {
 export function cloneTopReply(reply) {
   const cloned = reply.node.cloneNode(true);
   cloned.id = `top_${reply.id}`;
-  for (const child of cloned.querySelectorAll(".cell,.v2p-topic-reply-ref,.nested,.thank_area"))
+  for (const child of cloned.querySelectorAll(
+    ".cell,.v2p-topic-reply-ref,.nested,.thank_area,.reply-toggle,.reply-tree-line,.reply-tree-join,.reply-tree-more",
+  ))
     child.remove();
   for (const wrapper of cloned.querySelectorAll(".v2p-reply-content")) {
     const content = wrapper.querySelector(".reply_content");
@@ -178,9 +209,16 @@ export function initReplies({ options, getDocument, enhance }) {
     retry.disabled = !!error && inFlight.has(error.page);
     paging.refresh(total, [...inFlight.keys()]);
     if (!options.hotReplies) return;
-    const ranked = rankReplies(replies.values());
+    const ranked = rankReplies(
+      [...replies.values()].filter(
+        ({ node }) =>
+          !node.hidden &&
+          node.style.display !== "none" &&
+          !node.classList.contains("v2p-blocked-reply"),
+      ),
+    );
     const key = ranked.map((reply) => `${reply.id}:${reply.thanks}`).join("|");
-    if (key === signature && panel) return;
+    if (key === signature && panel && !ranked.some(({ id }) => topClones.get(id)?.dirty)) return;
     signature = key;
     if (!ranked.length) {
       if (panel?.previousElementSibling?.matches("[data-vx-hot-gap]"))
@@ -227,10 +265,12 @@ export function initReplies({ options, getDocument, enhance }) {
   function add(root) {
     let changed = false;
     for (const node of matching(root, REPLY)) {
-      if (!node.closest("#Main") || replies.has(node.id)) continue;
+      if (!node.closest("#Main") || replies.get(node.id)?.node.isConnected) continue;
       const reply = parseReply(node);
       if (!reply) continue;
       replies.set(reply.id, reply);
+      const cloned = topClones.get(reply.id);
+      if (cloned) cloned.dirty = true;
       changed = true;
     }
     if (changed) render();
@@ -301,16 +341,19 @@ export function initReplies({ options, getDocument, enhance }) {
       const cloned = topClones.get(node.id);
       if (cloned) cloned.dirty = true;
     },
-    update(node) {
-      enhanceReplyActions(node);
-      const reply = replies.get(node.id);
-      if (reply) {
-        const count = thanksCount(node);
-        if (count !== reply.thanks) {
-          reply.thanks = count;
-          render();
+    update(nodes) {
+      let changed = false;
+      for (const node of nodes) {
+        const reply = replies.get(node.id);
+        if (reply?.node !== node) continue;
+        if (!node.isConnected || !node.closest("#Main")) replies.delete(node.id);
+        else {
+          enhanceReplyActions(node);
+          reply.thanks = thanksCount(node);
         }
+        changed = true;
       }
+      if (changed) render();
     },
     async preload() {
       for (let page = current + 1; page <= Math.min(total, current + options.preloadPages); page++)

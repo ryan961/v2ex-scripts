@@ -369,7 +369,7 @@ export function createMembers(store, options, topics, currentAccount) {
         block.classList.add("v2p-btn-loading");
         block.textContent = t("blocking");
         try {
-          await blockMember(name);
+          await blockMember(name, currentAccount);
           for (const row of document.querySelectorAll('.cell[id^="r_"]')) {
             if (
               !row.closest("#Main") ||
@@ -443,7 +443,9 @@ export function createMembers(store, options, topics, currentAccount) {
       const name =
           memberName(link) ?? (/^[a-z0-9_-]{1,64}$/i.test(image?.alt ?? "") ? image.alt : null),
         anchor = link ?? image;
-      if (!name || !anchor || anchor === active) return;
+      if (!name || !anchor) return;
+      clearTimeout(closeTimer);
+      if (anchor === active) return;
       hide();
       active = anchor;
       const request = sequence;
@@ -497,7 +499,8 @@ export function createMembers(store, options, topics, currentAccount) {
         (popup.contains(event.relatedTarget) || active.contains(event.relatedTarget))
       )
         return;
-      closeTimer = setTimeout(hide, 350);
+      clearTimeout(closeTimer);
+      closeTimer = setTimeout(hide, 1000);
     });
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") hide();

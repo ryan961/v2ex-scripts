@@ -332,7 +332,10 @@ export function initUpload(options, store, request = GM_xmlhttpRequest) {
       event.preventDefault();
   });
   textarea.addEventListener("drop", (event) => {
-    if (enqueue(event.dataTransfer?.files ?? [])) event.preventDefault();
+    const files = [...(event.dataTransfer?.files ?? [])];
+    if (!files.some((file) => file.type.startsWith("image/"))) return;
+    event.preventDefault();
+    enqueue(files);
   });
   textarea.form?.addEventListener(
     "submit",

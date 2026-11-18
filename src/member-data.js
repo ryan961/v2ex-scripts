@@ -146,9 +146,11 @@ function blockPath(doc) {
   return null;
 }
 
-export async function blockMember(name, fetcher = fetch) {
+export async function blockMember(name, account, fetcher = fetch) {
   const signal = AbortSignal.timeout(10_000);
   const page = await fetchMemberPage(name, signal, fetcher);
+  if (!account || currentUser(page)?.toLowerCase() !== account.toLowerCase())
+    throw new Error(t("accountChanged"));
   const path = blockPath(page);
   if (!path) throw new Error(t("blockUnavailable"));
   const response = await fetcher(path, { credentials: "same-origin", signal });
@@ -162,5 +164,7 @@ export async function blockMember(name, fetcher = fetch) {
   const result = new DOMParser().parseFromString(await response.text(), "text/html");
   syncOnce(result);
   const verified = await fetchMemberPage(name, signal, fetcher);
+  if (currentUser(verified)?.toLowerCase() !== account.toLowerCase())
+    throw new Error(t("accountChanged"));
   if (blockPath(verified)) throw new Error(t("blockUnconfirmed"));
 }

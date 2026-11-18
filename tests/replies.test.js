@@ -122,7 +122,7 @@ test("hot replies retain unchanged rows and update counts, ordering and empty st
   const update = (id, count) => {
     const reply = document.querySelector(`#r_${id}`);
     reply.querySelector(".thank_count").textContent = String(count);
-    module.update(reply);
+    module.update([reply]);
   };
   assert.deepEqual(ids(), ["top_r_2", "top_r_1"]);
   update(1, 9);
@@ -138,9 +138,21 @@ test("hot replies retain unchanged rows and update counts, ordering and empty st
   assert.equal(document.querySelector("#top_r_1"), updated);
   document.querySelector("#r_2 .reply_content").textContent = "Updated reply 2";
   module.invalidate(document.querySelector("#r_2"));
-  update(1, 10);
+  update(2, 5);
   assert.notEqual(document.querySelector("#top_r_2"), unchanged);
   assert.equal(document.querySelector("#top_r_2 .reply_content").textContent, "Updated reply 2");
+  const changed = document.querySelector("#r_2");
+  changed.classList.add("v2p-blocked-reply");
+  module.update([changed]);
+  assert.deepEqual(ids(), ["top_r_1"]);
+  changed.classList.remove("v2p-blocked-reply");
+  module.update([changed]);
+  assert.deepEqual(ids(), ["top_r_1", "top_r_2"]);
+  changed.style.display = "none";
+  module.update([changed]);
+  assert.deepEqual(ids(), ["top_r_1"]);
+  changed.style.removeProperty("display");
+  module.update([changed]);
   update(2, 0);
   assert.equal(unchanged.isConnected, false);
   assert.deepEqual(ids(), ["top_r_1"]);
@@ -157,6 +169,68 @@ test("hot replies retain unchanged rows and update counts, ordering and empty st
   document.querySelector("#r_3").scrollIntoView = () => (jumped = true);
   retained.querySelector("a.no").click();
   assert.equal(jumped, true);
+  document.querySelector("#r_3").remove();
+  module.update([module.replies.get("r_3").node]);
+  assert.equal(module.replies.has("r_3"), false);
+  assert.deepEqual(ids(), ["top_r_4"]);
+  window.close();
+});
+
+test("preloaded tree replies retain validated geometry and native delegated toggles", async () => {
+  const { window } = dom(`<div id="Main"><div class="box reply-threads-d">
+    <a class="page_normal" href="/t/123?p=2">2</a>
+    <div class="cell" id="r_1" data-depth="0" style="--depth:0"><div class="reply_content">Root</div></div>
+    </div></div>`);
+  const page = new DOMParser().parseFromString(
+    `<div id="Main"><div class="box reply-threads-d">
+    <div class="cell" id="r_2" data-depth="1" style="--depth:1;color:red;position:fixed" onclick="bad()">
+      <button class="reply-toggle reply-toggle-big" aria-expanded="true" aria-label="Toggle replies" onclick="bad()" formaction="https://evil.test">2 replies</button>
+      <button class="reply-tree-more" onclick="bad()">2 replies</button>
+      <div class="reply-tree-line" data-for="1" style="--level:0;background:url(https://evil.test/x)"></div>
+      <div class="reply_content"><button class="reply-toggle">Untrusted</button><span style="--level:1;color:red">Answer</span></div>
+    </div>
+    <div class="cell" id="r_3" data-depth="2" style="--depth:var(--unsafe)"><div class="reply-tree-line" style="--level:var(--unsafe)"></div><div class="reply_content">Child</div></div>
+    <div class="cell" id="r_4" data-depth="invalid" style="--depth:2"><button class="reply-toggle">Invalid</button></div>
+    <div class="cell" id="r_5" data-depth="12" style="--depth:4"><div class="reply_content">Deep reply</div></div>
+    </div></div>`,
+    "text/html",
+  );
+  const box = document.querySelector(".reply-threads-d");
+  let toggled;
+  box.addEventListener("click", (event) => {
+    const toggle = event.target.closest(".reply-toggle");
+    if (toggle) toggled = toggle.closest(".cell").id;
+  });
+  const module = initReplies({
+    options: { hotReplies: false, preloadPages: 1 },
+    enhance() {},
+    getDocument: async () => page,
+  });
+  await module.preload();
+  const row = document.querySelector("#r_2");
+  assert.equal(row.style.cssText, "--depth: 1;");
+  assert.equal(row.querySelector(".reply-tree-line").style.cssText, "--level: 0;");
+  assert.equal(row.querySelector(".reply-tree-line").dataset.for, "1");
+  const toggle = row.querySelector(".reply-toggle");
+  assert.equal(toggle.type, "button");
+  assert.equal(toggle.getAttribute("aria-expanded"), "true");
+  assert.equal(toggle.hasAttribute("formaction"), false);
+  toggle.click();
+  assert.equal(toggled, "r_2");
+  assert.equal(row.querySelector(".reply-tree-more").type, "button");
+  assert.equal(row.querySelector(".reply-tree-more").textContent, "2 replies");
+  const hot = cloneTopReply(parseReply(row));
+  assert.equal(hot.querySelector(".reply-toggle,.reply-tree-more,.reply-tree-line"), null);
+  assert.equal(
+    row.querySelectorAll("[onclick],.reply_content [style],.reply_content button").length,
+    0,
+  );
+  assert.equal(document.querySelector("#r_3").style.getPropertyValue("--depth"), "2");
+  assert.equal(document.querySelector("#r_3 .reply-tree-line").hasAttribute("style"), false);
+  assert.equal(document.querySelector("#r_4").hasAttribute("style"), false);
+  assert.equal(document.querySelector("#r_4 button"), null);
+  assert.equal(document.querySelector("#r_5").style.getPropertyValue("--depth"), "4");
+  assert.equal(document.querySelector("#r_5").dataset.depth, "12");
   window.close();
 });
 
