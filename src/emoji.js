@@ -43,23 +43,24 @@ export function enhanceEmojis(root) {
   }
 }
 
-export function initEmoji(options) {
-  const textarea = document.querySelector(
+export function initEmoji(options, doc = document) {
+  if (!options.emoji) return;
+  const textarea = doc.querySelector(
     'textarea#reply_content, #reply-box textarea, textarea[name="content"]',
   );
-  if (!textarea || !options.emoji) return;
+  if (!textarea) return;
   const submit = textarea.form?.querySelector('input[type="submit"],button[type="submit"]');
   if (!submit) return;
-  const trigger = owned(button("", () => {}));
+  const trigger = owned(button("", () => {}, doc));
   trigger.setAttribute("aria-label", t("insertEmoji"));
   trigger.title = t("insertEmoji");
   trigger.innerHTML =
     '<span style="width:18px;height:18px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg></span>';
   submit.after(trigger);
-  const popup = owned(element("div", undefined, "v2p-popup"));
+  const popup = owned(element("div", undefined, "v2p-popup", doc));
   popup.hidden = true;
-  popup.append(element("div", undefined, "v2p-popup-content"));
-  (document.querySelector("#reply-box") ?? textarea.form).append(popup);
+  popup.append(element("div", undefined, "v2p-popup-content", doc));
+  (doc.querySelector("#reply-box") ?? textarea.form).append(popup);
   let rendered = false,
     selection = [textarea.selectionStart, textarea.selectionEnd];
   const remember = () => {
@@ -81,21 +82,21 @@ export function initEmoji(options) {
     }
     if (!rendered) {
       rendered = true;
-      const container = element("div", undefined, "v2p-emoji-container"),
-        box = element("div", undefined, "v2p-emoticons-box");
+      const container = element("div", undefined, "v2p-emoji-container", doc),
+        box = element("div", undefined, "v2p-emoticons-box", doc);
       for (const group of groups) {
-        const section = element("div", undefined, "v2p-emoji-group"),
-          list = element("div", undefined, "v2p-emoji-list");
+        const section = element("div", undefined, "v2p-emoji-group", doc),
+          list = element("div", undefined, "v2p-emoji-list", doc);
         const title = groupLabels[group.title] ? t(groupLabels[group.title]) : group.title;
-        section.append(element("div", title, "v2p-emoji-title"), list);
+        section.append(element("div", title, "v2p-emoji-title", doc), list);
         for (const item of group.items) {
-          const choice = element("span", item.image ? undefined : item.value, "v2p-emoji");
+          const choice = element("span", item.image ? undefined : item.value, "v2p-emoji", doc);
           choice.title = item.value;
           choice.tabIndex = 0;
           choice.setAttribute("role", "button");
           choice.setAttribute("aria-label", item.value);
           if (item.image) {
-            const image = element("img");
+            const image = doc.createElement("img");
             image.src = item.image;
             image.alt = item.value;
             image.loading = "lazy";
@@ -103,7 +104,7 @@ export function initEmoji(options) {
           }
           const insert = () => {
             textarea.setRangeText(item.value, ...selection, "end");
-            textarea.dispatchEvent(new Event("input", { bubbles: true }));
+            textarea.dispatchEvent(new doc.defaultView.Event("input", { bubbles: true }));
             textarea.focus();
             remember();
           };
@@ -134,11 +135,11 @@ export function initEmoji(options) {
       .catch(close);
     textarea.focus();
   });
-  document.addEventListener("click", (event) => {
+  doc.addEventListener("click", (event) => {
     if (!popup.contains(event.target) && !trigger.contains(event.target)) close();
   });
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !popup.hidden) {
+  doc.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !event.defaultPrevented && !popup.hidden) {
       event.preventDefault();
       close();
     }

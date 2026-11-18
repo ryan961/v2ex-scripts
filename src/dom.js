@@ -4,15 +4,15 @@ export function isV2EXPage(doc) {
   return Boolean(doc?.querySelector("#Top") && doc.querySelector("#Main"));
 }
 
-export function element(tag, text, className) {
-  const node = document.createElement(tag);
+export function element(tag, text, className, doc = document) {
+  const node = doc.createElement(tag);
   if (text !== undefined) node.textContent = text;
   if (className) node.className = className;
   return node;
 }
 
-export function button(text, onClick) {
-  const node = element("button", text, "normal button");
+export function button(text, onClick, doc = document) {
+  const node = element("button", text, "normal button", doc);
   node.type = "button";
   node.addEventListener("click", onClick);
   return node;

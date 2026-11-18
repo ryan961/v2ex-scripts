@@ -1,7 +1,16 @@
 import { t } from "./i18n.js";
-import { button, element, isV2EXPage, matching, modal, owned, syncOnce } from "./dom.js";
+import {
+  button,
+  currentUser,
+  element,
+  isV2EXPage,
+  matching,
+  modal,
+  owned,
+  syncOnce,
+} from "./dom.js";
 import { applyTheme, THEME_STYLE_ID } from "./theme.js";
-import { enhanceEmojis } from "./emoji.js";
+import { enhanceEmojis, initEmoji } from "./emoji.js";
 import { createReplyFolding } from "./folding.js";
 import { enhanceReplyActions } from "./reply-actions.js";
 import { enhanceImages, installImageViewer } from "./image-viewer.js";
@@ -60,7 +69,8 @@ export function createTopics(options, themeCSS = "") {
             frame.addEventListener("load", () => {
               try {
                 const doc = frame.contentDocument;
-                doc?.addEventListener("keydown", onPreviewKey);
+                // The picker handles Escape on the document before the event reaches the window.
+                doc?.defaultView?.addEventListener("keydown", onPreviewKey);
                 if (!isV2EXPage(doc)) return;
                 applyTheme(doc, true, options.theme);
                 if (!doc.getElementById(THEME_STYLE_ID)) {
@@ -70,6 +80,7 @@ export function createTopics(options, themeCSS = "") {
                   doc.head.append(style);
                 }
                 enhanceEmojis(doc);
+                if (options.emoji && currentUser(doc)) initEmoji(options, doc);
                 enhanceImages(doc);
                 const main = doc.getElementById("Main");
                 installImageViewer(main);
