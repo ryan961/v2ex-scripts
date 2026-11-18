@@ -71,7 +71,7 @@ test("settings expose Chinese labels and associated explanations for every optio
   assert.equal(theme.value, "arco-clear");
   assert.deepEqual(
     [...theme.options].map((option) => option.value),
-    ["minimalist", "arco-clear", "native"],
+    ["arco-clear", "minimalist", "native"],
   );
   const language = document.querySelector('[name="language"]');
   assert.equal(language.value, "zh");

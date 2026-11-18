@@ -136,10 +136,11 @@ test("privacy prepares the header before main content and preserves account dete
 test("saved themes are selected before the first style and recover from invalid or unavailable options", async () => {
   for (const [saved, expected, failFirstRead] of [
     ["arco-clear", "arco-clear", false],
+    ["minimalist", "minimalist", false],
     ["native", "native", false],
-    [undefined, "minimalist", false],
-    ["unknown", "minimalist", false],
-    ["arco-clear", "minimalist", true],
+    [undefined, "arco-clear", false],
+    ["unknown", "arco-clear", false],
+    ["minimalist", "arco-clear", true],
   ]) {
     const instance = new JSDOM(fixture, {
       url: "https://www.v2ex.com/t/123",

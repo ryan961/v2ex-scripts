@@ -8,7 +8,7 @@ import { dom } from "./helpers.js";
 test("theme IDs are validated while Polish structure and preview markers remain intact", () => {
   const { window } = dom('<div id="site-header"></div>');
   for (const value of [undefined, null, "unknown", ["arco-clear"], {}])
-    assert.equal(normalizeTheme(value), "minimalist");
+    assert.equal(normalizeTheme(value), "arco-clear");
   applyTheme(document, true, "arco-clear");
   const root = document.documentElement;
   assert.equal(root.dataset.vxTheme, "arco-clear");
@@ -19,7 +19,7 @@ test("theme IDs are validated while Polish structure and preview markers remain 
   applyTheme(document, true);
   assert.equal(root.dataset.vxTheme, "arco-clear");
   applyTheme(document, true, "invalid");
-  assert.equal(root.dataset.vxTheme, "minimalist");
+  assert.equal(root.dataset.vxTheme, "arco-clear");
   applyTheme(document, true, "native");
   assert.equal(root.dataset.vxTheme, "native");
   assert.equal(root.dataset.v2pTheme, undefined);

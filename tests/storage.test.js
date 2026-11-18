@@ -12,10 +12,12 @@ test("options reject invalid types and unknown fields", () => {
     imgurClientId: "x\r\ny",
     injected: true,
   });
-  assert.equal(options.theme, "minimalist");
+  assert.equal(options.theme, "arco-clear");
+  assert.equal(normalizeOptions({}).theme, "arco-clear");
+  assert.equal(normalizeOptions({ theme: "minimalist" }).theme, "minimalist");
   assert.equal(normalizeOptions({ theme: "arco-clear" }).theme, "arco-clear");
   assert.equal(normalizeOptions({ theme: "native" }).theme, "native");
-  assert.equal(normalizeOptions({ theme: ["arco-clear"] }).theme, "minimalist");
+  assert.equal(normalizeOptions({ theme: ["arco-clear"] }).theme, "arco-clear");
   assert.equal(options.language, "zh");
   assert.equal(normalizeOptions({ language: "site" }).language, "site");
   assert.equal(options.privacy, false);

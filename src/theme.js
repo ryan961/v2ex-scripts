@@ -1,6 +1,6 @@
 export const THEME_STYLE_ID = "v2ex-lite-theme";
-export const DEFAULT_THEME = "minimalist";
-export const THEMES = Object.freeze(["minimalist", "arco-clear", "native"]);
+export const DEFAULT_THEME = "arco-clear";
+export const THEMES = Object.freeze(["arco-clear", "minimalist", "native"]);
 
 export function normalizeTheme(value) {
   return THEMES.includes(value) ? value : DEFAULT_THEME;
