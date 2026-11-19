@@ -15,6 +15,22 @@ import { createReplyFolding } from "./folding.js";
 import { enhanceReplyActions } from "./reply-actions.js";
 import { enhanceImages, installImageViewer } from "./image-viewer.js";
 
+const contentLink = ":is(.topic_content, .reply_content, .subtle .markdown_body) a[href]";
+
+function openCrossOriginLink(event) {
+  if (event.defaultPrevented || event.button !== 0) return;
+  const link = event.target.closest?.(contentLink);
+  if (!link || link.hasAttribute("download")) return;
+  if (link.target && link.target.toLowerCase() !== "_self") return;
+  if (
+    !["http:", "https:"].includes(link.protocol) ||
+    link.origin === link.ownerDocument.location.origin
+  )
+    return;
+  link.target = "_blank";
+  link.relList.add("noopener");
+}
+
 export function createTopics(options, themeCSS = "") {
   const seen = new WeakSet();
   return {
@@ -84,6 +100,7 @@ export function createTopics(options, themeCSS = "") {
                 enhanceImages(doc);
                 const main = doc.getElementById("Main");
                 installImageViewer(main);
+                main.addEventListener("click", openCrossOriginLink);
                 const view = doc.defaultView;
                 enhanceReplyActions(doc, view);
                 const observer = new view.MutationObserver((records) => {

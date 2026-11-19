@@ -113,6 +113,56 @@ test("Polish preview markup uses a same-origin iframe and removes it on close", 
   document.querySelector(".v2p-modal-close-btn").click();
 });
 
+test("preview opens cross-origin content links outside the frame without changing their URLs", () => {
+  const { window } = dom('<span class="item_title"><a href="/t/1258295">Topic</a></span>');
+  try {
+    createTopics({ preview: true, newTab: false }).enhance(document);
+    document.querySelector(".v2p-topic-preview-btn").click();
+    const frame = document.querySelector("iframe");
+    const doc = frame.contentDocument;
+    doc.open();
+    doc.write(`<div id="Top"></div><div id="Main">
+      <a id="page" href="/t/1258295?p=2">Next page</a>
+      <div class="topic_content">
+        <a id="edge" href="https://edge.v2ex.com/t/1257733?p=2#r_23" rel="nofollow"><span>Topic</span></a>
+        <a id="floor" href="#r_23">Reply</a>
+        <a id="download" href="https://example.org/file.txt" download>Download</a>
+        <a id="image" href="https://example.org/full.png"><img src="https://example.org/thumb.png"></a>
+      </div>
+    </div>`);
+    doc.close();
+    frame.dispatchEvent(new window.Event("load"));
+    doc
+      .getElementById("Main")
+      .insertAdjacentHTML(
+        "beforeend",
+        '<div class="reply_content"><a id="external" target="_self" href="https://example.org/">External</a></div>',
+      );
+
+    // Inspect the link after its click handlers run, without navigating the fixture.
+    doc.addEventListener("click", (event) => event.preventDefault());
+    doc.querySelector("#edge span").click();
+    const edge = doc.getElementById("edge");
+    assert.equal(edge.target, "_blank");
+    assert.equal(edge.href, "https://edge.v2ex.com/t/1257733?p=2#r_23");
+    assert.ok(edge.relList.contains("noopener"));
+    assert.ok(edge.relList.contains("nofollow"));
+    doc.getElementById("external").click();
+    assert.equal(doc.getElementById("external").target, "_blank");
+    for (const id of ["page", "floor", "download"]) {
+      const link = doc.getElementById(id);
+      link.click();
+      assert.equal(link.hasAttribute("target"), false, id);
+    }
+    doc.querySelector("#image img").click();
+    assert.ok(document.querySelector(".vx-image-viewer"));
+    assert.equal(doc.getElementById("image").hasAttribute("target"), false);
+    assert.equal(document.querySelector("iframe"), frame);
+  } finally {
+    window.close();
+  }
+});
+
 test("topic images open in place while ordinary links and emoji keep their behavior", () => {
   const { window } = dom(`<div id="Main"><div class="topic_content">
     <img id="plain" src="/plain.png" alt="Screenshot">
