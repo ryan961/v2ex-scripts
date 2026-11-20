@@ -53,7 +53,7 @@ test("settings expose Chinese labels and associated explanations for every optio
   });
   openSettings(store);
   const controls = [...document.querySelectorAll("form :is(input,select)[name]")];
-  assert.equal(controls.length, 14);
+  assert.equal(controls.length, 16);
   assert.equal(document.querySelectorAll("fieldset legend").length, 4);
   assert.equal(
     document.querySelector(".v2p-modal-footer [type=submit]").form.id,
@@ -115,10 +115,31 @@ test("guest settings retain saved preferences and show account dependencies", ()
   document.querySelector('[name="language"]').value = "ko";
   assert.equal(document.querySelector('[name="theme"]').disabled, false);
   document.querySelector('[name="theme"]').value = "arco-clear";
+  const proxy = document.querySelector('[name="imgurProxy"]');
+  const address = document.querySelector('[name="imgurProxyURL"]');
+  assert.equal(proxy.checked, false);
+  assert.equal(proxy.disabled, false);
+  assert.equal(address.disabled, false);
+  assert.equal(address.value, "https://proxy.duckduckgo.com/iu/?u=");
+  proxy.checked = true;
+  address.value = "http://images.example.org/proxy?url=";
   document
     .querySelector("form")
     .dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
-  assert.deepEqual(saved, { ...original, preloadPages: 1, language: "ko", theme: "arco-clear" });
+  assert.equal(saved, undefined);
+  assert.match(document.querySelector(".v2p-modal-footer [role=status]").textContent, /HTTPS/);
+  address.value = "https://images.example.org/proxy?url=";
+  document
+    .querySelector("form")
+    .dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  assert.deepEqual(saved, {
+    ...original,
+    preloadPages: 1,
+    language: "ko",
+    theme: "arco-clear",
+    imgurProxy: true,
+    imgurProxyURL: "https://images.example.org/proxy?url=",
+  });
   document.querySelector(".v2p-modal-close-btn").click();
   setLanguage("zh");
 });

@@ -5,6 +5,7 @@ import { openUploadHistory } from "./upload.js";
 import { icon } from "./icons.js";
 import { THEMES } from "./theme.js";
 import { createBackup } from "./backup-ui.js";
+import { DEFAULT_IMGUR_PROXY, normalizeImgurProxy } from "./imgur-proxy.js";
 
 export function openSettings(store, signedIn = Boolean(currentUser()), tagActions) {
   if (document.querySelector("#vx-settings-dialog")) return;
@@ -16,7 +17,17 @@ export function openSettings(store, signedIn = Boolean(currentUser()), tagAction
   form.id = "vx-settings-form";
   const fields = new Map();
   const groups = {
-    browse: ["language", "theme", "privacy", "newTab", "preview", "userCards", "tags"],
+    browse: [
+      "language",
+      "theme",
+      "privacy",
+      "newTab",
+      "preview",
+      "userCards",
+      "tags",
+      "imgurProxy",
+      "imgurProxyURL",
+    ],
     discussion: ["hotReplies", "autoFold", "preloadPages", "autoCheckIn"],
     editor: ["emoji", "upload", "imgurClientId"],
   };
@@ -67,6 +78,15 @@ export function openSettings(store, signedIn = Boolean(currentUser()), tagAction
         Object.assign(control, { type: "text", autocomplete: "off", pattern: "[A-Za-z0-9]{0,64}" });
         control.value = options[key];
         control.placeholder = t("sharedClient");
+      } else if (key === "imgurProxyURL") {
+        Object.assign(control, {
+          type: "url",
+          autocomplete: "off",
+          maxLength: 512,
+          spellcheck: false,
+          placeholder: DEFAULT_IMGUR_PROXY,
+          value: options[key],
+        });
       } else {
         control.type = "checkbox";
         control.checked = !control.disabled && options[key];
@@ -98,6 +118,12 @@ export function openSettings(store, signedIn = Boolean(currentUser()), tagAction
       next[key] = control.type === "checkbox" ? control.checked : control.value;
     }
     next.preloadPages = Number(next.preloadPages);
+    next.imgurProxyURL = normalizeImgurProxy(next.imgurProxyURL.trim() || DEFAULT_IMGUR_PROXY);
+    if (!next.imgurProxyURL) {
+      message.textContent = t("imgurProxyInvalid");
+      fields.get("imgurProxyURL").focus();
+      return;
+    }
     try {
       store.saveOptions(next);
       location.reload();

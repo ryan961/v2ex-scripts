@@ -13,13 +13,18 @@ import { openSettings } from "../src/settings.js";
 import { setLanguage, t } from "../src/i18n.js";
 import { dom, memoryAPI } from "./helpers.js";
 
+const proxyOptions = { imgurProxy: true, imgurProxyURL: "https://images.example.org/?u=" };
 const snapshot = (members = { alice: ["friend"] }) => ({
   schema: 1,
   exportedAt: "2026-11-17T00:00:00.000Z",
   options: { theme: "native", language: "en" },
   members,
 });
-const text = singleBackup(snapshot());
+const defaultSnapshot = snapshot();
+const text = singleBackup({
+  ...defaultSnapshot,
+  options: { ...defaultSnapshot.options, ...proxyOptions },
+});
 
 test("split files obey byte and member limits and restore only complete sets", () => {
   const long = Array.from({ length: 20 }, (_, i) => `${i}\u754c`.padEnd(80, "\u754c"));
@@ -54,7 +59,7 @@ test("legacy label records and settings restore independently and preserve local
   assert.deepEqual({ ...foreign.members }, { bob: [] });
   const store = createStorage(memoryAPI());
   store.setTags("alice", []);
-  store.saveOptions({ theme: "arco-clear", imgurClientId: "local123" });
+  store.saveOptions({ theme: "arco-clear", imgurClientId: "local123", ...proxyOptions });
   store.set("backup:mode", "notes");
   const restored = readBackupParts([
     singleBackup(snapshot({ alice: ["old"], bob: [], carol: ["new"] })),
@@ -63,6 +68,8 @@ test("legacy label records and settings restore independently and preserve local
   assert.equal(store.restore(restored, { settings: true, tags: false }), 0);
   assert.equal(store.options().theme, "native");
   assert.equal(store.options().imgurClientId, "local123");
+  assert.equal(store.options().imgurProxy, true);
+  assert.equal(store.options().imgurProxyURL, proxyOptions.imgurProxyURL);
   assert.equal(store.get("backup:mode"), "notes");
   assert.equal(store.restore(restored), 2);
   assert.deepEqual(store.getTags("alice"), []);
@@ -103,7 +110,10 @@ test("oversized remote responses are cancelled before restoration", async () => 
 
 test("Notes verifies the signed-in account and reads the saved note back", async () => {
   const { window } = dom("");
-  const note = singleBackup(snapshot(), NOTE_MARK, NOTE_BYTES);
+  const source = createStorage(memoryAPI());
+  source.saveOptions({ ...proxyOptions, imgurClientId: "local123" });
+  source.setTags("alice", ["friend"]);
+  const note = singleBackup(source.snapshot(), NOTE_MARK, NOTE_BYTES);
   let content = "";
   let writes = 0;
   const home = '<div class="tools"><a href="/member/reader">reader</a></div>';
@@ -140,7 +150,14 @@ test("Notes verifies the signed-in account and reads the saved note back", async
     true,
   );
   assert.equal(writes, 1);
-  assert.deepEqual((await notesBackup("reader", undefined, { fetcher })).members.alice, ["friend"]);
+  const restored = await notesBackup("reader", undefined, { fetcher });
+  const target = createStorage(memoryAPI());
+  assert.equal(target.options().imgurProxy, false);
+  target.restore(restored, { settings: true });
+  assert.deepEqual(target.getTags("alice"), ["friend"]);
+  assert.equal(target.options().imgurProxy, true);
+  assert.equal(target.options().imgurProxyURL, proxyOptions.imgurProxyURL);
+  assert.equal(target.options().imgurClientId, "");
   const truncated = async (url, init) => {
     const response = await fetcher(url, init);
     if (init.method === "POST") content = content.slice(0, -1);
@@ -175,12 +192,17 @@ test("settings embed local backup and file import waits for restore choices", as
   const [tags, settings] = dialog.querySelectorAll('input[type="checkbox"]');
   assert.equal(tags.checked, true);
   assert.equal(settings.checked, false);
+  assert.equal(store.options().imgurProxy, false);
+  assert.match(settings.parentElement.textContent, /Imgur proxy address/);
   settings.checked = true;
   [...dialog.querySelectorAll("button")]
     .find((button) => button.textContent === t("backupRestoreApply"))
     .click();
   assert.deepEqual(store.getTags("alice"), ["friend"]);
   assert.equal(store.options().theme, "native");
+  assert.equal(store.options().imgurProxy, true);
+  assert.equal(store.options().imgurProxyURL, proxyOptions.imgurProxyURL);
+  assert.equal(document.querySelector('[name="imgurProxy"]').checked, true);
   assert.equal(theme.value, "native");
   assert.equal(document.querySelectorAll(".v2p-modal-mask").length, 1);
   const mode = dialog.querySelector("select");

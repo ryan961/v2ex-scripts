@@ -62,7 +62,12 @@ test("storage writes only changes; local entries and tombstones win imports", ()
 test("backup excludes Client ID and runtime state; remote events never echo writes", () => {
   const api = memoryAPI();
   const store = createStorage(api);
-  store.saveOptions({ imgurClientId: "abc123", theme: "arco-clear" });
+  store.saveOptions({
+    imgurClientId: "abc123",
+    theme: "arco-clear",
+    imgurProxy: true,
+    imgurProxyURL: "https://images.example.org/proxy?url=",
+  });
   store.set("daily:reader", { success: true });
   store.watchTags("Alice", () => {});
   const before = api.writes.length;
@@ -71,6 +76,23 @@ test("backup excludes Client ID and runtime state; remote events never echo writ
   assert.equal(api.writes.length, before);
   const backup = JSON.parse(store.export());
   assert.equal(backup.options.imgurClientId, undefined);
+  assert.equal(backup.options.imgurProxy, true);
+  assert.equal(backup.options.imgurProxyURL, "https://images.example.org/proxy?url=");
   assert.equal(backup.options.theme, "arco-clear");
   assert.equal(JSON.stringify(backup).includes("daily:"), false);
+});
+
+test("invalid stored proxy addresses disable the feature", () => {
+  for (const imgurProxyURL of [
+    "javascript:alert(1)",
+    "http://example.org/?u=",
+    "https://user:pass@example.org/?u=",
+    "https://example.org/?u=#fragment",
+    "https://example.org/?u=old&u=",
+    "https://example.org/?x=old?u=",
+    "https://example.org/",
+  ]) {
+    const options = normalizeOptions({ imgurProxy: true, imgurProxyURL });
+    assert.equal(options.imgurProxy, false, imgurProxyURL);
+  }
 });

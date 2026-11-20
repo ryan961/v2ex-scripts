@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createTopics } from "../src/preview.js";
+import { createTopics, PREVIEW_READY } from "../src/preview.js";
 import { createMembers } from "../src/members.js";
 import { openSettings } from "../src/settings.js";
 import { installPageActions } from "../src/page-actions.js";
@@ -158,6 +158,75 @@ test("preview opens cross-origin content links outside the frame without changin
     assert.ok(document.querySelector(".vx-image-viewer"));
     assert.equal(doc.getElementById("image").hasAttribute("target"), false);
     assert.equal(document.querySelector("iframe"), frame);
+  } finally {
+    window.close();
+  }
+});
+
+test("opt-in image proxy covers preview images, lazy sources and the image viewer", async () => {
+  const { window } = dom('<span class="item_title"><a href="/t/456">Topic</a></span>');
+  const proxy = "https://images.example.org/proxy?url=";
+  const thumbnail = "https://i.imgur.com/Thumb.png?size=small&format=1";
+  const original = "https://i.imgur.com/Original.png";
+  const wide = `https://i.imgur.com/Wide.webp?tags=${",".repeat(8_000)}end`;
+  const proxied = (url) => proxy + encodeURIComponent(url);
+  try {
+    createTopics({ preview: true, imgurProxy: true, imgurProxyURL: proxy }).enhance(document);
+    document.querySelector(".v2p-topic-preview-btn").click();
+    const frame = document.querySelector("iframe");
+    const doc = frame.contentDocument;
+    doc.open();
+    doc.write(`<div id="Top"></div><div id="Main"><div class="topic_content">
+      <a href="${original}"><img id="thumbnail" src="${thumbnail}"></a>
+      <picture>
+        <source srcset="${wide} 2x,https://cdn.example.org/Other.webp 1x">
+        <img id="responsive" srcset="data:image/png;base64,AAAA, https://i.imgur.com/Small.png" src="/placeholder.png">
+      </picture>
+      <img id="lookalike" src="https://i.imgur.com.example.org/Thumb.png">
+    </div></div>`);
+    doc.close();
+    frame.dispatchEvent(new doc.defaultView.Event(PREVIEW_READY));
+    const image = doc.getElementById("thumbnail");
+    assert.equal(image.src, proxied(thumbnail));
+    assert.equal(image.getAttribute("referrerpolicy"), "no-referrer");
+    assert.equal(image.parentElement.href, original);
+    assert.equal(
+      doc.querySelector("source").getAttribute("srcset"),
+      `${proxied(wide)} 2x,https://cdn.example.org/Other.webp 1x`,
+    );
+    const responsive = doc.getElementById("responsive");
+    assert.equal(
+      responsive.getAttribute("srcset"),
+      `data:image/png;base64,AAAA, ${proxied("https://i.imgur.com/Small.png")}`,
+    );
+    assert.equal(doc.getElementById("lookalike").src, "https://i.imgur.com.example.org/Thumb.png");
+    responsive.src = "https://i.imgur.com/Lazy.gif";
+    const source = doc.querySelector("source");
+    source.srcset = "https://i.imgur.com/Source.png 320w";
+    doc
+      .querySelector(".topic_content")
+      .insertAdjacentHTML(
+        "afterend",
+        '<div class="reply_content"><img id="later" src="https://i.imgur.com/Reply.jpg"></div>',
+      );
+    await new Promise(setImmediate);
+    assert.equal(responsive.src, proxied("https://i.imgur.com/Lazy.gif"));
+    assert.equal(source.srcset, `${proxied("https://i.imgur.com/Source.png")} 320w`);
+    assert.equal(doc.getElementById("later").src, proxied("https://i.imgur.com/Reply.jpg"));
+
+    image.click();
+    const viewer = document.querySelector(".vx-image-viewer");
+    frame.dispatchEvent(new window.Event("load"));
+    const large = viewer.querySelector("img");
+    assert.equal(large.src, proxied(original));
+    const direct = viewer.querySelector(".v2p-modal-actions a");
+    assert.equal(direct.href, original);
+    assert.equal(direct.target, "_blank");
+    large.dispatchEvent(new window.Event("error"));
+    assert.equal(large.src, proxied(thumbnail));
+    large.dispatchEvent(new window.Event("error"));
+    assert.ok(viewer.querySelector('[role="status"]'));
+    assert.ok(direct.isConnected);
   } finally {
     window.close();
   }

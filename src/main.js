@@ -5,14 +5,14 @@ import { createStorage, PREFIX } from "./storage.js";
 import { setLanguage } from "./i18n.js";
 import { createHTTP, currentUser, isV2EXPage, matching } from "./dom.js";
 import { createMembers } from "./members.js";
-import { createTopics } from "./preview.js";
+import { createTopics, PREVIEW_READY } from "./preview.js";
 import { enhanceReplyActions, initReplies, REPLY } from "./replies.js";
 import { createCheckIn } from "./check-in.js";
 import { initUpload } from "./upload.js";
 import { createReplyFolding } from "./folding.js";
 import { installSettings } from "./settings.js";
 import { installPageActions } from "./page-actions.js";
-import { enhanceImages, installImageViewer } from "./image-viewer.js";
+import { enhanceImages, imageMutationRoot, installImageViewer } from "./image-viewer.js";
 
 let themeCSS;
 const previewFrame = window.frameElement?.matches("iframe.v2p-topic-preview-frame")
@@ -66,7 +66,10 @@ function start() {
   previewFrame?.style.removeProperty("visibility");
   if (!isV2EXPage(document)) return;
   prepareTheme();
-  if (previewFrame) return;
+  if (previewFrame) {
+    previewFrame.dispatchEvent(new Event(PREVIEW_READY));
+    return;
+  }
   const store = createStorage({
     get: GM_getValue,
     set: GM_setValue,
@@ -84,12 +87,14 @@ function start() {
   const folding = createReplyFolding(options.autoFold);
   const main = document.getElementById("Main");
   const isTopic = document.documentElement.dataset.v2pPage === "topic";
-  if (isTopic) installImageViewer(main);
+  const imageProxy = isTopic && options.imgurProxy ? options.imgurProxyURL : "";
+  const imageAttributes = imageProxy ? ["src", "srcset"] : [];
+  if (isTopic) installImageViewer(main, imageProxy);
   const enhance = (root) => {
     members.enhance(root);
     topics.enhance(root);
     enhanceEmojis(root);
-    if (isTopic) enhanceImages(root);
+    if (isTopic) enhanceImages(root, imageProxy);
     enhanceReplyActions(root);
     folding.enhance(root);
   };
@@ -106,11 +111,15 @@ function start() {
     const changed = new Set();
     let scheduled = false;
     const observer = new MutationObserver((mutations) => {
+      let images;
       for (const mutation of mutations) {
         const target =
           mutation.target.nodeType === 1 ? mutation.target : mutation.target.parentElement;
         if (mutation.type === "attributes") {
-          if (target?.matches(REPLY)) changed.add(target);
+          if (imageAttributes.includes(mutation.attributeName)) {
+            const image = imageMutationRoot(target);
+            if (image) (images ??= new Set()).add(image);
+          } else if (target?.matches(REPLY)) changed.add(target);
           continue;
         }
         const reply = target?.closest(REPLY);
@@ -124,6 +133,14 @@ function start() {
         if (target?.closest("[data-vx-owned]")) continue;
         for (const node of mutation.addedNodes) {
           if (node.nodeType === 1 && !node.matches("[data-vx-owned]")) roots.add(node);
+        }
+      }
+      if (images) {
+        for (const image of images) {
+          if (!main.contains(image)) continue;
+          enhanceImages(image, imageProxy);
+          const reply = image.closest(".reply_content")?.closest(REPLY);
+          if (reply && replies?.invalidate(reply)) changed.add(reply);
         }
       }
       if (scheduled || (!roots.size && !changed.size)) return;
@@ -147,7 +164,7 @@ function start() {
       subtree: true,
       characterData: true,
       attributes: true,
-      attributeFilter: ["class", "style", "hidden"],
+      attributeFilter: ["class", "style", "hidden", ...imageAttributes],
     });
   }
   if (name && options.autoCheckIn) {

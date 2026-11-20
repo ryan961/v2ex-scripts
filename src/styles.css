@@ -175,17 +175,21 @@
   width: 5em;
 }
 
-.vx-settings-option:has(input[type="text"]) {
+.vx-settings-option:has(input:is([type="text"], [type="url"])) {
   grid-column: 1 / -1;
 }
 
-.vx-settings-option:has(input[type="text"]) label {
+.vx-settings-option:has(input:is([type="text"], [type="url"])) label {
   flex-wrap: wrap;
 }
 
 .vx-settings-option input[type="text"] {
   width: min(100%, 26ch);
   box-sizing: border-box;
+}
+
+.vx-settings-option input[type="url"] {
+  width: min(100%, 48ch);
 }
 
 #vx-settings-dialog p {
@@ -250,7 +254,14 @@
 }
 
 :is(#vx-settings-dialog, .vx-tag-editor-dialog)
-  :is(input[type="text"], input[type="search"], input[type="number"], select, .vx-tag-input) {
+  :is(
+    input[type="text"],
+    input[type="url"],
+    input[type="search"],
+    input[type="number"],
+    select,
+    .vx-tag-input
+  ) {
   box-sizing: border-box;
   min-height: 32px;
   min-width: 0;
@@ -263,12 +274,25 @@
 }
 
 :is(#vx-settings-dialog, .vx-tag-editor-dialog)
-  :is(input[type="text"], input[type="search"], input[type="number"], select, .vx-tag-input):hover {
+  :is(
+    input[type="text"],
+    input[type="url"],
+    input[type="search"],
+    input[type="number"],
+    select,
+    .vx-tag-input
+  ):hover {
   border-color: var(--box-border-color);
 }
 
 :is(#vx-settings-dialog, .vx-tag-editor-dialog)
-  :is(input[type="text"], input[type="search"], input[type="number"], select):focus {
+  :is(
+    input[type="text"],
+    input[type="url"],
+    input[type="search"],
+    input[type="number"],
+    select
+  ):focus {
   border-color: var(--vx-control-accent);
   outline: 2px solid color-mix(in srgb, var(--vx-control-accent) 22%, transparent);
   outline-offset: 0;

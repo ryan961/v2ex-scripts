@@ -1,5 +1,6 @@
 import { DEFAULT_LANGUAGE, LANGUAGE_NAMES, t } from "./i18n.js";
 import { DEFAULT_THEME, normalizeTheme } from "./theme.js";
+import { DEFAULT_IMGUR_PROXY, normalizeImgurProxy } from "./imgur-proxy.js";
 export const PREFIX = "v2ex-lite:";
 export const DEFAULT_IMGUR_CLIENT_ID = "3107b9ef8b316f3";
 export const TAG_LIMITS = Object.freeze({ perMember: 20, length: 80, importMembers: 20_000 });
@@ -11,6 +12,8 @@ export const DEFAULTS = Object.freeze({
   privacy: false,
   newTab: true,
   preview: true,
+  imgurProxy: false,
+  imgurProxyURL: DEFAULT_IMGUR_PROXY,
   userCards: true,
   tags: true,
   preloadPages: 2,
@@ -43,6 +46,11 @@ export function normalizeOptions(input = {}) {
   }
   if (typeof input.imgurClientId === "string" && /^[a-z0-9]{0,64}$/i.test(input.imgurClientId)) {
     output.imgurClientId = input.imgurClientId;
+  }
+  if (input.imgurProxyURL !== undefined) {
+    const proxy = normalizeImgurProxy(input.imgurProxyURL);
+    if (proxy) output.imgurProxyURL = proxy;
+    else output.imgurProxy = false;
   }
   return output;
 }
@@ -109,6 +117,13 @@ export function parseImport(text, allowParts = false) {
     data.schema && data.options && typeof data.options === "object" && !Array.isArray(data.options)
       ? normalizeOptions(data.options)
       : null;
+  if (
+    options &&
+    (!Object.hasOwn(data.options, "imgurProxy") || !Object.hasOwn(data.options, "imgurProxyURL"))
+  ) {
+    delete options.imgurProxy;
+    delete options.imgurProxyURL;
+  }
   return { members, options, part: data.schema === 2 ? (data.part ?? {}) : null };
 }
 
@@ -182,8 +197,10 @@ export function createStorage(api) {
           onTags?.(name, value);
         }
       }
-      if (settings && data.options)
-        this.saveOptions({ ...data.options, imgurClientId: this.options().imgurClientId });
+      if (settings && data.options) {
+        const { imgurProxy, imgurProxyURL, imgurClientId } = this.options();
+        this.saveOptions({ imgurProxy, imgurProxyURL, ...data.options, imgurClientId });
+      }
       return imported;
     },
     import(text) {

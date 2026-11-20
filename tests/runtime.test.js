@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { JSDOM } from "jsdom";
 import { currentUser } from "../src/dom.js";
+import { PREVIEW_READY } from "../src/preview.js";
 
 const fixture = readFileSync(new URL("./fixtures/topic.html", import.meta.url), "utf8");
 const built = readFileSync(new URL("../dist/v2ex-lite.user.js", import.meta.url), "utf8");
@@ -32,6 +33,9 @@ test("only owned preview frames bootstrap the theme without account or storage w
     doc.open();
     doc.write(html);
     doc.close();
+    let readySignals = 0;
+    frame.addEventListener(PREVIEW_READY, () => readySignals++);
+    Object.defineProperty(doc, "readyState", { value: "loading" });
     const calls = [];
     for (const name of [
       "GM_getValue",
@@ -49,6 +53,9 @@ test("only owned preview frames bootstrap the theme without account or storage w
       return style;
     };
     view.eval(built);
+    assert.equal(readySignals, 0);
+    doc.dispatchEvent(new view.Event("DOMContentLoaded"));
+    assert.equal(readySignals, themed ? 1 : 0);
     await new Promise(setImmediate);
     assert.deepEqual(calls, themed ? ["style"] : []);
     assert.equal(doc.documentElement.dataset.v2pPreview, themed ? "1" : undefined);
@@ -57,6 +64,73 @@ test("only owned preview frames bootstrap the theme without account or storage w
     assert.equal(doc.querySelectorAll("#v2ex-lite-theme").length, themed ? 1 : 0);
     assert.equal(frame.style.visibility, owned ? "" : "hidden");
     instance.window.close();
+  }
+});
+
+test("lazy image URL changes refresh only the matching hot reply clone", async () => {
+  const { window } = new JSDOM(fixture, {
+    url: "https://www.v2ex.com/t/123",
+    runScripts: "outside-only",
+    pretendToBeVisual: true,
+  });
+  try {
+    const { document } = window;
+    const floor = document.querySelector("#r_11 .no");
+    const actions = document.createElement("div");
+    actions.className = "fr";
+    floor.before(actions);
+    actions.append(floor);
+    document.querySelector("#r_11 .reply_content").innerHTML =
+      '<picture><source><img src="/placeholder.png"></picture>';
+    Object.assign(window, {
+      GM_getValue: (key, fallback) =>
+        key === "v2ex-lite:options"
+          ? {
+              imgurProxy: true,
+              autoCheckIn: false,
+              preloadPages: 0,
+              userCards: false,
+              upload: false,
+              emoji: false,
+            }
+          : fallback,
+      GM_setValue: () => assert.fail("unexpected storage write"),
+      GM_deleteValue() {},
+      GM_listValues: () => [],
+      GM_addValueChangeListener() {},
+      GM_addStyle() {},
+      GM_registerMenuCommand() {},
+      GM_xmlhttpRequest: () => assert.fail("unexpected upload"),
+      fetch: () => assert.fail("unexpected network request"),
+      matchMedia: () => ({ matches: false, addEventListener() {} }),
+    });
+    window.eval(built);
+    await new Promise(setImmediate);
+    const original = document.querySelector("#top_r_11");
+    const other = document.querySelector("#top_r_10");
+    assert.equal(
+      original.querySelector(".reply_content img").getAttribute("src"),
+      "/placeholder.png",
+    );
+    assert.ok(other);
+
+    const picture = document.querySelector("#r_11 picture");
+    picture.querySelector("img").src = "https://i.imgur.com/Lazy.png";
+    picture.querySelector("source").srcset = "https://i.imgur.com/Source.png 2x";
+    await new Promise(setImmediate);
+    await new Promise((resolve) => window.requestAnimationFrame(resolve));
+
+    const updated = document.querySelector("#top_r_11");
+    assert.notEqual(updated, original);
+    assert.match(picture.querySelector("img").src, /^https:\/\/proxy\.duckduckgo\.com\//);
+    assert.equal(
+      updated.querySelector("img[src*=duckduckgo]").src,
+      picture.querySelector("img").src,
+    );
+    assert.equal(updated.querySelector("source").srcset, picture.querySelector("source").srcset);
+    assert.equal(document.querySelector("#top_r_10"), other);
+  } finally {
+    window.close();
   }
 });
 

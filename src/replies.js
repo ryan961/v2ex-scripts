@@ -339,7 +339,9 @@ export function initReplies({ options, getDocument, enhance }) {
     },
     invalidate(node) {
       const cloned = topClones.get(node.id);
-      if (cloned) cloned.dirty = true;
+      if (!cloned) return false;
+      cloned.dirty = true;
+      return true;
     },
     update(nodes) {
       let changed = false;
