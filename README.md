@@ -116,6 +116,8 @@ npm run check
 
 `check` 执行格式检查、构建和测试。单独构建使用 `npm run build`，安装文件生成于 `dist/v2ex-lite.user.js`。
 
+发版时更新版本号，运行 `npm run check`，将构建产物随版本提交并打标签。发布 GitHub Release 后，Greasy Fork 会从该标签同步 `dist/v2ex-lite.greasyfork.user.js`。此文件保留可读代码和简体中文描述。
+
 ## 参考与致谢
 
 - [V2EX Polish](https://github.com/coolpace/V2EX_Polish)：主题、预览、用户卡片、标签、表情和长回复折叠。
