@@ -80,6 +80,10 @@
   color: var(--v2p-color-font-secondary);
 }
 
+.vx-member-tags .v2p-member-topics-header {
+  margin-bottom: 5px;
+}
+
 .vx-member-replies .v2p-member-topics-list {
   gap: 8px;
 }
@@ -530,15 +534,18 @@
 .vx-tag-edit-value,
 .vx-tag-remove-value,
 .vx-tag-add,
-.vx-tag-filter {
+.vx-tag-chip {
   min-width: 0;
   border: 1px solid transparent;
-  border-radius: var(--vx-control-radius);
+  border-radius: var(--vx-control-radius, var(--box-border-radius, 3px));
   color: inherit;
   font: inherit;
   font-size: 12px;
   line-height: 20px;
   background: transparent;
+}
+
+:is(.vx-tag-edit-value, .vx-tag-remove-value, .vx-tag-add, button.vx-tag-chip) {
   cursor: pointer;
 }
 
@@ -562,47 +569,73 @@
 
 .vx-tag-list {
   display: grid;
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 195px), 1fr));
+  align-items: start;
+  gap: 10px;
   margin: 12px 0;
   padding: 0;
   list-style: none;
   overflow-wrap: anywhere;
 }
 
-.vx-tag-row,
+.vx-tag-card,
 .vx-tag-empty {
+  min-width: 0;
   padding: 10px;
   border: 1px solid var(--box-border-color);
   border-radius: var(--box-border-radius);
   background: var(--box-background-color);
 }
 
-.vx-tag-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
+.vx-tag-empty {
+  grid-column: 1 / -1;
 }
 
-.vx-tag-member {
-  flex: 1 1 14em;
-  min-width: 0;
+.vx-tag-card-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
 }
 
 .vx-tag-profile {
+  overflow: hidden;
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 0.16em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vx-tag-card-header .vx-tag-actions {
+  flex-wrap: nowrap;
+  gap: 3px;
+}
+
+#vx-settings-dialog .vx-tag-card-header button.normal.button {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  place-items: center;
+}
+
+.vx-tag-card-header button svg {
+  width: 15px;
+  height: 15px;
 }
 
 .vx-tag-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  margin: 6px 0 0;
+  margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.vx-tag-card > .vx-tag-chips {
+  margin-top: 7px;
 }
 
 .vx-tag-chips li {
@@ -610,21 +643,29 @@
   max-width: 100%;
 }
 
-.vx-tag-filter {
+.vx-tag-chip {
+  display: block;
+  box-sizing: border-box;
   max-width: 100%;
   padding: 0 7px;
   overflow-wrap: anywhere;
   background: var(--v2p-color-bg-input);
 }
 
-.vx-tag-filter:hover {
+button.vx-tag-chip:hover {
   border-color: var(--box-border-color);
 }
 
+.vx-tag-more,
 .vx-tag-filter[aria-pressed="true"] {
   border-color: var(--v2p-color-button-special-border);
   color: var(--v2p-color-button-special-foreground);
   background: var(--v2p-color-button-special-background);
+}
+
+.vx-member-tags button.vx-tag-chip:focus-visible {
+  outline: 2px solid var(--v2p-color-button-special-foreground);
+  outline-offset: 2px;
 }
 
 .vx-tag-actions .vx-tag-delete.normal.button {

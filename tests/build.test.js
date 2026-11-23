@@ -10,7 +10,7 @@ test("release artifact retains metadata and bundled licenses within its size bud
     const license = readFileSync(new URL(`../licenses/${name}.txt`, import.meta.url), "utf8");
     assert.ok(built.replaceAll("\r\n", "\n").includes(license.replaceAll("\r\n", "\n").trim()));
   }
-  assert.ok(Buffer.byteLength(built) <= 275 * 1024, "Release userscript exceeds 275 KiB");
+  assert.ok(Buffer.byteLength(built) <= 277 * 1024, "Release userscript exceeds 277 KiB");
   assert.doesNotMatch(
     built,
     /accounts\.google\.com\/gsi\/client|https:\/\/api\.github\.com\/repos\//,

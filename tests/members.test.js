@@ -289,8 +289,10 @@ test("Polish member card uses skeletons, complete content, cached requests and t
   globalThis.fetch = (path, options) =>
     new Promise((resolve) => requests.push({ path, options, resolve }));
   try {
+    const store = createStorage(memoryAPI());
+    store.setTags("Alice", ["Backend", "Database", "UI", "Long tag", "Other tag"]);
     createMembers(
-      createStorage(memoryAPI()),
+      store,
       { userCards: true, tags: true, preview: true, newTab: true },
       createTopics({ preview: true, newTab: true }),
       "reader",
@@ -301,6 +303,12 @@ test("Polish member card uses skeletons, complete content, cached requests and t
     await delay(530);
     assert.equal(requests.length, 2);
     assert.equal(document.querySelectorAll(".v2p-member-card .v2p-loading").length, 2);
+    const tags = document.querySelector(".vx-member-tags");
+    assert.equal(tags.querySelectorAll("span.vx-tag-chip").length, 3);
+    const toggle = tags.querySelector(".vx-tag-more");
+    assert.equal(toggle.textContent, "+2");
+    toggle.click();
+    assert.match(tags.textContent, /Other tag/);
     requests
       .find((x) => x.path.startsWith("/api/"))
       .resolve(
@@ -318,6 +326,8 @@ test("Polish member card uses skeletons, complete content, cached requests and t
     assert.equal(document.querySelector(".v2p-bio").textContent, "<safe bio>");
     assert.match(document.querySelector(".v2p-register-days").textContent, /15/);
     assert.equal(document.querySelectorAll(".v2p-loading").length, 0);
+    assert.equal(document.querySelector(".vx-member-tags"), tags);
+    assert.equal(toggle.getAttribute("aria-expanded"), "true");
     assert.equal(document.querySelectorAll(".v2p-member-card-actions button").length, 2);
     assert.ok(document.querySelector(".v2p-member-topic-item-row > .v2p-topic-preview-btn"));
     document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));

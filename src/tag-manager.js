@@ -1,6 +1,8 @@
 import { button, element } from "./dom.js";
 import { t } from "./i18n.js";
+import { icon } from "./icons.js";
 import { TAG_LIMITS } from "./storage.js";
+import { createTagChips } from "./tag-chips.js";
 
 const pageSize = 50;
 
@@ -77,27 +79,22 @@ export function createTagManager(store, { createTagEditor, updateTags }) {
     more.hidden = matching.length <= limit;
     if (!matching.length) list.append(element("li", t("noMatchingTags"), "vx-tag-empty"));
     for (const { name, tags } of matching.slice(0, limit)) {
-      const row = element("li", undefined, "vx-tag-row");
-      const text = element("div", undefined, "vx-tag-member");
+      const card = element("li", undefined, "vx-tag-card");
+      const header = element("div", undefined, "vx-tag-card-header");
       const profile = element("a", name, "vx-tag-profile");
       profile.href = `/member/${encodeURIComponent(name)}`;
       profile.target = "_blank";
       profile.rel = "noopener noreferrer";
-      const chips = element("ul", undefined, "vx-tag-chips");
-      for (const tag of tags) {
-        const filter = button(tag, () => {
+      profile.title = name;
+      const chips = createTagChips(tags, {
+        selected: group.value,
+        onSelect(tag) {
           group.value = group.value === tag ? "" : tag;
           filterList();
           group.focus();
-        });
-        filter.className = "vx-tag-filter";
-        filter.setAttribute("aria-pressed", String(group.value === tag));
-        const chip = element("li");
-        chip.append(filter);
-        chips.append(chip);
-      }
-      text.append(profile, chips);
-      const edit = button(t("edit"), () => {
+        },
+      });
+      const edit = button("", () => {
         if (editing === name) {
           editor.querySelector(".vx-tag-entry textarea").focus();
           return;
@@ -118,14 +115,21 @@ export function createTagManager(store, { createTagEditor, updateTags }) {
         editing = name;
         input.focus();
       });
-      edit.setAttribute("aria-label", t("editTags", name));
-      const remove = button(t("deleteTags"), () => deleteTags(name));
+      const remove = button("", () => deleteTags(name));
+      for (const [control, symbol, label] of [
+        [edit, "edit", t("editTags", name)],
+        [remove, "trash", t("deleteTagsFor", name)],
+      ]) {
+        control.append(icon(symbol));
+        control.title = label;
+        control.setAttribute("aria-label", label);
+      }
       remove.classList.add("vx-tag-delete");
-      remove.setAttribute("aria-label", t("deleteTagsFor", name));
       const actions = element("div", undefined, "vx-tag-actions");
       actions.append(edit, remove);
-      row.append(text, actions);
-      list.append(row);
+      header.append(profile, actions);
+      card.append(header, chips);
+      list.append(card);
     }
   }
   function refresh() {

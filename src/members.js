@@ -3,6 +3,7 @@ import { button, element, matching, memberName, modal, owned, safeURL } from "./
 import { computePosition, flip, offset, shift } from "@floating-ui/dom";
 import { blockMember, fetchMember, setMemberFollow } from "./member-data.js";
 import { normalizeTags, TAG_LIMITS } from "./storage.js";
+import { createTagChips } from "./tag-chips.js";
 
 export function createMembers(store, options, topics, currentAccount) {
   const registered = new WeakSet(),
@@ -233,7 +234,7 @@ export function createMembers(store, options, topics, currentAccount) {
       sequence++;
     }
 
-    function render(name, data = null, initialAvatar) {
+    function render(name, data, initialAvatar, tagSection) {
       const card = element("div", undefined, "v2p-member-card");
       const info = element("div", undefined, "v2p-info"),
         left = element("div", undefined, "v2p-info-left"),
@@ -288,6 +289,7 @@ export function createMembers(store, options, topics, currentAccount) {
       info.append(left, right);
       card.append(info);
       if (data?.bio?.trim()) card.append(element("div", data.bio, "v2p-bio"));
+      if (tagSection) card.append(tagSection);
       if (data?.topics?.length) {
         const section = element("div", undefined, "v2p-member-topics");
         const list = element("div", undefined, "v2p-member-topics-list");
@@ -459,7 +461,16 @@ export function createMembers(store, options, topics, currentAccount) {
           image?.src ??
           link?.querySelector("img")?.src ??
           anchor.closest(".cell,.header,.box")?.querySelector("img.avatar")?.src;
-        render(name, null, initialAvatar);
+        let tagSection;
+        const tags = options.tags ? store.getTags(name) : [];
+        if (tags.length) {
+          tagSection = element("div", undefined, "v2p-member-topics vx-member-tags");
+          tagSection.append(
+            element("div", t("tags"), "v2p-member-topics-header"),
+            createTagChips(tags, { onToggle: () => position(anchor) }),
+          );
+        }
+        render(name, null, initialAvatar, tagSection);
         popup.hidden = false;
         position(anchor);
         if (!options.userCards) return;
@@ -467,7 +478,7 @@ export function createMembers(store, options, topics, currentAccount) {
           cached = cache.get(key);
         if (cached?.expires > Date.now()) {
           if (cached.banned) content.replaceChildren(element("span", t("memberMissing")));
-          else render(name, cached.data, initialAvatar);
+          else render(name, cached.data, initialAvatar, tagSection);
           position(anchor);
           return;
         }
@@ -479,7 +490,7 @@ export function createMembers(store, options, topics, currentAccount) {
           if (request !== sequence || task.signal.aborted) return;
           if (cache.size >= 100) cache.delete(cache.keys().next().value);
           cache.set(key, { data, expires: Date.now() + 600_000 });
-          render(name, data, initialAvatar);
+          render(name, data, initialAvatar, tagSection);
           position(anchor);
         } catch (error) {
           task.abort();

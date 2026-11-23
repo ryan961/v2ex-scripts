@@ -203,7 +203,6 @@ const messages = {
     "\u30bf\u30b0\u4ed8\u304d\u30e6\u30fc\u30b6\u30fc {0} \u4eba",
     "\ud0dc\uadf8\uac00 \uc788\ub294 \uc0ac\uc6a9\uc790 {0}\uba85",
   ],
-  deleteTags: ["Delete", "\u5220\u9664", "\u524a\u9664", "\uc0ad\uc81c"],
   deleteTagsFor: [
     "Delete tags for {0}",
     "\u5220\u9664 {0} \u7684\u6807\u7b7e",
@@ -705,7 +704,18 @@ const messages = {
     "\u3055\u3089\u306b\u8868\u793a",
     "\ub354 \ubcf4\uae30",
   ],
-  edit: ["Edit", "\u7f16\u8f91", "\u7de8\u96c6", "\ud3b8\uc9d1"],
+  showExtraTags: [
+    "Show {0} more tags",
+    "\u5c55\u5f00\u5176\u4f59 {0} \u4e2a\u6807\u7b7e",
+    "\u6b8b\u308a\u306e\u30bf\u30b0 {0} \u4ef6\u3092\u8868\u793a",
+    "\ud0dc\uadf8 {0}\uac1c \ub354 \ubcf4\uae30",
+  ],
+  hideExtraTags: [
+    "Collapse tags",
+    "\u6536\u8d77\u6807\u7b7e",
+    "\u30bf\u30b0\u3092\u6298\u308a\u305f\u305f\u3080",
+    "\ud0dc\uadf8 \uc811\uae30",
+  ],
   cancel: ["Cancel", "\u53d6\u6d88", "\u30ad\u30e3\u30f3\u30bb\u30eb", "\ucde8\uc18c"],
   tagsSaved: [
     "Tags saved for {0}.",

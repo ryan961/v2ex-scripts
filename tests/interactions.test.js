@@ -401,11 +401,15 @@ test("settings edit and delete saved tags without submitting the settings form",
   const profile = list.querySelector(".vx-tag-profile");
   assert.equal(profile.href, "https://www.v2ex.com/member/alice");
   assert.equal(profile.target, "_blank");
+  assert.ok(profile.closest(".vx-tag-card"));
   assert.equal(
     search.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Enter", cancelable: true })),
     false,
   );
-  list.querySelector(".vx-tag-actions button").click();
+  const edit = list.querySelector(".vx-tag-actions button");
+  assert.ok(edit.querySelector('svg[aria-hidden="true"]'));
+  assert.equal(edit.getAttribute("aria-label"), "Edit tags for alice");
+  edit.click();
   const input = details.querySelector(".vx-tag-fields textarea");
   const entry = details.querySelector(".vx-tag-entry textarea");
   assert.equal(details.querySelector(".vx-tag-input .sl"), null);
@@ -466,7 +470,21 @@ test("settings edit and delete saved tags without submitting the settings form",
   assert.ok([...group.options].some((option) => option.value === "Backend"));
   query("ALICE");
   assert.match(list.textContent, /alice.*Backend/);
+  const toggle = list.querySelector(".vx-tag-more");
+  assert.equal(toggle.textContent, "+2");
+  assert.equal(toggle.getAttribute("aria-expanded"), "false");
+  assert.equal(list.querySelectorAll(".vx-tag-filter").length, 3);
+  toggle.click();
+  assert.equal(toggle.getAttribute("aria-expanded"), "true");
+  assert.equal(list.querySelectorAll(".vx-tag-filter").length, 5);
+  toggle.click();
+  assert.equal(list.querySelectorAll(".vx-tag-filter").length, 3);
+  group.value = "Pending";
+  group.dispatchEvent(new Event("change"));
+  assert.equal(list.querySelector('.vx-tag-filter[aria-pressed="true"]').textContent, "Pending");
   const remove = list.querySelector(".vx-tag-delete");
+  assert.ok(remove.querySelector('svg[aria-hidden="true"]'));
+  assert.equal(remove.title, "Delete tags for alice");
   window.confirm = () => false;
   remove.click();
   assert.match(list.textContent, /alice.*Backend/);
