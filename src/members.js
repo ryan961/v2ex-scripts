@@ -239,11 +239,9 @@ export function createMembers(store, options, topics, currentAccount) {
       const info = element("div", undefined, "v2p-info"),
         left = element("div", undefined, "v2p-info-left"),
         right = element("div", undefined, "v2p-info-right");
-      const avatar = safeURL(
-        data?.avatar_large ?? data?.avatar_normal ?? initialAvatar,
-        location.href,
-        true,
-      );
+      const avatar = [data?.profileAvatar, initialAvatar, data?.avatar_large, data?.avatar_normal]
+        .map((url) => safeURL(url, location.href, true))
+        .find(Boolean);
       const avatarLink = element("a", undefined, "v2p-avatar-box");
       avatarLink.href = `/member/${name}`;
       if (avatar) {
@@ -460,7 +458,7 @@ export function createMembers(store, options, topics, currentAccount) {
         const initialAvatar =
           image?.src ??
           link?.querySelector("img")?.src ??
-          anchor.closest(".cell,.header,.box")?.querySelector("img.avatar")?.src;
+          anchor.closest(".cell,.header,.box")?.querySelector(`img.avatar[alt="${name}" i]`)?.src;
         let tagSection;
         const tags = options.tags ? store.getTags(name) : [];
         if (tags.length) {

@@ -282,7 +282,7 @@ test("member cards cancel dismissal on reentry and close one second after leavin
 
 test("Polish member card uses skeletons, complete content, cached requests and topic previews", async () => {
   dom(
-    '<div id="Wrapper"><div id="Main"><strong><a href="/member/Alice">Alice</a></strong></div></div>',
+    '<div id="Wrapper"><div id="Main"><div class="cell"><img class="avatar" src="/list.png" alt="Alice"><strong><a href="/member/Alice">Alice</a></strong></div></div></div>',
   );
   const requests = [];
   const oldFetch = globalThis.fetch;
@@ -303,6 +303,7 @@ test("Polish member card uses skeletons, complete content, cached requests and t
     await delay(530);
     assert.equal(requests.length, 2);
     assert.equal(document.querySelectorAll(".v2p-member-card .v2p-loading").length, 2);
+    assert.equal(document.querySelector(".v2p-avatar").src, "https://www.v2ex.com/list.png");
     const tags = document.querySelector(".vx-member-tags");
     assert.equal(tags.querySelectorAll("span.vx-tag-chip").length, 3);
     const toggle = tags.querySelector(".vx-tag-more");
@@ -317,11 +318,21 @@ test("Polish member card uses skeletons, complete content, cached requests and t
           id: 123,
           created: Math.floor(Date.now() / 1000) - 86400,
           bio: "<safe bio>",
-          avatar_large: "https://cdn.v2ex.com/a.png",
+          avatar_large: "https://cdn.v2ex.com/old.png",
         }),
       );
-    requests.find((x) => x.path.startsWith("/member/")).resolve(response(profile("Alice")));
+    requests
+      .find((x) => x.path.startsWith("/member/"))
+      .resolve(
+        response(
+          profile("Alice").replace(
+            '<div id="Main">',
+            '<div id="Main"><div class="box"><img class="avatar" alt="Alice" src="//cdn.v2ex.com/new.png?m=2"><h1>Alice</h1></div>',
+          ),
+        ),
+      );
     await new Promise(setImmediate);
+    assert.equal(document.querySelector(".v2p-avatar").src, "https://cdn.v2ex.com/new.png?m=2");
     assert.match(document.querySelector(".v2p-no").textContent, /123/);
     assert.equal(document.querySelector(".v2p-bio").textContent, "<safe bio>");
     assert.match(document.querySelector(".v2p-register-days").textContent, /15/);
@@ -334,6 +345,7 @@ test("Polish member card uses skeletons, complete content, cached requests and t
     anchor.dispatchEvent(new window.MouseEvent("pointerover", { bubbles: true }));
     await delay(530);
     assert.equal(requests.length, 2);
+    assert.equal(document.querySelector(".v2p-avatar").src, "https://cdn.v2ex.com/new.png?m=2");
     document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
   } finally {
     globalThis.fetch = oldFetch;

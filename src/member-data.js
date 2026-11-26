@@ -102,6 +102,11 @@ export async function fetchMember(name, signal, fetcher = fetch) {
   const activityRank = Number(rank);
   return {
     ...data,
+    profileAvatar: page
+      ?.querySelector("#Main h1")
+      ?.closest(".box")
+      ?.querySelector("img.avatar")
+      ?.getAttribute("src"),
     topics: page ? parseMemberTopics(page) : [],
     replies: page ? parseMemberReplies(page) : [],
     activityRank:
