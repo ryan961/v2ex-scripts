@@ -1,6 +1,6 @@
 {
   "name": "v2ex-scripts",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "private": true,
   "type": "module",
   "description": "A focused V2EX userscript with incremental reply processing.",
